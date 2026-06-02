@@ -1,0 +1,54 @@
+.product-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 1.5rem;
+  color: white;
+}
+
+tbody {
+  text-align: center;
+}
+
+td {
+  padding: 10px;
+}
+
+.button-action {
+  background: transparent;
+  border: 0;
+}
+
+.icon-action {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &.edit {
+    stroke: #2563eb;
+
+    &:hover {
+      cursor: pointer;
+      stroke-width: 2.5;
+      transform: translateY(-2px);
+    }
+  }
+
+  &.trash {
+    stroke: #eb2525;
+
+    &:hover {
+      cursor: pointer;
+      stroke-width: 2.5;
+      transform: translateY(-2px);
+    }
+  }
+}
