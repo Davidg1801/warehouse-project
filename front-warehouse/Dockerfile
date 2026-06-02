@@ -1,8 +1,9 @@
-FROM node:24.16-alpine
+FROM node:24.16-slim
 WORKDIR /app
 
 COPY package*.json ./
-#RUN npm install -g @angular/cli@21.2.11
+
+RUN npm config set strict-ssl false
 
 RUN npm install
 
