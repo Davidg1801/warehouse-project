@@ -4,11 +4,16 @@ WORKDIR /app
 COPY ZscalerRootCA.cer /usr/local/share/ca-certificates/ZscalerRootCA.crt
 RUN update-ca-certificates
 
-COPY *.csproj ./
+COPY *.sln ./
+COPY Worker/*.csproj ./Worker/
+COPY Core/*.csproj ./Core/
+COPY Infrastructure/*.csproj ./Infrastructure/
 RUN dotnet restore
 
 COPY . .
 
-EXPOSE 8080
+WORKDIR /app/Worker
+
+#EXPOSE 8080
 
 CMD ["dotnet", "watch", "run", "--urls", "http://+:8080"]
