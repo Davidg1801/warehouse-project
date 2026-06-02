@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: warehouse-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  nats:
+    image: nats:alpine
+    container_name: shop-nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "-m 8222"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: shop-keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+    command: start-dev
+    ports:
+      - "8080:8080"
+
+  # --- Main services
+  bff:
+    build:
+      context: ./back-warehouse-bff
+      dockerfile: Dockerfile
+    container_name: warehouse-bff
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - ./back-warehouse-bff:/app
+    depends_on:
+      - keycloak
+
+  product-mgmt:
+    build:
+      context: ./back-product-mgmt
+      dockerfile: Dockerfile
+    container_name: warehouse-product-mgmt
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      - Nats__Url=nats://nats:4222
+    volumes:
+      - ./back-product-mgmt:/app
+    depends_on:
+      - postgres
+      - nats
+
+  frontend:
+    build:
+      context: ./front-warehouse
+      dockerfile: Dockerfile
+    container_name: warehouse-frontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./front-warehouse:/app
+      - /app/node_modules
+    depends_on:
+      - bff
+
+volumes:
+  postgres_data:
