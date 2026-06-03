@@ -12,10 +12,12 @@ public class ProductService
         _repository = repository;
     }
 
-    public async Task AddProductAsync(string name, ProductCategory categoryId, decimal price, int quantity)
+    public async Task<Product> AddProductAsync(string name, ProductCategory categoryId, decimal price, int quantity)
     {
         var newProduct = Product.CreateProduct(name, categoryId, price, quantity);
         await _repository.AddAsync(newProduct);
+
+        return newProduct;
     }
 
     public async Task<IEnumerable<Product>> GetAllProductsAsync()
@@ -23,15 +25,44 @@ public class ProductService
         return await _repository.GetAllAsync();
     }
 
-    public async Task DeleteProductAsync(Guid uuid)
+    public async Task<bool> DeleteProductAsync(Guid uuid)
     {
-        var product = await _repository.GetByIdAsync(uuid);
-        if (product != null)
+        try
         {
-            await _repository.DeleteAsync(uuid);
+            bool isDeleted = await _repository.DeleteAsync(uuid);
+            return isDeleted;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Critical error: {ex.Message}");
+            throw;
         }
     }
 
+    public async Task<Product?> UpdateProductAsync(Guid uuid, string name, ProductCategory categoryId, decimal price, int quantity)
+    {
+        try
+        {
+            var product = await _repository.GetByIdAsync(uuid);
+            if (product == null)
+            {
+                return null;
+            }
+            product.Name = name;
+            product.CategoryId = categoryId;
+            product.Price = price;
+            product.Quantity = quantity;
+
+            var updatedProduct = await _repository.UpdateAsync(uuid, product);
+
+            return updatedProduct;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Critical error: {ex.Message}");
+            throw;
+        }
+    }
     public async Task<Product?> GetProductAsync(Guid uuid)
     {
         return await _repository.GetByIdAsync(uuid);

@@ -33,7 +33,7 @@ public class PostgresRepository : IProductRepository
         await command.ExecuteNonQueryAsync();
     }
 
-    public async Task DeleteAsync(Guid uuid)
+    public async Task<bool> DeleteAsync(Guid uuid)
     {
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
@@ -42,7 +42,9 @@ public class PostgresRepository : IProductRepository
             "DELETE FROM Products WHERE Uuid = @uuid", connection
         );
         command.Parameters.AddWithValue("uuid", uuid);
-        await command.ExecuteNonQueryAsync();
+
+        int deletedRows = await command.ExecuteNonQueryAsync();
+        return deletedRows > 0;
     }
 
     public async Task<IEnumerable<Product>> GetAllAsync()
@@ -78,6 +80,26 @@ public class PostgresRepository : IProductRepository
         {
             var product = JsonSerializer.Deserialize<Product>(read.GetString(0), _jsonOptions);
             return product;
+        }
+        return null;
+    }
+
+    public async Task<Product?> UpdateAsync(Guid uuid, Product data)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        string productJson = JsonSerializer.Serialize(data, _jsonOptions);
+
+        await using var command = new NpgsqlCommand(
+            "UPDATE Products SET Data = @data::jsonb WHERE Uuid = @uuid", connection
+        );
+        command.Parameters.AddWithValue("uuid", uuid);
+        command.Parameters.AddWithValue("data", productJson);
+        int updatedRows = await command.ExecuteNonQueryAsync();
+        if (updatedRows > 0)
+        {
+            return data;
         }
         return null;
     }
