@@ -16,7 +16,7 @@ services:
 
   nats:
     image: nats:alpine
-    container_name: shop-nats
+    container_name: warehouse-nats
     ports:
       - "4222:4222"
       - "8222:8222"
@@ -24,7 +24,7 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    container_name: shop-keycloak
+    container_name: warehouse-keycloak
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
@@ -42,10 +42,12 @@ services:
       - "5000:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Nats__Url=nats://nats:4222
     volumes:
       - ./back-warehouse-bff:/app
     depends_on:
       - keycloak
+      - nats
 
   product-mgmt:
     build:
