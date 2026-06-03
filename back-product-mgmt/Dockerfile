@@ -4,11 +4,10 @@ WORKDIR /app
 COPY ZscalerRootCA.cer /usr/local/share/ca-certificates/ZscalerRootCA.crt
 RUN update-ca-certificates
 
-COPY *.sln ./
 COPY Worker/*.csproj ./Worker/
 COPY Core/*.csproj ./Core/
 COPY Infrastructure/*.csproj ./Infrastructure/
-RUN dotnet restore
+RUN dotnet restore "Worker/Worker.csproj"
 
 COPY . .
 
