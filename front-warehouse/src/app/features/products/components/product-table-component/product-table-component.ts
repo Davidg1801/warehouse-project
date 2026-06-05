@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { Component, input } from '@angular/core';
-import { Product } from '@features/products/models/product.model';
+import { ProductListItem } from '@features/products/view-models/product-list-item.vm';
 
 @Component({
   selector: 'app-product-table-component',
@@ -10,5 +10,5 @@ import { Product } from '@features/products/models/product.model';
   styleUrl: './product-table-component.scss',
 })
 export class ProductTableComponent {
-  products = input.required<Product[]>();
+  products = input.required<ProductListItem[]>();
 }

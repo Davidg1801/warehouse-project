@@ -1,4 +1,4 @@
-.products-page {
+.categories-page {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -79,7 +79,7 @@
   }
 }
 
-.btn-refresh {
+.btn-secondary {
   background-color: var(--button-s-bg);
   color: var(--button-s-text);
   border-color: var(--button-s-border);
@@ -90,11 +90,5 @@
 
   &:active {
     background-color: var(--button-s-bg-active);
-  }
-}
-
-@media (max-width: 768px) {
-  .page-header {
-    flex-direction: column;
   }
 }

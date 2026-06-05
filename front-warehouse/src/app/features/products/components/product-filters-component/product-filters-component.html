@@ -1,0 +1,37 @@
+<div class="filters">
+  <div class="search-field">
+    <input placeholder="Search product by name" />
+  </div>
+
+  <div class="category-dropdown">
+    <button type="button" class="dropdown-button" (click)="toggleDropdown()">Categories</button>
+    @if (isDropdownOpen()) {
+      <div class="dropdown-menu">
+        @for (category of categories(); track category.id) {
+          <label class="dropdown-option">
+            <input
+              type="checkbox"
+              [checked]="isSelected(category.id)"
+              (change)="toggleCategory(category.id)"
+            />
+
+            {{ category.name }}
+          </label>
+        }
+      </div>
+    }
+  </div>
+
+  <div class="selected-categories">
+    @for (category of selectedCategories(); track category.id) {
+      <div class="category-chip">
+        <span>
+          {{ category.name }}
+        </span>
+        <button type="button" class="remove-category-btn" (click)="removeCategory(category.id)">
+          ✕
+        </button>
+      </div>
+    }
+  </div>
+</div>
