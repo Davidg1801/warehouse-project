@@ -23,14 +23,21 @@ public class Program
 
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
-
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AngularApp", policy =>
+            {
+                policy.WithOrigins("http://frontend:4200").AllowAnyHeader().AllowAnyMethod();
+            });
+        });
         var app = builder.Build();
-        app.UseCors("CorsPolicy");
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseCors("AngularApp");
 
         app.MapProductEndpoints();
         app.Run();
