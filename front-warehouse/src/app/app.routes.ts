@@ -14,4 +14,28 @@ export const routes: Routes = [
       ),
     title: 'Products',
   },
+  {
+    path: 'products/create',
+    loadComponent: () =>
+      import('@features/products/pages/create-product-component/create-product-component').then(
+        (c) => c.CreateProductComponent,
+      ),
+    title: 'Create product',
+  },
+  {
+    path: 'products/123/edit',
+    loadComponent: () =>
+      import('@features/products/pages/edit-product-component/edit-product-component').then(
+        (c) => c.EditProductComponent,
+      ),
+    title: 'Edit product',
+  },
+  {
+    path: 'categories',
+    loadComponent: () =>
+      import('@features/categories/pages/categories-page-component/categories-page-component').then(
+        (c) => c.CategoriesPageComponent,
+      ),
+    title: 'Categories',
+  },
 ];

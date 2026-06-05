@@ -1,11 +1,14 @@
-<div>
-  <h1>Inventory</h1>
-  <div class="filters-container">
-    <div class="field">
-      <input class="search-input" type="text" />
+<div class="products-page">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Inventory Management</h1>
+      <p class="page-subtitle">Manage products, stock levels and categories</p>
     </div>
-    <button>☰ Filters</button>
+    <div class="header-actions">
+      <button class="btn btn-add" [routerLink]="['/products/create']">✚ Add new product</button>
+      <button class="btn btn-refresh">↻ Refresh</button>
+    </div>
   </div>
+  <app-product-filters-component [categories]="categories()" />
+  <app-product-table-component [products]="productsVm()" />
 </div>
-
-<app-product-table-component [products]="products()" />
