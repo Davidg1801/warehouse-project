@@ -4,6 +4,7 @@ using back_warehouse_bff.Contracts.Requests;
 using back_warehouse_bff.Contracts.Responses;
 using back_warehouse_bff.Services.Interfaces;
 using NATS.Client.Core;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 namespace back_warehouse_bff.Services;
 
@@ -111,31 +112,6 @@ public class ProductNatsService : IProductService
         }
     }
 
-    public async Task<ApiResponse<IEnumerable<ProductResponseDto>>> GetAllProductsAsync()
-    {
-        try
-        {
-            var reply = await _natsClient.RequestAsync<string, string>(
-                subject: "products.getall",
-                data: "",
-                cancellationToken: new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token
-            );
-
-            var responseText = reply.Data;
-            var products = JsonSerializer.Deserialize<IEnumerable<ProductResponseDto>>(responseText!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return ApiResponse<IEnumerable<ProductResponseDto>>.Ok(products ?? Enumerable.Empty<ProductResponseDto>());
-        }
-        catch (OperationCanceledException)
-        {
-            return ApiResponse<IEnumerable<ProductResponseDto>>.Fail("Error: Request to Worker timed out. Please try again later.");
-        }
-        catch (Exception ex)
-        {
-            return ApiResponse<IEnumerable<ProductResponseDto>>.Fail($"NATS communication error: {ex.Message}");
-        }
-    }
-
     public async Task<ApiResponse<ProductResponseDto>> GetProductByIdAsync(Guid uuid)
     {
         try
@@ -162,6 +138,49 @@ public class ProductNatsService : IProductService
         catch (Exception ex)
         {
             return ApiResponse<ProductResponseDto>.Fail($"NATS communication error: {ex.Message}");
+        }
+    }
+
+    public async Task<PagedResponse<IEnumerable<ProductResponseDto>>> GetAllProductsAsync(ProductQueryDto? query = null)
+    {
+        try
+        {
+            query ??= new ProductQueryDto();
+
+            query.PageNumber ??= 1;
+            query.PageSize ??= 10;
+            query.Descending ??= false;
+
+            var payload = JsonSerializer.Serialize(query);
+            var reply = await _natsClient.RequestAsync<string, string>(
+                subject: "products.getall",
+                data: payload,
+                cancellationToken: new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token
+            );
+
+            var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var workerResponse = JsonSerializer.Deserialize<WorkerPagedResponse<ProductResponseDto>>(reply.Data!, jsonOptions);
+
+            if (workerResponse == null)
+            {
+                return new PagedResponse<IEnumerable<ProductResponseDto>> { Success = false, Errors = new List<string> { "Failed to parse worker response." } };
+            }
+
+            return PagedResponse<IEnumerable<ProductResponseDto>>.OkPaged(
+                data: workerResponse.Data?.AsEnumerable() ?? Enumerable.Empty<ProductResponseDto>(),
+                totalCount: workerResponse.TotalCount,
+                pageNumber: query.PageNumber ?? 1,
+                pageSize: query.PageSize ?? 10
+            );
+
+        }
+        catch (OperationCanceledException)
+        {
+            return PagedResponse<IEnumerable<ProductResponseDto>>.FailPaged("Error: Request to Worker timed out. Please try again later.");
+        }
+        catch (Exception ex)
+        {
+            return PagedResponse<IEnumerable<ProductResponseDto>>.FailPaged($"NATS communication error: {ex.Message}");
         }
     }
 }
