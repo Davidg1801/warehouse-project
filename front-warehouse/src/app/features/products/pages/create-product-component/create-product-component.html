@@ -1,1 +1,48 @@
-<div class="page"></div>
+<div class="page">
+  <div class="form-card">
+    <div class="form-header">
+      <h1 class="form-title">Create Product</h1>
+      <p class="form-subtitle">Fill out the form and add the product to the inventory.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" placeholder="Product name" />
+        </div>
+
+        <div class="form-field">
+          <label for="categoryId">Category</label>
+          <input
+            id="categoryId"
+            type="number"
+            formControlName="categoryId"
+            placeholder="Category"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="quantity">Quantity</label>
+          <input
+            id="quantity"
+            type="number"
+            formControlName="quantity"
+            placeholder="Available quantity"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="price">Price</label>
+          <input id="price" type="number" formControlName="price" placeholder="0.00" />
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel">Cancel</button>
+
+        <button type="submit" class="btn btn-add">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>

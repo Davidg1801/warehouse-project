@@ -1,11 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Product } from '@features/products/models/product.model';
 import { ProductsService } from '@features/products/services/products-service';
 import { ProductTableComponent } from '@features/products/components/product-table-component/product-table-component';
 import { CategoriesService } from '@features/categories/services/categories-service';
 import { Category } from '@features/categories/models/product.model';
 import { ProductFiltersComponent } from '@features/products/components/product-filters-component/product-filters-component';
-import { ProductListItem } from '@features/products/view-models/product-list-item.vm';
+// import { ProductListItem } from '@features/products/view-models/product-list-item.vm';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -24,8 +24,22 @@ export class ProductsPageComponent implements OnInit {
   //categories = toSignal(this.categoriesService.getAllCategories(), { initialValue: [] });
 
   ngOnInit(): void {
-    this.productsService.getAllProducts().subscribe((products) => {
-      this.products.set(products);
+    // this.productsService.getAllProducts().subscribe((products) => {
+    //   this.products.set(products);
+    // });
+
+    this.productsService.getProducts().subscribe({
+      next: (products) => {
+        console.log('OK OK OK');
+        console.log(products);
+      },
+      error: (err) => {
+        console.log('ERROR: ');
+        console.log(err);
+        console.log('STATUS:', err.status);
+        console.log('MESSAGE: ', err.message);
+        console.log('ERROR: ', err.error);
+      },
     });
 
     this.categoriesService.getAllCategories().subscribe((categories) => {
@@ -33,12 +47,12 @@ export class ProductsPageComponent implements OnInit {
     });
   }
 
-  productsVm = computed<ProductListItem[]>(() => {
-    const categoriesMap = new Map(this.categories().map((c) => [c.id, c.name]));
+  // productsVm = computed<ProductListItem[]>(() => {
+  //   const categoriesMap = new Map(this.categories().map((c) => [c.id, c.name]));
 
-    return this.products().map((product) => ({
-      ...product,
-      categoryName: categoriesMap.get(product.categoryId) ?? 'Other',
-    }));
-  });
+  //   return this.products().map((product) => ({
+  //     ...product,
+  //     categoryName: categoriesMap.get(product.categoryId) ?? 'Other',
+  //   }));
+  // });
 }
