@@ -27,7 +27,7 @@ public class Program
         {
             options.AddPolicy("AngularApp", policy =>
             {
-                policy.WithOrigins("http://frontend:4200").AllowAnyHeader().AllowAnyMethod();
+                policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
             });
         });
         var app = builder.Build();
