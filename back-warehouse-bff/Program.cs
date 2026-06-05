@@ -25,7 +25,7 @@ public class Program
         builder.Services.AddSwaggerGen();
 
         var app = builder.Build();
-
+        app.UseCors("CorsPolicy");
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
