@@ -14,6 +14,5 @@ public interface IProductService
 
     Task<ApiResponse<ProductResponseDto>> GetProductByIdAsync(Guid uuid);
 
-    Task<ApiResponse<IEnumerable<ProductResponseDto>>> GetAllProductsAsync();
-
+    Task<PagedResponse<IEnumerable<ProductResponseDto>>> GetAllProductsAsync(ProductQueryDto? query = null);
 }

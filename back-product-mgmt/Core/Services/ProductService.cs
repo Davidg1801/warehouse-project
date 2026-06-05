@@ -1,5 +1,7 @@
 using Core.Entities;
 using Core.Interfaces;
+using Core.Queries;
+using Core.Results;
 
 namespace Core.Services;
 
@@ -20,9 +22,10 @@ public class ProductService
         return newProduct;
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductsAsync()
+    public async Task<PagedResult<Product>> GetAllProductsAsync(ProductQuery query)
     {
-        return await _repository.GetAllAsync();
+        //return await _repository.GetAllAsync();
+        return await _repository.GetPagedAsync(query);
     }
 
     public async Task<bool> DeleteProductAsync(Guid uuid)

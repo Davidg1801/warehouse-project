@@ -3,6 +3,8 @@ using Core.Services;
 using Worker.Contracts.Response;
 using NATS.Client.Core;
 using Worker.Contracts.Request;
+using Worker.Contracts;
+using Core.Queries;
 
 namespace Worker;
 
@@ -35,23 +37,49 @@ public class ProductNatsWorker : BackgroundService
 
     private async Task ListenForGetAllProducts(CancellationToken stoppingToken)
     {
+        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         await foreach (var msg in _natsClient.SubscribeAsync<string>("products.getall", cancellationToken: stoppingToken))
         {
-            _logger.LogInformation("Received request:: products.getall");
+            try
+            {
+                _logger.LogInformation("Received request:: products.getall");
+                var request = JsonSerializer.Deserialize<ProductQueryRequest>(msg.Data ?? "{}", jsonOptions) ?? new ProductQueryRequest();
+                var productQuery = new ProductQuery(
+                    request.PageNumber,
+                    request.PageSize,
+                    request.Name,
+                    request.CategoryId,
+                    request.Descending,
+                    request.OrderBy
+                );
+                var pagedProducts = await _productService.GetAllProductsAsync(productQuery);
 
-            var products = await _productService.GetAllProductsAsync();
+                var responseList = pagedProducts.Data.Select(p => new ProductResponse(
+                    p.Uuid,
+                    p.Name,
+                    p.CategoryId,
+                    p.Price,
+                    p.Quantity
+                )).ToList();
 
-            var responseList = products.Select(p => new ProductResponse(
-                p.Uuid,
-                p.Name,
-                p.CategoryId,
-                p.Price,
-                p.Quantity
-            )).ToList();
+                var responsePayload = new
+                {
+                    TotalCount = pagedProducts.TotalCount,
+                    Data = responseList
+                };
+                var responseJson = JsonSerializer.Serialize(responsePayload);
+                await msg.ReplyAsync(responseJson, cancellationToken: stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during fetching all products");
+                var errorPayload = new { Error = ex.Message };
+                var errorJson = JsonSerializer.Serialize(errorPayload);
+                await msg.ReplyAsync(errorJson, cancellationToken: stoppingToken);
+            }
 
-            var responseJson = JsonSerializer.Serialize(responseList);
-            await msg.ReplyAsync(responseJson, cancellationToken: stoppingToken);
         }
+
     }
 
     private async Task ListenForAddProducts(CancellationToken stoppingToken)

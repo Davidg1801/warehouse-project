@@ -81,9 +81,9 @@ public static class ProductEndpoints
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status404NotFound);
 
-        group.MapGet("/", async (IProductService productService) =>
+        group.MapGet("/", async ([AsParameters] ProductQueryDto query, IProductService productService) =>
         {
-            var response = await productService.GetAllProductsAsync();
+            var response = await productService.GetAllProductsAsync(query);
 
             if (response.Success)
             {
