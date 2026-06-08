@@ -1,7 +1,6 @@
-export interface createProductDto {
+export interface CreateProductDto {
   categoryId: number;
   name: string;
-  description: string;
   price: number;
   quantity: number;
 }

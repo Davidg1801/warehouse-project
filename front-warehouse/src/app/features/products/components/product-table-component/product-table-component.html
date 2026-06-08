@@ -14,7 +14,7 @@
         @for (product of products(); track product.id) {
           <tr>
             <td>{{ product.name }}</td>
-            <td>{{ product.name }}</td>
+            <td>{{ product.categoryName }}</td>
             <td>
               <span class="stock-badge">
                 {{ product.quantity }}
@@ -22,7 +22,7 @@
             </td>
             <td>{{ product.price | currency }}</td>
             <td>
-              <button class="button-action">
+              <button class="button-action" [routerLink]="['/products', product.id, 'edit']">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon-action edit">
                   <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                   <path
@@ -30,7 +30,7 @@
                   />
                 </svg>
               </button>
-              <button class="button-action">
+              <button class="button-action" (click)="delete.emit(product.id)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="icon-action trash"

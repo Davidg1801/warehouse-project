@@ -13,13 +13,17 @@
         </div>
 
         <div class="form-field">
-          <label for="categoryId">Category</label>
-          <input
-            id="categoryId"
-            type="number"
-            formControlName="categoryId"
-            placeholder="Category"
-          />
+          <label for="category">Category</label>
+
+          <select id="category" formControlName="categoryId">
+            <option value="" disabled>-- Select category --</option>
+
+            @for (category of categories; track category.id) {
+              <option [ngValue]="category.id">
+                {{ category.name }}
+              </option>
+            }
+          </select>
         </div>
 
         <div class="form-field">
@@ -39,7 +43,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="button" class="btn btn-cancel">Cancel</button>
+        <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
 
         <button type="submit" class="btn btn-add">Save Product</button>
       </div>
