@@ -142,24 +142,24 @@ public class PostgresRepository : IProductRepository
         }
 
         //Sort
-        var allowedSortColumns = new[] { "Name, Price, Quantity" };
+        var allowedSortColumns = new[] { "Name", "Price", "Quantity" };
         var sortColumn = allowedSortColumns.FirstOrDefault(c => c.Equals(query.OrderBy, StringComparison.OrdinalIgnoreCase)) ?? "Name";
         var direction = query.Descending ? "DESC" : "ASC";
 
         if (sortColumn.Equals("Price") || sortColumn.Equals("Quantity"))
         {
-            filters += $"ORDER BY Data->>'{sortColumn}::numeric {direction}'";
+            filters += $" ORDER BY (Data->>'{sortColumn}')::numeric {direction}";
         }
         else
         {
-            filters += $"ORDER BY Data->>'{sortColumn} {direction}'";
+            filters += $" ORDER BY Data->>'{sortColumn}' {direction}";
         }
 
         //Pagination
-        filters += $"LIMIT @PageSize OFFSET @offset";
+        filters += $" LIMIT @PageSize OFFSET @offset";
         command.Parameters.AddWithValue("PageSize", query.PageSize);
-        command.Parameters.AddWithValue("Offset", (query.PageNumber - 1) * query.PageSize);
-        command.CommandText = $"SELECT Data FROM Products {filters}";
+        command.Parameters.AddWithValue("offset", (query.PageNumber - 1) * query.PageSize);
+        command.CommandText = $"SELECT Data FROM Products WHERE 1=1 {filters}";
 
         await using var read = await command.ExecuteReaderAsync();
         while (await read.ReadAsync())

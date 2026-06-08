@@ -49,7 +49,8 @@ public static class ProductEndpoints
             return Results.NotFound(response);
         })
         .Produces<ApiResponse<bool>>(StatusCodes.Status200OK)
-        .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound);
+        .Produces<ApiResponse<bool>>(StatusCodes.Status404NotFound)
+        .RequireAuthorization();
 
         group.MapPut("/{uuid:guid}", async (Guid uuid, ProductRequestDto request, IProductService productService) =>
         {
@@ -77,6 +78,7 @@ public static class ProductEndpoints
 
             return Results.BadRequest(response);
         })
+        .RequireAuthorization()
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status400BadRequest)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status404NotFound);
