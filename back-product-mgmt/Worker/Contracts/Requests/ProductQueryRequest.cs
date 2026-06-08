@@ -7,5 +7,5 @@ public class ProductQueryRequest
     public bool Descending { get; set; } = false;
     public string? OrderBy { get; set; } = "Name";
     public string? Name { get; set; }
-    public int? CategoryId { get; set; }
+    public int[]? CategoryIds { get; set; }
 }

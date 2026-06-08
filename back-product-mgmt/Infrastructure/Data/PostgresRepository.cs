@@ -124,11 +124,11 @@ public class PostgresRepository : IProductRepository
             command.Parameters.AddWithValue("name", $"%{query.Name}%");
         }
 
-        //ContainerId
-        if (query.CategoryId.HasValue)
+        //ContainerIds
+        if (query.CategoryIds != null && query.CategoryIds.Length > 0)
         {
-            filters += " AND (Data->>'CategoryId')::int = @categoryId";
-            command.Parameters.AddWithValue("categoryId", query.CategoryId);
+            filters += " AND (Data->>'CategoryId')::int = ANY(@categoryIds::int[])";
+            command.Parameters.AddWithValue("categoryIds", query.CategoryIds);
         }
 
         //Get TotalCount
