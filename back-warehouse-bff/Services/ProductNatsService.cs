@@ -151,7 +151,16 @@ public class ProductNatsService : IProductService
             query.PageSize ??= 10;
             query.Descending ??= false;
 
-            var payload = JsonSerializer.Serialize(query);
+            var natsPayload = new
+            {
+                PageNumber = query.PageNumber,
+                PageSize = query.PageSize,
+                Descending = query.Descending,
+                OrderBy = query.OrderBy?.ToString(),
+                Name = query.Name,
+                CategoryIds = query.CategoryIds?.Cast<int>().ToArray()
+            };
+            var payload = JsonSerializer.Serialize(natsPayload);
             var reply = await _natsClient.RequestAsync<string, string>(
                 subject: "products.getall",
                 data: payload,

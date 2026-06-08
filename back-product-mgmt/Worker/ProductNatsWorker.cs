@@ -48,7 +48,7 @@ public class ProductNatsWorker : BackgroundService
                     request.PageNumber,
                     request.PageSize,
                     request.Name,
-                    request.CategoryId,
+                    request.CategoryIds,
                     request.Descending,
                     request.OrderBy
                 );

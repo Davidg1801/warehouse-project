@@ -25,6 +25,5 @@ public class ProductQueryDto
 
     [MaxLength(100, ErrorMessage = "Search term is too long.")]
     public string? Name { get; set; }
-    [EnumDataType(typeof(ProductCategory), ErrorMessage = "CategoryId with the ID does not exist in the system.")]
-    public ProductCategory? CategoryId { get; set; }
+    public ProductCategory[]? CategoryIds { get; set; }
 }

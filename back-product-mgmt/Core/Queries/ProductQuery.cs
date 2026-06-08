@@ -4,7 +4,7 @@ public record ProductQuery(
     int PageNumber,
     int PageSize,
     string? Name,
-    int? CategoryId,
+    int[]? CategoryIds,
     bool Descending,
     string? OrderBy
 );
