@@ -1,6 +1,6 @@
-import { Category } from '../models/product.model';
+import { Category } from '../models/category.model';
 
-export const CATEGORIES_MOCK: Category[] = [
+export const PRODUCT_CATEGORIES: Category[] = [
   {
     id: 1,
     name: 'Processors',

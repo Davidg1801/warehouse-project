@@ -1,5 +1,5 @@
-export interface ProductListItem {
-  id: number;
+export interface ProductVM {
+  id: string;
   name: string;
   categoryId: number;
   categoryName: string;

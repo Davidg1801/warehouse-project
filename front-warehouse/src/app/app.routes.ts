@@ -23,7 +23,7 @@ export const routes: Routes = [
     title: 'Create product',
   },
   {
-    path: 'products/123/edit',
+    path: 'products/:productId/edit',
     loadComponent: () =>
       import('@features/products/pages/edit-product-component/edit-product-component').then(
         (c) => c.EditProductComponent,

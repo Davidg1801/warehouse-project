@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Category } from '@features/categories/models/product.model';
+import { Category } from '@features/products/models/category.model';
 
 @Component({
   selector: 'app-category-table-component',
