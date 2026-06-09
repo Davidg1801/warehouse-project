@@ -1,77 +1,68 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Params, Router } from '@angular/router';
+import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Category } from '@features/products/models/category.model';
+import { ProductFilters } from '@features/products/models/product-filters.model';
 
 @Component({
   selector: 'app-product-filters-component',
-  imports: [],
+  imports: [ReactiveFormsModule],
   standalone: true,
   templateUrl: './product-filters-component.html',
   styleUrl: './product-filters-component.scss',
 })
-export class ProductFiltersComponent {
-  private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
+export class ProductFiltersComponent implements OnInit {
   categories = input.required<Category[]>();
+  private fb = inject(FormBuilder);
+  filtersChanged = output<ProductFilters>();
   isDropdownOpen = signal(false);
 
-  private readonly queryParamMap = toSignal(this.route.queryParamMap, {
-    initialValue: this.route.snapshot.queryParamMap,
+  filterForm = this.fb.group({
+    name: this.fb.control(''),
+    sort: this.fb.control<
+      'Name_ASC' | 'Name_DESC' | 'Price_ASC' | 'Price_DESC' | 'Quantity_ASC' | 'Quantity_DESC' | ''
+    >(''),
+    categoryIds: this.fb.control<number[]>([]),
   });
 
-  readonly search = computed(() => this.queryParamMap().get('search') ?? '');
+  ngOnInit(): void {
+    this.emit();
+  }
 
-  readonly selectedCategoryIds = computed<number[]>(() => {
-    return this.queryParamMap().getAll('categoryIds').map(Number).filter(Number.isFinite);
-  });
+  private emit() {
+    this.filterForm.valueChanges.subscribe((value) => {
+      this.filtersChanged.emit({
+        name: value.name ?? undefined,
+        sort: value.sort ?? undefined,
+        categoryIds: value.categoryIds ?? [],
+      });
+    });
+  }
 
-  readonly selectedCategories = computed(() =>
-    this.categories().filter((category) => this.selectedCategoryIds().includes(category.id)),
-  );
-
-  toggleDropdown(): void {
+  toggleDropdown() {
     this.isDropdownOpen.update((value) => !value);
   }
 
-  onSearch(value: string): void {
-    this.setQuery({
-      search: value.trim() || null,
+  isSelected(id: number): boolean {
+    return (this.filterForm.value.categoryIds ?? []).includes(id);
+  }
+
+  toggleCategory(id: number) {
+    const current = this.filterForm.value.categoryIds ?? [];
+    const updated = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
+    this.filterForm.patchValue({
+      categoryIds: updated,
     });
   }
 
-  toggleCategory(categoryId: number): void {
-    const current = this.selectedCategoryIds();
+  removeCategory(id: number) {
+    const current = this.filterForm.value.categoryIds ?? [];
 
-    const updated = current.includes(categoryId)
-      ? current.filter((id) => id !== categoryId)
-      : [...current, categoryId];
-
-    this.updateCategoriesQueryParams(updated);
-  }
-
-  removeCategory(categoryId: number): void {
-    const updated = this.selectedCategoryIds().filter((id) => id !== categoryId);
-
-    this.updateCategoriesQueryParams(updated);
-  }
-
-  isSelected(categoryId: number): boolean {
-    return this.selectedCategoryIds().includes(categoryId);
-  }
-
-  private updateCategoriesQueryParams(categoryIds: number[]): void {
-    this.setQuery({
-      categoryIds: categoryIds.length ? categoryIds : null,
+    this.filterForm.patchValue({
+      categoryIds: current.filter((x) => x !== id),
     });
   }
 
-  private setQuery(params: Params) {
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams: params,
-      queryParamsHandling: 'merge',
-    });
+  getCategoryName(id: number) {
+    return this.categories().find((c) => c.id === id)?.name;
   }
 }

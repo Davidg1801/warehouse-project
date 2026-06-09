@@ -1,40 +1,59 @@
 <div class="filters">
-  <div class="search-field">
-    <input
-      [value]="search()"
-      (input)="onSearch($any($event.target).value)"
-      placeholder="Search product by name"
-    />
-  </div>
+  <form [formGroup]="filterForm">
+    <!-- SEARCH -->
+    <div class="search-field">
+      <input type="text" formControlName="name" placeholder="Search product by name" />
+    </div>
 
-  <div class="category-dropdown">
-    <button type="button" class="dropdown-button" (click)="toggleDropdown()">Categories</button>
-    @if (isDropdownOpen()) {
-      <div class="dropdown-menu">
-        @for (category of categories(); track category.id) {
-          <label class="dropdown-option">
-            <input
-              type="checkbox"
-              [checked]="isSelected(category.id)"
-              (change)="toggleCategory(category.id)"
-            />
-            {{ category.name }}
-          </label>
+    <div class="filters-row">
+      <!-- CATEGORY DROPDOWN -->
+      <div class="category-dropdown">
+        <button type="button" class="dropdown-button" (click)="toggleDropdown()">Categories</button>
+
+        @if (isDropdownOpen()) {
+          <div class="dropdown-menu">
+            @for (category of categories(); track category.id) {
+              <label class="dropdown-option">
+                <input
+                  type="checkbox"
+                  [checked]="isSelected(category.id)"
+                  (change)="toggleCategory(category.id)"
+                />
+                {{ category.name }}
+              </label>
+            }
+          </div>
         }
       </div>
-    }
-  </div>
 
-  <div class="selected-categories">
-    @for (category of selectedCategories(); track category.id) {
-      <div class="category-chip">
-        <span>
-          {{ category.name }}
-        </span>
-        <button type="button" class="remove-category-btn" (click)="removeCategory(category.id)">
-          ✕
-        </button>
+      <!-- SELECTED CATEGORIES -->
+      <div class="selected-categories">
+        @for (id of filterForm.value.categoryIds ?? []; track id) {
+          <div class="category-chip">
+            <span>{{ getCategoryName(id) }}</span>
+
+            <button type="button" class="remove-category-btn" (click)="removeCategory(id)">
+              ✕
+            </button>
+          </div>
+        }
       </div>
-    }
-  </div>
+
+      <!-- SORT -->
+      <div class="sort-field">
+        <select formControlName="sort">
+          <option value="">Default</option>
+
+          <option value="Name_ASC">Name (A-Z)</option>
+          <option value="Name_DESC">Name (Z-A)</option>
+
+          <option value="Price_ASC">Price (Low → High)</option>
+          <option value="Price_DESC">Price (High → Low)</option>
+
+          <option value="Quantity_ASC">Quantity (Low → High)</option>
+          <option value="Quantity_DESC">Quantity (High → Low)</option>
+        </select>
+      </div>
+    </div>
+  </form>
 </div>

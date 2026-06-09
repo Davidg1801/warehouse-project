@@ -1,0 +1,30 @@
+<div class="pagination">
+  <div class="pagination-left">
+    <span class="pagination-info">
+      Page <strong>{{ currentPage() }}</strong> of <strong>{{ totalPages() }}</strong>
+    </span>
+  </div>
+
+  <div class="pagination-center">
+    <button class="btn btn-page" [disabled]="currentPage() === 1" (click)="onPrevPage()"><</button>
+
+    <div class="pagination-current">
+      {{ currentPage() }}
+    </div>
+
+    <button class="btn btn-page" [disabled]="currentPage() === totalPages()" (click)="onNextPage()">
+      >
+    </button>
+  </div>
+
+  <div class="pagination-right">
+    <span class="per-page-label">Results per page:</span>
+
+    <!-- <select class="per-page-select" [ngModel]="pageSize()"  (change)="onPageSizeChange($event)"> -->
+    <select class="per-page-select" (change)="onPageSizeChange($event)">
+      <option [value]="10">10</option>
+      <option [value]="20">20</option>
+      <option [value]="30">30</option>
+    </select>
+  </div>
+</div>

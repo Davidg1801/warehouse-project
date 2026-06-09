@@ -9,6 +9,17 @@
       <button class="btn btn-refresh">↻ Refresh</button>
     </div>
   </div>
-  <app-product-filters-component [categories]="categories()" />
+  <app-product-filters-component
+    [categories]="categories()"
+    (filtersChanged)="onFiltersChanged($event)"
+  />
   <app-product-table-component [products]="productsVm()" (delete)="onDeleteProduct($event)" />
+  <div class="table-meta">Showing {{ productsVm().length }} of {{ totalCount() }} results</div>
+  <app-product-pagination-component
+    [currentPage]="pageNumber()"
+    [totalPages]="totalPages()"
+    [pageSize]="pageSize()"
+    (pageChanged)="onPageChanged($event)"
+    (pageSizeChanged)="onPageSizeChanged($event)"
+  />
 </div>
