@@ -1,5 +1,5 @@
 export interface ProductVM {
-  id: string;
+  uuid: string;
   name: string;
   categoryId: number;
   categoryName: string;

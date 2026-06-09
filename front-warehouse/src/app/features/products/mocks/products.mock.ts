@@ -2,7 +2,7 @@ import { Product } from '../models/product.model';
 
 export const PRODUCTS_MOCK: Product[] = [
   {
-    id: '1',
+    uuid: '1',
     categoryId: 2,
     name: 'RTX 4070',
     // description: 'NVIDIA graphics card',
@@ -10,7 +10,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 5,
   },
   {
-    id: '2',
+    uuid: '2',
     categoryId: 2,
     name: 'RX 7800 XT',
     // description: 'AMD graphics card',
@@ -18,7 +18,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 7,
   },
   {
-    id: '3',
+    uuid: '3',
     categoryId: 1,
     name: 'Intel i7-14700K',
     // description: 'Intel processor',
@@ -26,7 +26,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 10,
   },
   {
-    id: '4',
+    uuid: '4',
     categoryId: 1,
     name: 'Ryzen 7 7800X3D',
     // description: 'AMD processor',
@@ -34,7 +34,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 6,
   },
   {
-    id: '5',
+    uuid: '5',
     categoryId: 4,
     name: 'Corsair Vengeance 32GB DDR5',
     // description: 'DDR5 RAM kit',
@@ -42,7 +42,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 15,
   },
   {
-    id: '6',
+    uuid: '6',
     categoryId: 4,
     name: 'Samsung 990 PRO 2TB',
     // description: 'NVMe SSD drive',
@@ -50,7 +50,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 12,
   },
   {
-    id: '7',
+    uuid: '7',
     categoryId: 3,
     name: 'ASUS ROG STRIX B650-E',
     // description: 'AM5 motherboard',
@@ -58,7 +58,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 4,
   },
   {
-    id: '8',
+    uuid: '8',
     categoryId: 7,
     name: 'Corsair RM850x',
     // description: '850W power supply',
@@ -66,7 +66,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 8,
   },
   {
-    id: '9',
+    uuid: '9',
     categoryId: 8,
     name: 'NZXT H7 Flow',
     // description: 'PC case',
@@ -74,7 +74,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 9,
   },
   {
-    id: '10',
+    uuid: '10',
     categoryId: 9,
     name: 'Noctua NH-D15',
     // description: 'CPU air cooler',
@@ -82,7 +82,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 11,
   },
   {
-    id: '11',
+    uuid: '11',
     categoryId: 2,
     name: 'RTX 5070',
     // description: 'NVIDIA graphics card',
@@ -90,7 +90,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 4,
   },
   {
-    id: '12',
+    uuid: '12',
     categoryId: 2,
     name: 'RTX 5080',
     // description: 'NVIDIA graphics card',
@@ -98,7 +98,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 2,
   },
   {
-    id: '13',
+    uuid: '13',
     categoryId: 1,
     name: 'Intel Core i5-14600K',
     // description: 'Intel processor',
@@ -106,7 +106,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 8,
   },
   {
-    id: '14',
+    uuid: '14',
     categoryId: 1,
     name: 'AMD Ryzen 9 9950X',
     // description: 'AMD processor',
@@ -114,7 +114,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 3,
   },
   {
-    id: '15',
+    uuid: '15',
     categoryId: 3,
     name: 'MSI MAG B650 Tomahawk',
     // description: 'AM5 motherboard',
@@ -122,7 +122,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 7,
   },
   {
-    id: '16',
+    uuid: '16',
     categoryId: 3,
     name: 'ASUS TUF Z790 Plus',
     // description: 'Intel motherboard',
@@ -130,7 +130,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 5,
   },
   {
-    id: '17',
+    uuid: '17',
     categoryId: 4,
     name: 'Kingston Fury Beast 32GB DDR5',
     // description: 'DDR5 RAM kit',
@@ -138,7 +138,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 14,
   },
   {
-    id: '18',
+    uuid: '18',
     categoryId: 4,
     name: 'G.Skill Trident Z5 64GB DDR5',
     // description: 'DDR5 RAM kit',
@@ -146,7 +146,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 6,
   },
   {
-    id: '19',
+    uuid: '19',
     categoryId: 5,
     name: 'WD Black SN850X 2TB',
     // description: 'NVMe SSD drive',
@@ -154,7 +154,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 10,
   },
   {
-    id: '20',
+    uuid: '20',
     categoryId: 5,
     name: 'Kingston KC3000 1TB',
     // description: 'NVMe SSD drive',
@@ -162,7 +162,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 18,
   },
   {
-    id: '21',
+    uuid: '21',
     categoryId: 6,
     name: 'Seagate Barracuda 4TB',
     // description: 'HDD drive',
@@ -170,7 +170,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 9,
   },
   {
-    id: '22',
+    uuid: '22',
     categoryId: 6,
     name: 'WD Blue 2TB',
     // description: 'HDD drive',
@@ -178,7 +178,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 12,
   },
   {
-    id: '23',
+    uuid: '23',
     categoryId: 7,
     name: 'be quiet! Straight Power 12 850W',
     // description: 'Power supply',
@@ -186,7 +186,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 6,
   },
   {
-    id: '24',
+    uuid: '24',
     categoryId: 7,
     name: 'Seasonic Focus GX-750',
     // description: 'Power supply',
@@ -194,7 +194,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 7,
   },
   {
-    id: '25',
+    uuid: '25',
     categoryId: 8,
     name: 'Lian Li O11 Dynamic EVO',
     // description: 'Computer case',
@@ -202,7 +202,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 4,
   },
   {
-    id: '26',
+    uuid: '26',
     categoryId: 9,
     name: 'DeepCool AK620',
     // description: 'CPU air cooler',
@@ -210,7 +210,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 15,
   },
   {
-    id: '27',
+    uuid: '27',
     categoryId: 10,
     name: 'LG UltraGear 27GP850',
     // description: '27-inch gaming monitor',
@@ -218,7 +218,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 8,
   },
   {
-    id: '28',
+    uuid: '28',
     categoryId: 11,
     name: 'Keychron K8 Pro',
     // description: 'Mechanical keyboard',
@@ -226,7 +226,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 11,
   },
   {
-    id: '29',
+    uuid: '29',
     categoryId: 12,
     name: 'Logitech G Pro X Superlight 2',
     // description: 'Wireless gaming mouse',
@@ -234,7 +234,7 @@ export const PRODUCTS_MOCK: Product[] = [
     quantity: 13,
   },
   {
-    id: '30',
+    uuid: '30',
     categoryId: 13,
     name: 'HyperX Cloud III',
     // description: 'Gaming headset',

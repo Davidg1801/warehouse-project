@@ -3,7 +3,7 @@ import { Product } from '../models/product.model';
 
 export function mapProduct(dto: ProductDto): Product {
   return {
-    id: dto.uuid,
+    uuid: dto.uuid,
     categoryId: dto.categoryId,
     name: dto.name,
     price: dto.price,
