@@ -152,7 +152,7 @@ public class PostgresRepository : IProductRepository
         }
         else
         {
-            filters += $" ORDER BY Data->>'{sortColumn}' {direction}";
+            filters += $" ORDER BY LOWER(Data->>'{sortColumn}') {direction}";
         }
 
         //Pagination
