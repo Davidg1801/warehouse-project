@@ -1,0 +1,61 @@
+@import url("colors.css");
+
+:root {
+  /* BACKGROUND */
+  --background-p-color: var(--color-gray-120);
+  --background-s-color: var(--color-gray-110);
+
+  /* TEXT */
+  --text-p-color: var(--color-white);
+  --text-s-color: var(--color-gray-20);
+
+  /* ACCENT */
+  --accent-color: var(--color-teal-60);
+  --accent-hover-color: var(--color-teal-50);
+  --accent-active-color: var(--color-teal-70);
+
+  /* BORDER */
+  --border-color: var(--color-gray-80);
+  --border-light-color: var(--color-gray-70);
+
+  /* BUTTON PRIMARY */
+  --button-p-bg: var(--color-teal-60);
+  --button-p-bg-hover: var(--color-teal-50);
+  --button-p-bg-active: var(--color-teal-70);
+  --button-p-text: var(--color-white);
+  --button-p-border: var(--color-teal-60);
+
+  /* BUTTON SECONDARY */
+  --button-s-bg: var(--color-gray-90);
+  --button-s-bg-hover: var(--color-gray-80);
+  --button-s-bg-active: var(--color-gray-70);
+  --button-s-text: var(--color-gray-10);
+  --button-s-text-hover: var(--color-tale-30);
+  --button-s-border: var(--color-gray-80);
+
+  /* INPUT */
+  --input-bg: var(--color-gray-100);
+  --input-bg-focus: var(--color-gray-90);
+  --input-text: var(--color-white);
+  --input-placeholder: var(--color-gray-50);
+  --input-border: var(--color-gray-80);
+  --input-border-hover: var(--color-gray-60);
+  --input-border-focus: var(--color-teal-60);
+
+  /* STATUS */
+  --success-color: var(--color-green-60);
+  --success-color-hover: var(--color-green-50);
+  --success-color-active: var(--color-green-70);
+
+  --warning-color: var(--color-orange-50);
+  --warning-color-hover: var(--color-orange-40);
+  --warning-color-active: var(--color-orange-60);
+
+  --danger-color: var(--color-red-60);
+  --danger-color-hover: var(--color-red-50);
+  --danger-color-active: var(--color-red-70);
+
+  --info-color: var(--color-teal-60);
+  --info-color-hover: var(--color-teal-50);
+  --info-color-active: var(--color-teal-70);
+}

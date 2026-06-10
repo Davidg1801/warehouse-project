@@ -1,8 +1,8 @@
 export interface ProductQueryParams {
-  pageNumber: number;
-  pageSize: number;
-  orderBy?: 'Name' | 'Price' | 'Quantity';
+  pageNumber?: number;
+  pageSize?: number;
   descending?: boolean;
+  orderBy?: 'Name' | 'Price' | 'Quantity';
   name?: string;
   categoryIds?: number[];
 }

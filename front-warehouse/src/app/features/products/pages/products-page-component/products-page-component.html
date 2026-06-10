@@ -7,6 +7,7 @@
     <div class="header-actions">
       <button class="btn btn-add" [routerLink]="['/products/create']">✚ Add new product</button>
       <button class="btn btn-refresh">↻ Refresh</button>
+      <button class="btn btn-refresh" (click)="logout()">Logout</button>
     </div>
   </div>
   <app-product-filters-component
