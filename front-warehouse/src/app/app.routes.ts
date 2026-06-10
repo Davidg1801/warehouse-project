@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { canActivateAuthRole } from '@core/auth/auth.guard';
 
 export const routes: Routes = [
   {
@@ -13,6 +14,7 @@ export const routes: Routes = [
         (c) => c.ProductsPageComponent,
       ),
     title: 'Products',
+    canActivate: [canActivateAuthRole],
   },
   {
     path: 'products/create',
@@ -21,6 +23,7 @@ export const routes: Routes = [
         (c) => c.CreateProductComponent,
       ),
     title: 'Create product',
+    canActivate: [canActivateAuthRole],
   },
   {
     path: 'products/:uuid/edit',
@@ -29,5 +32,6 @@ export const routes: Routes = [
         (c) => c.EditProductComponent,
       ),
     title: 'Edit product',
+    // canActivate: [canActivateAuthRole],
   },
 ];

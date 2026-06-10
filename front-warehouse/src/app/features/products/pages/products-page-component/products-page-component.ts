@@ -13,6 +13,7 @@ import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ProductFilters } from '@features/products/models/product-filters.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductVM } from '@features/products/view-models/product-list-item.vm';
+import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-products-page-component',
@@ -27,6 +28,7 @@ export class ProductsPageComponent implements OnInit {
   private productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
   private destroyRef = inject(DestroyRef);
+  private keycloak = inject(Keycloak);
 
   products = signal<Product[]>([]);
   categories = signal<Category[]>([]);
@@ -185,5 +187,10 @@ export class ProductsPageComponent implements OnInit {
       },
       queryParamsHandling: 'merge',
     });
+  }
+
+  logout(): void {
+    this.keycloak.clearToken();
+    this.keycloak.logout();
   }
 }

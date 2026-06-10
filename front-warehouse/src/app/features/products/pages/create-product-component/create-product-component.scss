@@ -1,34 +1,26 @@
 .page {
   display: flex;
-  width: 100%;
   justify-content: center;
+  width: 100%;
   background-color: var(--background-p-color);
+  padding: 2rem;
+  box-sizing: border-box;
+}
+
+.form-title,
+.form-subtitle {
+  color: var(--text-p-color);
 }
 
 .form-card {
+  width: 100%;
   max-width: 56rem;
   padding: 2rem;
   background-color: var(--background-s-color);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 0.15);
-}
-
-.form-header {
-  margin-bottom: 2rem;
-}
-
-.form-title {
-  margin: 0;
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: var(--text-p-color);
-}
-
-.form-subtitle {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-s-color);
+  box-sizing: border-box;
 }
 
 form {
@@ -37,40 +29,46 @@ form {
 }
 
 .form-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 1.5rem;
 }
 
+/* 🔥 KLUCZOWE: wyrównanie wszystkich pól */
 .form-field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 
   label {
-    color: var(--text-p-color);
-
     font-size: 0.875rem;
     font-weight: 500;
+    color: var(--text-p-color);
   }
 
   input,
   select,
   textarea {
     width: 100%;
-    height: 2.8125rem;
+    box-sizing: border-box;
 
+    height: 2.5rem;
     padding: 0 1rem;
+
+    border-radius: 0.6875rem;
+    border: 1px solid var(--input-border);
 
     background-color: var(--input-bg);
     color: var(--input-text);
 
-    border: 1px solid var(--input-border);
-    border-radius: 0.6875rem;
+    font-size: 0.95rem;
+    line-height: 1;
 
     transition:
       border-color 0.2s ease,
-      background-color 0.2s ease;
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &::placeholder {
       color: var(--input-placeholder);
@@ -82,20 +80,28 @@ form {
 
     &:focus {
       outline: none;
-      background-color: var(--input-bg-focus);
       border-color: var(--input-border-focus);
+      background-color: var(--input-bg-focus);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
+  }
+  textarea {
+    height: auto;
+    min-height: 6rem;
+    padding: 0.75rem 1rem;
+    resize: vertical;
   }
 }
 
+/* ACTIONS */
 .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-
   margin-top: 2rem;
 }
 
+/* BUTTONS */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -106,13 +112,13 @@ form {
 
   padding: 0 1rem;
 
-  border: 1px solid transparent;
   border-radius: 0.75rem;
-
-  cursor: pointer;
+  border: 1px solid transparent;
 
   font-size: 0.95rem;
   font-weight: 500;
+
+  cursor: pointer;
 
   transition:
     background-color 0.2s ease,
@@ -125,38 +131,28 @@ form {
   }
 }
 
+/* PRIMARY */
 .btn-add {
   background-color: var(--button-p-bg);
   color: var(--button-p-text);
-
   border-color: var(--button-p-border);
 
   &:hover {
     background-color: var(--button-p-bg-hover);
-    border-color: var(--button-p-bg-hover);
-  }
-
-  &:active {
-    background-color: var(--button-p-bg-active);
-    border-color: var(--button-p-bg-active);
   }
 }
 
+/* SECONDARY */
 .btn-cancel {
   background-color: var(--button-s-bg);
   color: var(--button-s-text);
 
-  border-color: var(--button-s-border);
-
   &:hover {
     background-color: var(--button-s-bg-hover);
   }
-
-  &:active {
-    background-color: var(--button-s-bg-active);
-  }
 }
 
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .page {
     padding: 1rem;
@@ -164,10 +160,6 @@ form {
 
   .form-card {
     padding: 1.5rem;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
   }
 
   .form-actions {

@@ -33,6 +33,7 @@ services:
       - "8080:8080"
     volumes:
       - keycloak_data:/opt/keycloak/data
+      - ./warehouse-theme:/opt/keycloak/themes/warehouse-theme
 
   # --- Main services
   bff:
