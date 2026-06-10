@@ -36,6 +36,8 @@ export class ProductsPageComponent implements OnInit {
   totalCount = signal<number>(0);
   totalPages = signal<number>(1);
 
+  activeFilters = signal<ProductFilters>({ name: '', sort: '', categoryIds: [] });
+
   productsVm = computed<ProductVM[]>(() => {
     const currentProducts = this.products();
     const currentCategories = this.categories();
@@ -84,6 +86,24 @@ export class ProductsPageComponent implements OnInit {
               : [params['categoryIds']];
             queryParams.categoryIds = ids.map((id) => Number(id));
           }
+
+          let sortString:
+            | 'Name_ASC'
+            | 'Name_DESC'
+            | 'Price_ASC'
+            | 'Price_DESC'
+            | 'Quantity_ASC'
+            | 'Quantity_DESC'
+            | '' = '';
+          if (queryParams.orderBy) {
+            sortString = `${queryParams.orderBy}_${queryParams.descending ? 'DESC' : 'ASC'}`;
+          }
+
+          this.activeFilters.set({
+            name: queryParams.name ?? '',
+            sort: sortString,
+            categoryIds: queryParams.categoryIds ?? [],
+          });
 
           this.pageNumber.set(queryParams.pageNumber!);
           this.pageSize.set(queryParams.pageSize!);

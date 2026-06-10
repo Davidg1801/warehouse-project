@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, effect, inject, input, OnInit, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Category } from '@features/products/models/category.model';
 import { ProductFilters } from '@features/products/models/product-filters.model';
@@ -11,6 +11,7 @@ import { ProductFilters } from '@features/products/models/product-filters.model'
   styleUrl: './product-filters-component.scss',
 })
 export class ProductFiltersComponent implements OnInit {
+  currentFilters = input<ProductFilters>();
   categories = input.required<Category[]>();
   private fb = inject(FormBuilder);
   filtersChanged = output<ProductFilters>();
@@ -23,6 +24,22 @@ export class ProductFiltersComponent implements OnInit {
     >(''),
     categoryIds: this.fb.control<number[]>([]),
   });
+
+  constructor() {
+    effect(() => {
+      const filters = this.currentFilters();
+      if (filters) {
+        this.filterForm.patchValue(
+          {
+            name: filters.name ?? '',
+            sort: filters.sort ?? '',
+            categoryIds: filters.categoryIds ?? [],
+          },
+          { emitEvent: false },
+        ); // emitEvent: false zapobiega pętli!
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.emit();
