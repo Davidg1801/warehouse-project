@@ -20,11 +20,10 @@
   <div class="pagination-right">
     <span class="per-page-label">Results per page:</span>
 
-    <!-- <select class="per-page-select" [ngModel]="pageSize()"  (change)="onPageSizeChange($event)"> -->
-    <select class="per-page-select" (change)="onPageSizeChange($event)">
+    <select class="per-page-select" [value]="pageSize()" (change)="onPageSizeChange($event)">
       <option [value]="10">10</option>
-      <option [value]="20">20</option>
       <option [value]="30">30</option>
+      <option [value]="50">50</option>
     </select>
   </div>
 </div>

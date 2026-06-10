@@ -11,6 +11,7 @@
   </div>
   <app-product-filters-component
     [categories]="categories()"
+    [currentFilters]="activeFilters()"
     (filtersChanged)="onFiltersChanged($event)"
   />
   <app-product-table-component [products]="productsVm()" (delete)="onDeleteProduct($event)" />
