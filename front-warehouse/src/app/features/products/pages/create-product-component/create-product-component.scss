@@ -34,7 +34,6 @@ form {
   gap: 1.5rem;
 }
 
-/* 🔥 KLUCZOWE: wyrównanie wszystkich pól */
 .form-field {
   display: flex;
   flex-direction: column;
@@ -47,24 +46,24 @@ form {
     color: var(--text-p-color);
   }
 
+  .error-message {
+    color: var(--danger-color);
+    font-size: 0.7rem;
+  }
+
   input,
   select,
   textarea {
     width: 100%;
     box-sizing: border-box;
-
     height: 2.5rem;
     padding: 0 1rem;
-
     border-radius: 0.6875rem;
     border: 1px solid var(--input-border);
-
     background-color: var(--input-bg);
     color: var(--input-text);
-
     font-size: 0.95rem;
     line-height: 1;
-
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease,
@@ -85,6 +84,7 @@ form {
       box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
     }
   }
+
   textarea {
     height: auto;
     min-height: 6rem;
@@ -93,7 +93,6 @@ form {
   }
 }
 
-/* ACTIONS */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -106,20 +105,14 @@ form {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   min-width: 7.5rem;
   height: 2.8125rem;
-
   padding: 0 1rem;
-
   border-radius: 0.75rem;
   border: 1px solid transparent;
-
   font-size: 0.95rem;
   font-weight: 500;
-
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     border-color 0.2s ease,
@@ -131,7 +124,6 @@ form {
   }
 }
 
-/* PRIMARY */
 .btn-add {
   background-color: var(--button-p-bg);
   color: var(--button-p-text);
@@ -142,7 +134,6 @@ form {
   }
 }
 
-/* SECONDARY */
 .btn-cancel {
   background-color: var(--button-s-bg);
   color: var(--button-s-text);
@@ -152,7 +143,6 @@ form {
   }
 }
 
-/* RESPONSIVE */
 @media (max-width: 768px) {
   .page {
     padding: 1rem;

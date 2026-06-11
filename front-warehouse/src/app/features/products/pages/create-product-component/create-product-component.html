@@ -10,6 +10,16 @@
         <div class="form-field">
           <label for="name">Name</label>
           <input id="name" type="text" formControlName="name" placeholder="Product name" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <div class="error-message">
+              @if (form.get('name')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+              @if (form.get('name')?.hasError('maxlength')) {
+                <span>Maximum length is 50 characters</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-field">
@@ -24,6 +34,13 @@
               </option>
             }
           </select>
+          @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+            <div class="error-message">
+              @if (form.get('categoryId')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-field">
@@ -34,11 +51,28 @@
             formControlName="quantity"
             placeholder="Available quantity"
           />
+          @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+            <div class="error-message">
+              @if (form.get('quantity')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-field">
           <label for="price">Price</label>
           <input id="price" type="number" formControlName="price" placeholder="0.00" />
+          @if (form.get('price')?.invalid && form.get('price')?.touched) {
+            <div class="error-message">
+              @if (form.get('price')?.hasError('required')) {
+                <span>Price is required</span>
+              }
+              @if (form.get('price')?.hasError('min')) {
+                <span>Price must be at least 0.01</span>
+              }
+            </div>
+          }
         </div>
       </div>
 
