@@ -86,13 +86,10 @@ input.pf-c-form-control::placeholder {
 .pf-c-input-group {
   display: flex;
   align-items: stretch;
-
   border-radius: 0.7rem;
   border: 1px solid var(--input-border) !important;
-
   background-color: var(--input-bg) !important;
   overflow: hidden;
-
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -105,16 +102,11 @@ input.pf-c-form-control::placeholder {
 .pf-c-input-group .pf-c-form-control {
   width: 100%;
   height: 2.9rem;
-
   padding: 0 1rem;
-
   border: none !important;
   border-radius: 0 !important;
-
   background: transparent !important;
-
   color: var(--input-text) !important;
-
   box-shadow: none !important;
   outline: none !important;
 }
@@ -122,20 +114,14 @@ input.pf-c-form-control::placeholder {
 /* === SHOW PASSWORD BUTTON === */
 .pf-c-input-group .pf-m-control {
   width: 3rem;
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   border: none !important;
   border-radius: 0 !important;
-
   background: transparent !important;
-
   color: var(--text-s-color);
-
   cursor: pointer;
-
   transition: all 0.2s ease;
 }
 

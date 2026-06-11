@@ -10,7 +10,9 @@ export function provideAppAuth(): EnvironmentProviders {
         clientId: 'angular-frontend',
       },
       initOptions: {
-        onLoad: 'login-required',
+        // onLoad: 'login-required',
+        onLoad: 'check-sso',
+        silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
         checkLoginIframe: false,
       },
     }),

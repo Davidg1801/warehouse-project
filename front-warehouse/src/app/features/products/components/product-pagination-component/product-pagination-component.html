@@ -6,13 +6,13 @@
   </div>
 
   <div class="pagination-center">
-    <button class="btn btn-page" [disabled]="currentPage() === 1" (click)="onPrevPage()"><</button>
+    <button class="page-btn" [disabled]="currentPage() === 1" (click)="onPrevPage()"><</button>
 
     <div class="pagination-current">
       {{ currentPage() }}
     </div>
 
-    <button class="btn btn-page" [disabled]="currentPage() === totalPages()" (click)="onNextPage()">
+    <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="onNextPage()">
       >
     </button>
   </div>

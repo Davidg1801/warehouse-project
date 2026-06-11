@@ -61,22 +61,15 @@ form {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     width: 100%;
     height: 45px;
-
     padding: 0 16px;
-
     font-size: 16px;
-
     background-color: var(--button-s-bg);
     color: var(--button-s-text);
-
     border: 1px solid var(--button-s-border);
     border-radius: 11px;
-
     cursor: pointer;
-
     transition:
       background-color 0.2s ease,
       border-color 0.2s ease;
@@ -97,20 +90,14 @@ form {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
-
     width: 100%;
     max-height: 300px;
-
     overflow-y: auto;
     z-index: 1000;
-
     padding: 8px;
-
     background-color: var(--background-s-color);
-
     border: 1px solid var(--border-color);
     border-radius: 11px;
-
     box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
   }
 
@@ -118,13 +105,9 @@ form {
     display: flex;
     align-items: center;
     gap: 10px;
-
     padding: 8px;
-
     cursor: pointer;
-
     color: var(--text-p-color);
-
     border-radius: 8px;
 
     &:hover {
@@ -134,7 +117,6 @@ form {
     input[type='checkbox'] {
       width: 16px;
       height: 16px;
-
       cursor: pointer;
       accent-color: var(--accent-color);
     }
@@ -143,7 +125,6 @@ form {
 
 .selected-categories {
   flex: 1;
-
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
@@ -154,19 +135,13 @@ form {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   height: 34px;
-
   padding: 0 10px;
-
   background-color: var(--button-s-bg);
   color: var(--button-s-text);
-
   border: 1px solid var(--button-s-border);
   border-radius: 999px;
-
   font-size: 14px;
-
   transition: background-color 0.2s ease;
 
   &:hover {
@@ -178,17 +153,12 @@ form {
   display: flex;
   align-items: center;
   justify-content: center;
-
   width: 18px;
   height: 18px;
-
   padding: 0;
-
   background: transparent;
   border: none;
-
   cursor: pointer;
-
   color: var(--button-s-text);
 
   &:hover {
@@ -207,19 +177,13 @@ form {
   select {
     width: 100%;
     height: 45px;
-
     padding: 0 12px;
-
     font-size: 16px;
-
     background-color: var(--input-bg);
     color: var(--input-text);
-
     border: 1px solid var(--input-border);
     border-radius: 11px;
-
     cursor: pointer;
-
     transition:
       border-color 0.2s ease,
       background-color 0.2s ease;
