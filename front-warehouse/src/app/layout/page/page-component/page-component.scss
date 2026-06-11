@@ -1,0 +1,50 @@
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: var(--background-p-color);
+}
+
+.app-header {
+  height: 80px;
+  padding: 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--background-s-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.app-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-p-color);
+}
+
+.app-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.username {
+  color: var(--text-s-color);
+  font-size: 0.95rem;
+}
+
+.logout-btn {
+  height: 2.2rem;
+  padding: 0 1rem;
+  margin: 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border-color);
+  background: var(--button-s-bg);
+  color: var(--text-p-color);
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: var(--button-s-bg-hover);
+  border-color: var(--border-light-color);
+}
