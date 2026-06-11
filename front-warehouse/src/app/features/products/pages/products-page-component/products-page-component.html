@@ -5,9 +5,7 @@
       <p class="page-subtitle">Manage products, stock levels and categories</p>
     </div>
     <div class="header-actions">
-      <button class="btn btn-add" [routerLink]="['/products/create']">✚ Add new product</button>
-      <button class="btn btn-refresh">↻ Refresh</button>
-      <button class="btn btn-refresh" (click)="logout()">Logout</button>
+      <button class="add-btn" [routerLink]="['/products/create']">✚ Add new product</button>
     </div>
   </div>
   <app-product-filters-component

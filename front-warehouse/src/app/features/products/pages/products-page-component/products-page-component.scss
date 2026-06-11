@@ -36,7 +36,7 @@
   gap: 0.75rem;
 }
 
-.btn {
+.add-btn {
   display: inline-flex;
   min-width: 120px;
   height: 45px;
@@ -45,6 +45,8 @@
   padding: 0 1rem;
   border-radius: 0.75rem;
   border: 1px solid transparent;
+  background-color: var(--button-p-bg);
+  color: var(--button-p-text);
   cursor: pointer;
   font-size: 0.95rem;
   transition:
@@ -61,12 +63,6 @@
     outline: none;
     box-shadow: 0 0 0 5px rgb(from var(--accent-color) r g b / 0.25);
   }
-}
-
-.btn-add {
-  background-color: var(--button-p-bg);
-  color: var(--button-p-text);
-  border-color: var(--button-p-border);
 
   &:hover {
     background-color: var(--button-p-bg-hover);
@@ -76,20 +72,6 @@
   &:active {
     background-color: var(--button-p-bg-active);
     border-color: var(--button-p-bg-active);
-  }
-}
-
-.btn-refresh {
-  background-color: var(--button-s-bg);
-  color: var(--button-s-text);
-  border-color: var(--button-s-border);
-
-  &:hover {
-    background-color: var(--button-s-bg-hover);
-  }
-
-  &:active {
-    background-color: var(--button-s-bg-active);
   }
 }
 

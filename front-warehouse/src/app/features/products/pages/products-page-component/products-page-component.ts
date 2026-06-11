@@ -188,9 +188,4 @@ export class ProductsPageComponent implements OnInit {
       queryParamsHandling: 'merge',
     });
   }
-
-  logout(): void {
-    this.keycloak.clearToken();
-    this.keycloak.logout();
-  }
 }

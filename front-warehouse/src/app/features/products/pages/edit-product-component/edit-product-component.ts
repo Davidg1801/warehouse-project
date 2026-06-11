@@ -1,4 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CategoriesService } from '@features/categories/services/categories-service';
@@ -17,6 +18,7 @@ export class EditProductComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private uuid!: string | null;
+  private destroyRef = inject(DestroyRef);
   private productsService = inject(ProductsService);
   private categoriesService = inject(CategoriesService);
   // product = signal<ProductDto | null>(null);
@@ -36,16 +38,18 @@ export class EditProductComponent implements OnInit {
   }
 
   private getCategories() {
-    this.categoriesService.getAllCategories().subscribe((categories) => {
-      this.categories.set(categories);
-    });
+    this.categoriesService
+      .getAllCategories()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((categories) => {
+        this.categories.set(categories);
+      });
   }
 
   private getProduct(uuid: string) {
     this.productsService.getProduct(uuid).subscribe({
       next: (product: ProductDto) => {
         // this.product.set(product);
-        console.log(uuid);
         this.editForm.patchValue({
           name: product.name,
           categoryId: product.categoryId,
@@ -54,7 +58,7 @@ export class EditProductComponent implements OnInit {
         });
       },
       error: (err) => {
-        console.log('ERROR:', err);
+        console.log('An error occured while retrieving product:', err);
       },
     });
   }
@@ -85,8 +89,6 @@ export class EditProductComponent implements OnInit {
       this.editForm.markAllAsTouched();
       return;
     }
-    console.log('UUID');
-    console.log(this.uuid);
     const product = {
       ...this.editForm.getRawValue(),
       uuid: this.uuid,
@@ -94,10 +96,15 @@ export class EditProductComponent implements OnInit {
 
     this.productsService.updateProduct(product).subscribe({
       next: () => {
-        this.router.navigate(['/products']);
+        const goBackToList = confirm(
+          'Product has been edited successfully. Would you like to go back to the product list?',
+        );
+        if (goBackToList) {
+          this.router.navigate(['/products']);
+        }
       },
       error: (err) => {
-        console.error('Update failed:', err);
+        alert('An error occured while editing product. ' + err);
       },
     });
   }

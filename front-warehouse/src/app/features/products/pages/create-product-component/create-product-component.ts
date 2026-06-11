@@ -26,20 +26,32 @@ export class CreateProductComponent {
   });
 
   onSubmit() {
-    console.log('SUBMIT FIRED');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
     const value = this.form.getRawValue();
-    const payload: CreateProductDto = {
+    const newProduct: CreateProductDto = {
       name: value.name!,
       categoryId: value.categoryId!,
       quantity: value.quantity!,
       price: value.price!,
     };
 
-    this.productsService.addProduct(payload).subscribe();
+    this.productsService.addProduct(newProduct).subscribe({
+      next: () => {
+        this.form.reset();
+        const goBackToList = confirm(
+          'Product has been added successfully. Would you like to go back to the product list?',
+        );
+        if (goBackToList) {
+          this.router.navigate(['/products']);
+        }
+      },
+      error: (err) => {
+        alert('An error occured while adding the product. ' + err);
+      },
+    });
   }
 
   onCancel(): void {

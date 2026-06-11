@@ -17,7 +17,7 @@ html.login-pf,
 }
 
 #kc-header-wrapper::before {
-  content: "Warehouse Inventory System";
+  content: "Warehouse Management System";
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--accent-color);
