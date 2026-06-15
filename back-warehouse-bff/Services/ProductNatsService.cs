@@ -61,7 +61,7 @@ public class ProductNatsService : IProductService
 
             return ApiResponse<bool>.Fail("Product with the given ID does not exist or could not be deleted.");
         }
-        catch (OperationCanceledException ex)
+        catch (OperationCanceledException)
         {
             return ApiResponse<bool>.Fail("Error: Request to Worker timed out. Please try again later.");
         }
