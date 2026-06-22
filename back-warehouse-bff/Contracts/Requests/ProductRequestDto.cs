@@ -37,6 +37,6 @@ public class ProductRequestDto
     public decimal Price { get; set; }
 
     [Required(ErrorMessage = "Quantity field is required")]
-    [Range(0, 9999999, ErrorMessage = "Price must be between {1} and {2}.)")]
+    [Range(0, 9999999, ErrorMessage = "Quantity must be between {1} and {2}.)")]
     public int Quantity { get; set; }
 }

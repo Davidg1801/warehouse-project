@@ -19,9 +19,9 @@ public class PagedResponse<T> : ApiResponse<T>
         };
     }
 
-    public static PagedResponse<T> FailPaged(string message)
+    public static PagedResponse<T> FailPaged(string error)
     {
-        return new PagedResponse<T> { Success = false, Message = message };
+        return new PagedResponse<T> { Success = false, Errors = new List<string> { error } };
     }
 
     public static PagedResponse<T> FailPaged(List<string> errors)
