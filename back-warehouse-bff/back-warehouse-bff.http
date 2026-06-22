@@ -1,6 +1,0 @@
-@back_warehouse_bff_HostAddress = http://localhost:5072
-
-GET {{back_warehouse_bff_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
