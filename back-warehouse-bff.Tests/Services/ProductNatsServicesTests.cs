@@ -167,6 +167,7 @@ public class ProductNatsServiceTests
     [Fact]
     public async Task DeleteProductAsync_WhenTimesOut_ReturnsFailsResponse()
     {
+        //Arrange
         var testGuid = Guid.NewGuid();
 
         _natsClientMock.RequestAsync<Guid, bool>(
@@ -206,5 +207,304 @@ public class ProductNatsServiceTests
         Assert.Equal("NATS communication error: Nats server not response", result.Errors.First());
     }
 
+    [Fact]
+    public async Task UpdateProductAsync_WhenProductUpdated_ReturnsOkResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+        var request = new ProductRequestDto
+        {
+            Name = "Ram",
+            CategoryId = ProductCategory.RAM_Memory,
+            Price = 999.99M,
+            Quantity = 2
+        };
 
+        var response = new ProductResponseDto
+        {
+            Uuid = uuid,
+            Name = request.Name,
+            CategoryId = request.CategoryId,
+            Price = request.Price,
+            Quantity = request.Quantity
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(response);
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.update",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = jsonResponse }));
+        //Act
+        var result = await _sut.UpdateProductAsync(uuid, request);
+        //Assert
+        Assert.True(result.Success);
+        Assert.Null(result.Errors);
+        Assert.NotNull(result.Data);
+        Assert.Equal("Product has been successfully updated.", result.Message);
+        Assert.Equal(uuid, result.Data.Uuid);
+        Assert.Equal(request.CategoryId, result.Data.CategoryId);
+        Assert.Equal(request.Price, result.Data.Price);
+        Assert.Equal(request.Quantity, result.Data.Quantity);
+        Assert.Equal(request.Name, result.Data.Name);
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_WhenProductNotFound_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+        var request = new ProductRequestDto
+        {
+            Name = "Ram",
+            CategoryId = ProductCategory.RAM_Memory,
+            Price = 999.99M,
+            Quantity = 2
+        };
+
+        var workerResponse = "ERROR: Product not found in the database.";
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.update",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = workerResponse }));
+        //Act
+        var result = await _sut.UpdateProductAsync(uuid, request);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Product not found in the database.", result.Errors.First());
+    }
+    [Fact]
+    public async Task UpdateProductAsync_WhenTimesOut_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+        var request = new ProductRequestDto
+        {
+            Name = "Ram",
+            CategoryId = ProductCategory.RAM_Memory,
+            Price = 999.99M,
+            Quantity = 2
+        };
+
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.update",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new OperationCanceledException()));
+        //Act
+        var result = await _sut.UpdateProductAsync(uuid, request);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Error: Request to Worker timed out. Please try again later.", result.Errors.First());
+    }
+
+    [Fact]
+    public async Task UpdateProductAsync_WhenComunicationError_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+
+        var request = new ProductRequestDto
+        {
+            Name = "Ram",
+            CategoryId = ProductCategory.RAM_Memory,
+            Price = 999.99M,
+            Quantity = 2
+        };
+
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.update",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new Exception("Nats server not response")));
+        //Act
+        var result = await _sut.UpdateProductAsync(uuid, request);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Message);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("NATS communication error: Nats server not response", result.Errors.First());
+    }
+
+    [Fact]
+    public async Task GetProductByIdAsync_WhenProductIsExist_ReturnsOkResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+
+        var response = new ProductResponseDto
+        {
+            Uuid = uuid,
+            Name = "Ram",
+            CategoryId = ProductCategory.RAM_Memory,
+            Price = 999.99M,
+            Quantity = 2
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(response);
+
+        _natsClientMock.RequestAsync<Guid, string>(
+            subject: "products.get",
+            data: Arg.Any<Guid>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = jsonResponse }));
+        //Act
+        var result = await _sut.GetProductByIdAsync(uuid);
+        //Assert
+        Assert.True(result.Success);
+        Assert.Null(result.Errors);
+        Assert.NotNull(result.Data);
+        Assert.Equal(uuid, result.Data.Uuid);
+        Assert.Equal(response.Name, result.Data.Name);
+        Assert.Equal(response.Price, result.Data.Price);
+        Assert.Equal(response.Quantity, result.Data.Quantity);
+        Assert.Equal(response.CategoryId, result.Data.CategoryId);
+    }
+    [Fact]
+    public async Task GetProductByIdAsync_WhenProductNotFound_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+
+        var response = "ERROR: Product not found in the database.";
+        _natsClientMock.RequestAsync<Guid, string>(
+            subject: "products.get",
+            data: Arg.Any<Guid>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = response }));
+        //Act
+        var result = await _sut.GetProductByIdAsync(uuid);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Product not found in the database.", result.Errors.First());
+    }
+    [Fact]
+    public async Task GetProductByIdAsync_WhenTimesOut_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+
+        _natsClientMock.RequestAsync<Guid, string>(
+            subject: "products.get",
+            data: Arg.Any<Guid>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new OperationCanceledException()));
+        //Act
+        var result = await _sut.GetProductByIdAsync(uuid);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Error: Request to Worker timed out. Please try again later.", result.Errors.First());
+    }
+
+    [Fact]
+    public async Task GetProductByIdAsync_WhenComunicationError_ReturnsFailResponse()
+    {
+        //Arrange
+        var uuid = Guid.NewGuid();
+
+        _natsClientMock.RequestAsync<Guid, string>(
+            subject: "products.get",
+            data: Arg.Any<Guid>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new Exception("Nats server not response")));
+        //Act
+        var result = await _sut.GetProductByIdAsync(uuid);
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("NATS communication error: Nats server not response", result.Errors.First());
+    }
+    [Fact]
+    public async Task GetAllProductAsync_WhenValidRequest_ReturnsOkPagedResponse()
+    {
+        //Arrange
+        var productsReponse = new
+        {
+            Data = new List<ProductResponseDto>
+            {
+                new ProductResponseDto { Uuid = Guid.NewGuid(), Name ="Ram", CategoryId= ProductCategory.RAM_Memory, Quantity = 9, Price = 999.99m},
+                new ProductResponseDto { Uuid = Guid.NewGuid(), Name ="Radeon FXD", CategoryId= ProductCategory.GraphicsCards, Quantity = 1, Price = 2999.99m}
+            },
+            TotalCount = 2
+        };
+
+        var jsonResponse = JsonSerializer.Serialize(productsReponse);
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.getall",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = jsonResponse }));
+        //Act
+        var result = await _sut.GetAllProductsAsync(null);
+        //Assert
+        Assert.True(result.Success);
+        Assert.Null(result.Errors);
+        Assert.NotNull(result.Data);
+        Assert.Equal(productsReponse.TotalCount, result.TotalCount);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(10, result.PageSize);
+        Assert.Equal(2, result.Data.Count());
+    }
+    [Fact]
+    public async Task GetAllProductAsync_WhenParserNotWork_ReturnsFailPagedResponse()
+    {
+        //Arrange
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.getall",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromResult(new NatsMsg<string> { Data = "null" }));
+
+        //Act
+        var result = await _sut.GetAllProductsAsync();
+
+        //Assert
+        Assert.False(result.Success);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Failed to parse worker response.", result.Errors.First());
+    }
+    [Fact]
+    public async Task GetAllProductAsync_WhenTimesOut_ReturnsFailPagedResponse()
+    {
+        //Arrange
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.getall",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new OperationCanceledException()));
+        //Act
+        var result = await _sut.GetAllProductsAsync();
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("Error: Request to Worker timed out. Please try again later.", result.Errors.First());
+    }
+    [Fact]
+    public async Task GetAllProductAsync_WhenComunicationError_ReturnsFailPagedResponse()
+    {
+        var errorMessage = "NATS connection lost";
+        _natsClientMock.RequestAsync<string, string>(
+            subject: "products.getall",
+            data: Arg.Any<string>(),
+            cancellationToken: Arg.Any<CancellationToken>()
+        ).Returns(ValueTask.FromException<NatsMsg<string>>(new Exception(errorMessage)));
+        //Act
+        var result = await _sut.GetAllProductsAsync();
+        //Assert
+        Assert.False(result.Success);
+        Assert.Null(result.Data);
+        Assert.NotNull(result.Errors);
+        Assert.Equal("NATS communication error: NATS connection lost", result.Errors.First());
+    }
 }
