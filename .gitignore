@@ -489,3 +489,4 @@ dist/
 
 *.crt
 *.cer
+redis.conf
