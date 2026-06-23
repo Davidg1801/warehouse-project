@@ -34,6 +34,7 @@ public static class ProductEndpoints
 
             return Results.BadRequest(response);
         })
+        .RequireAuthorization()
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status400BadRequest);
 
@@ -94,6 +95,7 @@ public static class ProductEndpoints
 
             return Results.BadRequest(response);
         })
+        .RequireAuthorization()
         .Produces<ApiResponse<List<ProductResponseDto>>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<List<ProductResponseDto>>>(StatusCodes.Status400BadRequest);
 
@@ -113,6 +115,7 @@ public static class ProductEndpoints
 
             return Results.BadRequest(response);
         })
+        .RequireAuthorization()
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status400BadRequest);
