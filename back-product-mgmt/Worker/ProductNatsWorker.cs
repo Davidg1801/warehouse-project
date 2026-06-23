@@ -5,17 +5,18 @@ using NATS.Client.Core;
 using Worker.Contracts.Request;
 using Worker.Contracts;
 using Core.Queries;
+using Core.Interfaces;
 
 namespace Worker;
 
 public class ProductNatsWorker : BackgroundService
 {
     private readonly INatsClient _natsClient;
-    private readonly ProductService _productService;
+    private readonly IProductService _productService;
 
     private readonly ILogger<ProductNatsWorker> _logger;
 
-    public ProductNatsWorker(INatsClient natsClient, ProductService productService, ILogger<ProductNatsWorker> logger)
+    public ProductNatsWorker(INatsClient natsClient, IProductService productService, ILogger<ProductNatsWorker> logger)
     {
         _natsClient = natsClient;
         _productService = productService;
