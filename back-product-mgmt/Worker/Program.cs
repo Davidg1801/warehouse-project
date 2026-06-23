@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NATS.Net;
 using NATS.Client.Core;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Worker
 {
@@ -23,10 +24,22 @@ namespace Worker
             var natsUrl = builder.Configuration.GetValue<string>("Nats:Url")
                 ?? "nats://nats:4222";
 
-            builder.Services.AddSingleton(new DatabaseMigrator(dbConnectionString));
-            builder.Services.AddSingleton<IProductRepository>(new PostgresRepository(dbConnectionString));
-            builder.Services.AddSingleton<ProductService>();
+            var redisConfiguration = builder.Configuration.GetValue<string>("Redis:Configuration")
+                ?? "redis:6379";
 
+            builder.Services.AddSingleton(new DatabaseMigrator(dbConnectionString));
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConfiguration;
+            });
+            builder.Services.AddSingleton<PostgresRepository>(new PostgresRepository(dbConnectionString));
+            builder.Services.AddSingleton<IProductRepository>(provider =>
+            {
+                var postgresRepo = provider.GetRequiredService<PostgresRepository>();
+                var cache = provider.GetRequiredService<IDistributedCache>();
+                return new CashedProductRepository(postgresRepo, cache);
+            });
+            builder.Services.AddSingleton<IProductService, ProductService>();
             builder.Services.AddSingleton<INatsClient>(new NatsClient(natsUrl));
 
             builder.Services.AddHostedService<ProductNatsWorker>();
