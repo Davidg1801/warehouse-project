@@ -5,7 +5,7 @@ using Core.Results;
 
 namespace Core.Services;
 
-public class ProductService
+public class ProductService : IProductService
 {
     private readonly IProductRepository _repository;
 
