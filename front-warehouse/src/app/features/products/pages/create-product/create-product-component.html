@@ -1,0 +1,92 @@
+<div class="page">
+  <div class="form-card">
+    <div class="form-header">
+      <h1 class="form-title">Create Product</h1>
+      <p class="form-subtitle">Fill out the form and add the product to the inventory.</p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" placeholder="Product name" />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <div class="error-message">
+              @if (form.get('name')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+              @if (form.get('name')?.hasError('maxlength')) {
+                <span>Maximum length is 50 characters</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="category">Category</label>
+
+          <select id="category" formControlName="categoryId">
+            <option value="" disabled>-- Select category --</option>
+
+            @for (category of categories(); track category.id) {
+              <option [ngValue]="category.id">
+                {{ category.name }}
+              </option>
+            }
+          </select>
+          @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+            <div class="error-message">
+              @if (form.get('categoryId')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="quantity">Quantity</label>
+          <input
+            id="quantity"
+            type="number"
+            formControlName="quantity"
+            placeholder="Available quantity"
+          />
+          @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+            <div class="error-message">
+              @if (form.get('quantity')?.hasError('required')) {
+                <span>Field is required</span>
+              }
+              @if (form.get('quantity')?.hasError('max')) {
+                <span>Quantity cannot exceed 9999</span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="price">Price</label>
+          <input id="price" type="number" formControlName="price" placeholder="0.00" />
+          @if (form.get('price')?.invalid && form.get('price')?.touched) {
+            <div class="error-message">
+              @if (form.get('price')?.hasError('required')) {
+                <span>Price is required</span>
+              }
+              @if (form.get('price')?.hasError('min')) {
+                <span>Price must be at least 0.01</span>
+              }
+              @if (form.get('price')?.hasError('max')) {
+                <span>Price cannot exceed 9,999,999</span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
+
+        <button type="submit" class="btn btn-add">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
