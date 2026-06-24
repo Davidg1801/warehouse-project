@@ -144,6 +144,11 @@ input.pf-c-form-control::placeholder {
   color: var(--danger-color);
 }
 
+.alert-error {
+  border: 1px solid var(--input-border) !important;
+  background-color: var(--input-bg) !important;
+}
+
 /* === LOGIN BUTTON === */
 .pf-m-primary {
   display: inline-flex;

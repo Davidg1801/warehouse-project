@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { canActivateAuthRole } from '@core/auth/auth.guard';
-import { PageComponent } from './layout/page/page-component/page-component';
+import { PageComponent } from '@layout/components/page/page-component';
 
 export const routes: Routes = [
   {
@@ -17,8 +17,8 @@ export const routes: Routes = [
       {
         path: 'products',
         loadComponent: () =>
-          import('@features/products/pages/products-page-component/products-page-component').then(
-            (c) => c.ProductsPageComponent,
+          import('@features/products/pages/products-list/products-list-component').then(
+            (c) => c.ProductsListComponent,
           ),
         title: 'Products',
       },
@@ -26,7 +26,7 @@ export const routes: Routes = [
       {
         path: 'products/create',
         loadComponent: () =>
-          import('@features/products/pages/create-product-component/create-product-component').then(
+          import('@features/products/pages/create-product/create-product-component').then(
             (c) => c.CreateProductComponent,
           ),
         title: 'Create product',
@@ -35,7 +35,7 @@ export const routes: Routes = [
       {
         path: 'products/:uuid/edit',
         loadComponent: () =>
-          import('@features/products/pages/edit-product-component/edit-product-component').then(
+          import('@features/products/pages/edit-product/edit-product-component').then(
             (c) => c.EditProductComponent,
           ),
         title: 'Edit product',
