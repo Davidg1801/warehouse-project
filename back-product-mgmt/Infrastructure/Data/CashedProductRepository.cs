@@ -56,9 +56,13 @@ public class CashedProductRepository : IProductRepository
         var updatedProduct = await _innerRepository.UpdateAsync(uuid, data);
         if (updatedProduct != null)
         {
+            var cacheOptions = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+            };
             string cacheKey = $"product:{uuid}";
             var jsonProduct = JsonSerializer.Serialize(updatedProduct, _jsonOptions);
-            await _cache.SetStringAsync(cacheKey, jsonProduct);
+            await _cache.SetStringAsync(cacheKey, jsonProduct, cacheOptions);
         }
 
         return updatedProduct;
