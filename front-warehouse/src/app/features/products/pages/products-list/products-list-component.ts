@@ -5,15 +5,18 @@ import { ProductTableComponent } from '@features/products/components/product-tab
 import { CategoriesService } from '@features/categories/services/categories.service';
 import { Category } from '@features/categories/models/category.model';
 import { ProductFiltersComponent } from '@features/products/components/product-filters/product-filters-component';
-// import { ProductListItem } from '@features/products/view-models/product-list-item.vm';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ProductPaginationComponent } from '@features/products/components/product-pagination/product-pagination-component';
-import { ProductQueryParams } from '@features/products/models/product-query-params.model';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs';
 import { ProductFilters } from '@features/products/models/product-filters.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductVM } from '@features/products/view-models/product-list-item.vm';
 import { ModalService } from '@shared/services/modal.service';
+import { mapRouteToProductQueryParams } from '@features/products/mappers/product-query-params.mapper';
+import {
+  mapQueryParamsToSort,
+  mapSortToQueryParams,
+} from '@features/products/mappers/product-sort.mapper';
 
 @Component({
   selector: 'app-products-page-component',
@@ -73,33 +76,8 @@ export class ProductsListComponent implements OnInit {
         distinctUntilChanged((prev, curr) => JSON.stringify(prev) === JSON.stringify(curr)),
         debounceTime(300),
         switchMap((params) => {
-          const hasOrderBy = !!params['orderBy'];
-          const queryParams: ProductQueryParams = {
-            pageNumber: params['pageNumber'] ? Number(params['pageNumber']) : 1,
-            pageSize: params['pageSize'] ? Number(params['pageSize']) : 10,
-            name: params['name'] || undefined,
-            orderBy: params['orderBy'] || undefined,
-            descending: hasOrderBy ? params['descending'] === 'true' : undefined,
-          };
-
-          if (params['categoryIds']) {
-            const ids = Array.isArray(params['categoryIds'])
-              ? params['categoryIds']
-              : [params['categoryIds']];
-            queryParams.categoryIds = ids.map((id) => Number(id));
-          }
-
-          let sortString:
-            | 'Name_ASC'
-            | 'Name_DESC'
-            | 'Price_ASC'
-            | 'Price_DESC'
-            | 'Quantity_ASC'
-            | 'Quantity_DESC'
-            | '' = '';
-          if (queryParams.orderBy) {
-            sortString = `${queryParams.orderBy}_${queryParams.descending ? 'DESC' : 'ASC'}`;
-          }
+          const queryParams = mapRouteToProductQueryParams(params);
+          const sortString = mapQueryParamsToSort(queryParams);
 
           this.activeFilters.set({
             name: queryParams.name ?? '',
@@ -125,7 +103,7 @@ export class ProductsListComponent implements OnInit {
   }
 
   onFiltersChanged(filters: ProductFilters) {
-    const sortConfig = this.mapSort(filters.sort);
+    const sortConfig = mapSortToQueryParams(filters.sort);
 
     this.router.navigate([], {
       relativeTo: this.route,
@@ -138,25 +116,6 @@ export class ProductsListComponent implements OnInit {
       },
       queryParamsHandling: 'merge',
     });
-  }
-
-  private mapSort(sort?: string) {
-    switch (sort) {
-      case 'Name_ASC':
-        return { orderBy: 'Name', descending: false };
-      case 'Name_DESC':
-        return { orderBy: 'Name', descending: true };
-      case 'Price_ASC':
-        return { orderBy: 'Price', descending: false };
-      case 'Price_DESC':
-        return { orderBy: 'Price', descending: true };
-      case 'Quantity_ASC':
-        return { orderBy: 'Quantity', descending: false };
-      case 'Quantity_DESC':
-        return { orderBy: 'Quantity', descending: true };
-      default:
-        return undefined;
-    }
   }
 
   async onDeleteProduct(productId: string) {
