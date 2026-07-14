@@ -11,6 +11,8 @@ using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using StackExchange.Redis;
+using back_warehouse_bff.Services.Cache;
 
 namespace back_warehouse_bff;
 
@@ -23,9 +25,17 @@ public class Program
         var natsUrl = builder.Configuration.GetValue<string>("Nats:Url")
                ?? "nats://nats:4222";
 
+        var valkeyConfig = builder.Configuration.GetValue<string>("Valkey:Configuration") ?? "valkey:6380";
         builder.Services.AddSingleton<INatsClient>(new NatsClient(natsUrl));
-        builder.Services.AddScoped<IProductService, ProductNatsService>();
-
+        builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(valkeyConfig));
+        builder.Services.AddScoped<ProductNatsService>();
+        builder.Services.AddSingleton<IProductTopCacheService, TopProductValkeyCacheService>();
+        builder.Services.AddScoped<IProductService>(provider =>
+        {
+            var natsService = provider.GetRequiredService<ProductNatsService>();
+            var cacheService = provider.GetRequiredService<IProductTopCacheService>();
+            return new ProductCashedService(natsService, cacheService);
+        });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
