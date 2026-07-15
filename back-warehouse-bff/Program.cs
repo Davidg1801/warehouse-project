@@ -30,6 +30,7 @@ public class Program
         builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(valkeyConfig));
         builder.Services.AddSignalR();
         builder.Services.AddScoped<ProductNatsService>();
+        builder.Services.AddHostedService<ProductNatsListenerService>();
         builder.Services.AddScoped<IProductNotificationService, ProductNotificationService>();
         builder.Services.AddSingleton<IProductTopCacheService, TopProductValkeyCacheService>();
         builder.Services.AddScoped<IProductService>(provider =>

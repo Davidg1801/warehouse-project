@@ -45,10 +45,11 @@ public class ProductNatsListenerService : BackgroundService
                     var cacheService = scope.ServiceProvider.GetRequiredService<IProductTopCacheService>();
 
                     bool isTop = await cacheService.IsProductInTopAsync(product.Uuid);
+                    await notificationService.NotifyProductUpdatedAsync(product);
                     if (isTop)
                     {
                         await cacheService.UpdateProductDataAsync(product);
-                        await notificationService.NotifyProductUpdatedAsync(product);
+                        await notificationService.NotifyTopProductsUpdatedAsync();
                     }
                 }
                 else
@@ -73,9 +74,13 @@ public class ProductNatsListenerService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var notificationService = scope.ServiceProvider.GetRequiredService<IProductNotificationService>();
                 var cacheService = scope.ServiceProvider.GetRequiredService<IProductTopCacheService>();
-
+                bool wasInTop = await cacheService.IsProductInTopAsync(msg.Data);
                 await cacheService.RemoveProductFromCacheAsync(msg.Data);
                 await notificationService.NotifyProductDeletedAsync(msg.Data);
+                if (wasInTop)
+                {
+                    await notificationService.NotifyTopProductsUpdatedAsync();
+                }
             }
             catch (Exception ex)
             {
