@@ -119,5 +119,15 @@ public static class ProductEndpoints
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status404NotFound)
         .Produces<ApiResponse<ProductResponseDto>>(StatusCodes.Status400BadRequest);
+
+        group.MapGet("/top", async (int? count, IProductTopCacheService cacheService) =>
+        {
+            int takeCount = count ?? 5;
+            var topProducts = await cacheService.GetTopProductsFromCacheAsync(takeCount);
+            var response = ApiResponse<List<ProductResponseDto>>.Ok(topProducts);
+            return Results.Ok(response);
+        })
+        .RequireAuthorization()
+        .Produces<ApiResponse<List<ProductResponseDto>>>(StatusCodes.Status200OK);
     }
 }

@@ -22,6 +22,14 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
+  valkey:
+    image: valkey/valkey:alpine
+    container_name: warehouse-valkey
+    command: valkey-server --requirepass "${VALKEY_PASSWORD}"
+    ports:
+      - "6380:6379"
+    restart: unless-stopped
+
   nats:
     image: nats:alpine
     container_name: warehouse-nats
@@ -54,11 +62,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - Nats__Url=nats://nats:4222
+      - Valkey__Configuration=valkey:6379,password=${VALKEY_PASSWORD}
     volumes:
       - ./back-warehouse-bff:/app
     depends_on:
       - keycloak
       - nats
+      - valkey
 
   product-mgmt:
     build:
