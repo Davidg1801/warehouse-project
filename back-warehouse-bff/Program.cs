@@ -28,13 +28,16 @@ public class Program
         var valkeyConfig = builder.Configuration.GetValue<string>("Valkey:Configuration") ?? "valkey:6380";
         builder.Services.AddSingleton<INatsClient>(new NatsClient(natsUrl));
         builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(valkeyConfig));
+        builder.Services.AddSignalR();
         builder.Services.AddScoped<ProductNatsService>();
+        builder.Services.AddScoped<IProductNotificationService, ProductNotificationService>();
         builder.Services.AddSingleton<IProductTopCacheService, TopProductValkeyCacheService>();
         builder.Services.AddScoped<IProductService>(provider =>
         {
             var natsService = provider.GetRequiredService<ProductNatsService>();
             var cacheService = provider.GetRequiredService<IProductTopCacheService>();
-            return new ProductCashedService(natsService, cacheService);
+            var notificationService = provider.GetRequiredService<IProductNotificationService>();
+            return new ProductCashedService(natsService, cacheService, notificationService);
         });
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
@@ -80,6 +83,20 @@ public class Program
                 ValidateAudience = false, // on PROD should be true
                 ValidateLifetime = true
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["accessToken"];
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrWhiteSpace(accessToken) && path.StartsWithSegments("/websocket"))
+                    {
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
+            };
         });
         builder.Services.AddAuthorization();
         var app = builder.Build();
@@ -97,6 +114,7 @@ public class Program
         app.UseAuthentication(); //2
         app.UseAuthorization(); //3
         app.MapProductEndpoints(); //4
+        app.MapWebSocketEndpoints(); //5
         app.Run();
 
     }

@@ -16,11 +16,13 @@ public class ProductNatsWorker : BackgroundService
 
     private readonly ILogger<ProductNatsWorker> _logger;
 
+    private readonly JsonSerializerOptions _jsonOptions;
     public ProductNatsWorker(INatsClient natsClient, IProductService productService, ILogger<ProductNatsWorker> logger)
     {
         _natsClient = natsClient;
         _productService = productService;
         _logger = logger;
+        _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -38,13 +40,12 @@ public class ProductNatsWorker : BackgroundService
 
     private async Task ListenForGetAllProducts(CancellationToken stoppingToken)
     {
-        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         await foreach (var msg in _natsClient.SubscribeAsync<string>("products.getall", cancellationToken: stoppingToken))
         {
             try
             {
                 _logger.LogInformation("Received request:: products.getall");
-                var request = JsonSerializer.Deserialize<ProductQueryRequest>(msg.Data ?? "{}", jsonOptions) ?? new ProductQueryRequest();
+                var request = JsonSerializer.Deserialize<ProductQueryRequest>(msg.Data ?? "{}", _jsonOptions) ?? new ProductQueryRequest();
                 var productQuery = new ProductQuery(
                     request.PageNumber,
                     request.PageSize,
@@ -85,13 +86,12 @@ public class ProductNatsWorker : BackgroundService
 
     private async Task ListenForAddProducts(CancellationToken stoppingToken)
     {
-        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         await foreach (var msg in _natsClient.SubscribeAsync<string>("products.add", cancellationToken: stoppingToken))
         {
             try
             {
                 _logger.LogInformation("Received request:: products.add");
-                var request = JsonSerializer.Deserialize<AddProductRequest>(msg.Data!, jsonOptions);
+                var request = JsonSerializer.Deserialize<AddProductRequest>(msg.Data!, _jsonOptions);
                 if (request != null)
                 {
                     var product = await _productService.AddProductAsync(request.Name, request.CategoryId, request.Price, request.Quantity);
@@ -120,6 +120,11 @@ public class ProductNatsWorker : BackgroundService
             {
                 _logger.LogInformation($"Received request:: products.delete for UUID: {msg.Data}");
                 bool isDeleted = await _productService.DeleteProductAsync(msg.Data);
+
+                if (isDeleted)
+                {
+                    await _natsClient.PublishAsync("product.event.deleted", msg.Data, cancellationToken: stoppingToken);
+                }
                 await msg.ReplyAsync(isDeleted, cancellationToken: stoppingToken);
             }
             catch (Exception ex)
@@ -132,18 +137,18 @@ public class ProductNatsWorker : BackgroundService
 
     private async Task ListenForUpdateProduct(CancellationToken stoppingToken)
     {
-        var jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         await foreach (var msg in _natsClient.SubscribeAsync<string>("products.update", cancellationToken: stoppingToken))
         {
             try
             {
-                var request = JsonSerializer.Deserialize<UpdateProductRequest>(msg.Data!, jsonOptions);
+                var request = JsonSerializer.Deserialize<UpdateProductRequest>(msg.Data!, _jsonOptions);
                 if (request != null)
                 {
                     var product = await _productService.UpdateProductAsync(request.Uuid, request.Name, request.CategoryId, request.Price, request.Quantity);
                     if (product != null)
                     {
                         var responseDto = new ProductResponse(product.Uuid, product.Name, product.CategoryId, product.Price, product.Quantity);
+                        await _natsClient.PublishAsync("product.event.updated", responseDto, cancellationToken: stoppingToken);
                         var responseJson = JsonSerializer.Serialize(responseDto);
                         await msg.ReplyAsync(responseJson, cancellationToken: stoppingToken);
                     }
@@ -178,7 +183,7 @@ public class ProductNatsWorker : BackgroundService
                 if (product != null)
                 {
                     var responseDto = new ProductResponse(product.Uuid, product.Name, product.CategoryId, product.Price, product.Quantity);
-                    var responseJson = JsonSerializer.Serialize(responseDto);
+                    var responseJson = JsonSerializer.Serialize(responseDto, _jsonOptions);
                     await msg.ReplyAsync(responseJson, cancellationToken: stoppingToken);
                 }
                 else

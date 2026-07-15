@@ -10,10 +10,13 @@ public class ProductCashedService : IProductService
     private readonly IProductService _inner;
     private readonly IProductTopCacheService _cache;
 
-    public ProductCashedService(IProductService inner, IProductTopCacheService cache)
+    private readonly IProductNotificationService _notification;
+
+    public ProductCashedService(IProductService inner, IProductTopCacheService cache, IProductNotificationService notification)
     {
         _inner = inner;
         _cache = cache;
+        _notification = notification;
     }
 
     public async Task<ApiResponse<ProductResponseDto>> AddProductAsync(ProductRequestDto request)
@@ -23,12 +26,7 @@ public class ProductCashedService : IProductService
 
     public async Task<ApiResponse<bool>> DeleteProductAsync(Guid uuid)
     {
-        var response = await _inner.DeleteProductAsync(uuid);
-        if (response.Success)
-        {
-            await _cache.RemoveProductFromCacheAsync(uuid);
-        }
-        return response;
+        return await _inner.DeleteProductAsync(uuid);
     }
 
     public async Task<PagedResponse<IEnumerable<ProductResponseDto>>> GetAllProductsAsync(ProductQueryDto? query = null)
@@ -46,6 +44,7 @@ public class ProductCashedService : IProductService
             if (isTop)
             {
                 await _cache.UpdateProductDataAsync(response.Data);
+                await _notification.NotifyTopProductsUpdatedAsync();
             }
         }
         return response;
@@ -53,15 +52,6 @@ public class ProductCashedService : IProductService
 
     public async Task<ApiResponse<ProductResponseDto>> UpdateProductAsync(Guid uuid, ProductRequestDto request)
     {
-        var response = await _inner.UpdateProductAsync(uuid, request);
-        if (response.Success && response.Data != null)
-        {
-            bool isTop = await _cache.IsProductInTopAsync(uuid);
-            if (isTop)
-            {
-                await _cache.UpdateProductDataAsync(response.Data);
-            }
-        }
-        return response;
+        return await _inner.UpdateProductAsync(uuid, request);
     }
 }
