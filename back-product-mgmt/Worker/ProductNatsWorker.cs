@@ -81,7 +81,6 @@ public class ProductNatsWorker : BackgroundService
             }
 
         }
-
     }
 
     private async Task ListenForAddProducts(CancellationToken stoppingToken)

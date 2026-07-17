@@ -86,6 +86,26 @@ services:
       - postgres
       - nats
 
+  order-mgmt:
+    build:
+      context: ./back-order-mgmt
+      dockerfile: Dockerfile
+    container_name: warehouse-order-mgmt
+    environment:
+      - NODE_ENV=development
+      - NATS_URL=nats://4222
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    volumes:
+      - ./back-order-mgmt:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+      - nats
+
   frontend:
     build:
       context: ./front-warehouse
