@@ -15,8 +15,8 @@
   --accent-active-color: var(--color-teal-70);
 
   /* BORDER */
-  --border-color: var(--color-gray-80);
-  --border-light-color: var(--color-gray-70);
+  --border-p-color: var(--color-gray-80);
+  --border-s-color: var(--color-gray-70);
 
   /* BUTTON PRIMARY */
   --button-p-bg: var(--color-teal-60);

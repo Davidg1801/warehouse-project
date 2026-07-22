@@ -1,25 +1,46 @@
 <div class="products-page">
-  <div class="page-header">
-    <div>
+  <header class="page-header">
+    <div class="header-info">
       <h1 class="page-title">Inventory Management</h1>
       <p class="page-subtitle">Manage products, stock levels and categories</p>
     </div>
+
     <div class="header-actions">
-      <button class="add-btn" [routerLink]="['/products/create']">✚ Add new product</button>
+      <a class="add-btn" [routerLink]="['/products/create']">✚ Add new product</a>
     </div>
+  </header>
+
+  <div class="page-body">
+    <main class="products-content">
+      <app-product-filters-component
+        [categories]="categories()"
+        [currentFilters]="activeFilters()"
+        (filtersChanged)="onFiltersChanged($event)"
+      />
+
+      @if (isLoading()) {
+        <div class="loading-state">Loading products...</div>
+      } @else {
+        <app-product-table-component
+          [products]="productsWithCategories()"
+          (delete)="onDeleteProduct($event)"
+        />
+      }
+
+      <div class="table-meta">
+        Showing {{ productsWithCategories().length }} of {{ totalCount() }} results
+      </div>
+
+      <app-product-pagination-component
+        [currentPage]="pageNumber()"
+        [totalPages]="totalPages()"
+        [pageSize]="pageSize()"
+        (pageChanged)="onPageChanged($event)"
+        (pageSizeChanged)="onPageSizeChanged($event)"
+      />
+    </main>
+    <aside class="ranking-sidebar">
+      <app-product-ranking-component />
+    </aside>
   </div>
-  <app-product-filters-component
-    [categories]="categories()"
-    [currentFilters]="activeFilters()"
-    (filtersChanged)="onFiltersChanged($event)"
-  />
-  <app-product-table-component [products]="productsVm()" (delete)="onDeleteProduct($event)" />
-  <div class="table-meta">Showing {{ productsVm().length }} of {{ totalCount() }} results</div>
-  <app-product-pagination-component
-    [currentPage]="pageNumber()"
-    [totalPages]="totalPages()"
-    [pageSize]="pageSize()"
-    (pageChanged)="onPageChanged($event)"
-    (pageSizeChanged)="onPageSizeChanged($event)"
-  />
 </div>

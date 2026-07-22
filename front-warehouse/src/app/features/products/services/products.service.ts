@@ -1,8 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { PRODUCTS_MOCK } from '../mocks/products.mock';
-import { map, Observable, of } from 'rxjs';
+import { map, Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Product } from '../models/product.model';
 import { CreateProductDto } from '../dtos/create-product.dto';
 import { ApiResponse } from '@core/models/api-response.model';
 import { ProductDto } from '../dtos/product.dto';
@@ -15,53 +13,65 @@ import { environment } from '@environments/environment.dev';
   providedIn: 'root',
 })
 export class ProductsService {
-  http = inject(HttpClient);
-  private apiUrl = environment.apiUrl;
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = `${environment.apiUrl}/bff/products`;
 
-  getAllProductsMOCK() {
-    return of(PRODUCTS_MOCK);
-  }
-
+  // GET ALL PRODUCTS //
   getAllProducts(queryParams: ProductQueryParams): Observable<PaginatedResponse<ProductDto>> {
-    let params = new HttpParams();
-
-    if (queryParams.pageNumber)
-      params = params.set('PageNumber', queryParams.pageNumber.toString());
-
-    if (queryParams.pageSize) params = params.set('PageSize', queryParams.pageSize.toString());
-
-    if (queryParams.name) params = params.set('Name', queryParams.name);
-
-    if (queryParams.orderBy) params = params.set('OrderBy', queryParams.orderBy);
-
-    if (queryParams.descending !== undefined) {
-      params = params.set('Descending', queryParams.descending.toString());
-    }
-
-    if (queryParams.categoryIds && queryParams.categoryIds.length > 0) {
-      queryParams.categoryIds.forEach((id) => {
-        params = params.append('CategoryIds', id.toString());
-      });
-    }
-
-    return this.http.get<PaginatedResponse<ProductDto>>(`${this.apiUrl}/bff/products`, { params });
+    const params = this.generateQueryParams(queryParams);
+    return this.http.get<PaginatedResponse<ProductDto>>(this.apiUrl, { params });
   }
 
+  // GET PRODUCT BY ID //
   getProduct(uuid: string): Observable<ProductDto> {
     return this.http
-      .get<ApiResponse<ProductDto>>(`${this.apiUrl}/bff/products/${uuid}`)
+      .get<ApiResponse<ProductDto>>(`${this.apiUrl}/${uuid}`)
       .pipe(map((response) => response.data));
   }
 
-  addProduct(product: CreateProductDto): Observable<Product> {
-    return this.http.post<Product>(`${this.apiUrl}/bff/products`, product);
+  // ADD PRODUCT //
+  addProduct(product: CreateProductDto): Observable<ProductDto> {
+    return this.http
+      .post<ApiResponse<ProductDto>>(this.apiUrl, product)
+      .pipe(map((response) => response.data));
   }
 
-  updateProduct(product: EditProductDto): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/bff/products/${product.uuid}`, product);
+  // UPDATE PRODUCT //
+  updateProduct(product: EditProductDto): Observable<ProductDto> {
+    return this.http
+      .put<ApiResponse<ProductDto>>(`${this.apiUrl}/${product.uuid}`, product)
+      .pipe(map((response) => response.data));
   }
 
-  deleteProduct(uuid: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/bff/products/${uuid}`);
+  // DELETE PRODUCT //
+  deleteProduct(uuid: string): Observable<boolean> {
+    return this.http
+      .delete<ApiResponse<boolean>>(`${this.apiUrl}/${uuid}`)
+      .pipe(map((response) => response.data));
+  }
+
+  // GET TOP PRODUCTS //
+  getTopProducts(count: number): Observable<ProductDto[]> {
+    let params = new HttpParams();
+    if (count > 0) params = params.append('count', count);
+    return this.http
+      .get<ApiResponse<ProductDto[]>>(`${this.apiUrl}/top`, { params })
+      .pipe(map((response) => response.data));
+  }
+
+  // FUNCTION TO GENERATE QUERY PARAMS
+  private generateQueryParams(queryParams: ProductQueryParams): HttpParams {
+    let params = new HttpParams();
+    Object.entries(queryParams).forEach(([key, value]) => {
+      if (value == null) return;
+      const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+
+      if (Array.isArray(value)) {
+        value.forEach((item) => (params = params.append(formattedKey, item.toString())));
+      } else {
+        params = params.set(formattedKey, value.toString());
+      }
+    });
+    return params;
   }
 }

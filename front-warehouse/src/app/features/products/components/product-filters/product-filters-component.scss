@@ -76,7 +76,7 @@ form {
 
     &:hover {
       background-color: var(--button-s-bg-hover);
-      border-color: var(--border-light-color);
+      border-color: var(--border-s-color);
     }
 
     &::after {
@@ -96,7 +96,7 @@ form {
     z-index: 1000;
     padding: 8px;
     background-color: var(--background-s-color);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-p-color);
     border-radius: 11px;
     box-shadow: 0 6px 18px rgb(0 0 0 / 0.15);
   }

@@ -49,13 +49,13 @@ describe('CreateProductComponent', () => {
   describe('required field validation', () => {
     it('should require name', () => {
       const control = component.form.controls['name'];
-      control.setValue('');
+
       expect(control.hasError('required')).toBe(true);
     });
 
     it('should require categoryId', () => {
       const control = component.form.controls['categoryId'];
-      control.setValue(null);
+
       expect(control.hasError('required')).toBe(true);
     });
   });
@@ -95,7 +95,7 @@ describe('CreateProductComponent', () => {
     ];
 
     categoriesServiceMock.getAllCategories.mockReturnValue(of(categories));
-    component.ngOnInit();
+
     expect(categoriesServiceMock.getAllCategories).toHaveBeenCalled();
     expect(component.categories()).toEqual(categories);
   });
@@ -103,7 +103,6 @@ describe('CreateProductComponent', () => {
   it('should not add product when form is invalid', () => {
     const spy = vi.spyOn(component, 'saveProduct');
 
-    component.ngOnInit();
     component.onSubmit();
 
     expect(spy).not.toHaveBeenCalled();
@@ -111,8 +110,6 @@ describe('CreateProductComponent', () => {
 
   it('should add product when form is valid', () => {
     const spy = vi.spyOn(component, 'saveProduct').mockImplementation(() => undefined);
-
-    component.ngOnInit();
 
     component.form.setValue({
       name: 'New product',

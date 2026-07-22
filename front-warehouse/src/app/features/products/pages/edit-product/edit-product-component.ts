@@ -1,98 +1,89 @@
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, inject, signal, Signal } from '@angular/core';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CategoriesService } from '@features/categories/services/categories.service';
 import { EditProductDto } from '@features/products/dtos/edit-product.dto';
-import { ProductDto } from '@features/products/dtos/product.dto';
 import { Category } from '@features/categories/models/category.model';
 import { ProductsService } from '@features/products/services/products.service';
 import { ModalService } from '@shared/services/modal.service';
 import { Location } from '@angular/common';
+import { map, of } from 'rxjs';
+
+interface EditProductForm {
+  name: FormControl<string>;
+  categoryId: FormControl<number>;
+  quantity: FormControl<number>;
+  price: FormControl<number>;
+}
 
 @Component({
   selector: 'app-edit-product-component',
   imports: [ReactiveFormsModule],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './edit-product-component.html',
   styleUrl: './edit-product-component.scss',
 })
-export class EditProductComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private location = inject(Location);
-  private uuid!: string | null;
-  private destroyRef = inject(DestroyRef);
-  private productsService = inject(ProductsService);
-  private categoriesService = inject(CategoriesService);
-  private modalService = inject(ModalService);
+export class EditProductComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly location = inject(Location);
+  private readonly productsService = inject(ProductsService);
+  private readonly categoriesService = inject(CategoriesService);
+  private readonly modalService = inject(ModalService);
 
-  categories = signal<Category[]>([]);
-  private fb = inject(FormBuilder);
-  editForm!: FormGroup;
+  readonly isSaving = signal(false);
 
-  ngOnInit(): void {
-    this.getCategories();
-    this.initForm();
+  readonly uuid = toSignal(this.route.paramMap.pipe(map((params) => params.get('uuid'))), {
+    initialValue: null,
+  });
 
-    this.uuid = this.route.snapshot.paramMap.get('uuid');
+  readonly categories: Signal<Category[]> = toSignal(this.categoriesService.getAllCategories(), {
+    initialValue: [],
+  });
 
-    if (this.uuid) {
-      this.getProduct(this.uuid);
-    }
-  }
+  readonly productResource = rxResource({
+    params: () => ({ uuid: this.uuid() }),
+    stream: ({ params }) => {
+      const uuid = params.uuid;
+      return uuid ? this.productsService.getProduct(uuid) : of(null);
+    },
+  });
 
-  private getCategories() {
-    this.categoriesService
-      .getAllCategories()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((categories) => {
-        this.categories.set(categories);
-      });
-  }
+  readonly editForm = new FormGroup<EditProductForm>({
+    name: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, Validators.maxLength(50)],
+    }),
+    categoryId: new FormControl<number>(0, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
+    quantity: new FormControl<number>(0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0), Validators.max(9999)],
+    }),
+    price: new FormControl<number>(0, {
+      nonNullable: true,
+      validators: [Validators.required, Validators.min(0.01), Validators.max(9999999)],
+    }),
+  });
 
-  private getProduct(uuid: string) {
-    this.productsService.getProduct(uuid).subscribe({
-      next: (product: ProductDto) => {
-        this.editForm.patchValue({
-          name: product.name,
-          categoryId: product.categoryId,
-          quantity: product.quantity,
-          price: product.price,
-        });
-      },
-      error: (err) => {
-        console.log('An error occured while retrieving product:', err);
-      },
+  constructor() {
+    effect(() => {
+      const product = this.productResource.value();
+      if (product) {
+        this.editForm.patchValue(product);
+      }
     });
   }
 
-  private initForm(): void {
-    this.editForm = this.fb.group({
-      name: this.fb.control('', {
-        validators: [Validators.required, Validators.maxLength(50)],
-        nonNullable: true,
-      }),
-
-      categoryId: this.fb.control<number | null>(null, {
-        validators: [Validators.required],
-      }),
-
-      quantity: this.fb.control<number | null>(null, {
-        validators: [Validators.required, Validators.min(0), Validators.max(9999)],
-      }),
-
-      price: this.fb.control<number | null>(null, {
-        validators: [Validators.required, Validators.min(0.01), Validators.max(9999999)],
-      }),
-    });
-  }
-
-  editProduct(product: EditProductDto) {
+  updateProduct(product: EditProductDto) {
     this.productsService.updateProduct(product).subscribe({
       next: async () => {
         const confirmed = await this.modalService.open({
           title: 'Success!',
-          message: `Product ${product.name}  has been edited successfully. Would you like to go back to the product list?`,
+          message: `Product ${product.name}  has been updated successfully. Would you like to go back to the product list?`,
           confirmLabel: 'Yes, go back',
           cancelLabel: 'No, stay here',
           variant: 'primary',
@@ -103,12 +94,13 @@ export class EditProductComponent implements OnInit {
         }
       },
       error: async (err) => {
-        console.log('Product has not been added: ' + err);
+        console.error('Product update failed: ' + err);
         await this.modalService.open({
           title: 'Failed!',
-          message: 'Product has not been edited successfully. Please try it again. ',
+          message: 'Product has not been updated successfully. Please try it again. ',
           confirmLabel: 'Try again',
           cancelLabel: '',
+          variant: 'primary',
         });
       },
     });
@@ -119,12 +111,15 @@ export class EditProductComponent implements OnInit {
       this.editForm.markAllAsTouched();
       return;
     }
-    const product = {
+    const currentUuid = this.uuid();
+    if (!currentUuid) return;
+
+    const product: EditProductDto = {
       ...this.editForm.getRawValue(),
-      uuid: this.uuid,
+      uuid: currentUuid,
     };
 
-    this.editProduct(product);
+    this.updateProduct(product);
   }
 
   onCancel(): void {

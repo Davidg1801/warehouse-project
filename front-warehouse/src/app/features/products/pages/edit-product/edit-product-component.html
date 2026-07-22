@@ -5,48 +5,115 @@
       <p class="form-subtitle">Fill out the form and edit the product details.</p>
     </div>
 
-    <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
-      <div class="form-grid">
-        <div class="form-field">
-          <label for="name">Name</label>
-          <input id="name" type="text" formControlName="name" placeholder="Product name" />
-        </div>
+    @if (productResource.isLoading()) {
+      <div class="loading-message">Loading product...</div>
+    } @else if (productResource.error()) {
+      <div class="failed-load-message">Failed to load product</div>
+    } @else {
+      <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="name">Name</label>
+            <input id="name" type="text" formControlName="name" placeholder="Product name" />
 
-        <div class="form-field">
-          <label for="category">Category</label>
-
-          <select id="category" formControlName="categoryId">
-            <option value="" disabled>-- Select category --</option>
-
-            @for (category of categories(); track category.id) {
-              <option [ngValue]="category.id">
-                {{ category.name }}
-              </option>
+            @if (editForm.controls.name.invalid && editForm.controls.name.touched) {
+              <div class="error-message">
+                @if (editForm.get('name')?.hasError('required')) {
+                  <span>Field is required</span>
+                }
+                @if (editForm.get('name')?.hasError('maxlength')) {
+                  <span>Maximum length is 50 characters</span>
+                }
+              </div>
             }
-          </select>
+          </div>
+
+          <div class="form-field">
+            <label for="category">Category</label>
+
+            <select id="category" formControlName="categoryId">
+              <option [ngValue]="" disabled>-- Select category --</option>
+
+              @for (category of categories(); track category.id) {
+                <option [ngValue]="category.id">
+                  {{ category.name }}
+                </option>
+              }
+
+              @if (editForm.controls.categoryId.invalid && editForm.controls.categoryId.touched) {
+                <div class="error-message">
+                  <span>Category is required</span>
+                </div>
+              }
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="quantity">Quantity</label>
+            <input
+              id="quantity"
+              type="number"
+              formControlName="quantity"
+              placeholder="Available quantity"
+            />
+            @if (editForm.controls.quantity.invalid && editForm.controls.quantity.touched) {
+              <div class="error-message">
+                @if (editForm.controls.quantity.hasError('required')) {
+                  <span>Field is required</span>
+                }
+
+                @if (editForm.controls.quantity.hasError('min')) {
+                  <span>Quantity cannot be less than 0</span>
+                }
+
+                @if (editForm.controls.quantity.hasError('max')) {
+                  <span>Quantity cannot exceed 9999</span>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="price">Price</label>
+            <input
+              id="price"
+              type="number"
+              formControlName="price"
+              placeholder="0.00"
+              step="0.01"
+            />
+            @if (editForm.controls.price.invalid && editForm.controls.price.touched) {
+              <div class="error-message">
+                @if (editForm.controls.price.hasError('required')) {
+                  <span>Price is required</span>
+                }
+
+                @if (editForm.controls.price.hasError('min')) {
+                  <span>Price must be at least 0.01</span>
+                }
+
+                @if (editForm.controls.price.hasError('max')) {
+                  <span>Price cannot exceed 9,999,999</span>
+                }
+              </div>
+            }
+          </div>
         </div>
 
-        <div class="form-field">
-          <label for="quantity">Quantity</label>
-          <input
-            id="quantity"
-            type="number"
-            formControlName="quantity"
-            placeholder="Available quantity"
-          />
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" (click)="onCancel()" [disabled]="isSaving()">
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-add" [disabled]="editForm.invalid || isSaving()">
+            @if (isSaving()) {
+              Saving...
+            } @else {
+              Save Product
+            }
+          </button>
         </div>
-
-        <div class="form-field">
-          <label for="price">Price</label>
-          <input id="price" type="number" formControlName="price" placeholder="0.00" />
-        </div>
-      </div>
-
-      <div class="form-actions">
-        <button type="button" class="btn btn-cancel" (click)="onCancel()">Cancel</button>
-
-        <button type="submit" class="btn btn-add">Save Product</button>
-      </div>
-    </form>
+      </form>
+    }
   </div>
 </div>
