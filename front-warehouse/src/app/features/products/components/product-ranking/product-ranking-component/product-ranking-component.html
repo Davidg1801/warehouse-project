@@ -1,0 +1,28 @@
+<div class="ranking-card">
+  <div class="ranking-header">
+    <h3 class="ranking-title">Most Viewed Products</h3>
+  </div>
+
+  <table class="ranking-table">
+    <thead>
+      <tr class="column-names">
+        <th class="col-nr">Nr</th>
+        <th class="col-product">Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (product of topProducts(); track product.uuid) {
+        <tr>
+          <td class="col-nr">
+            <span class="rank-badge">{{ $index + 1 }}</span>
+          </td>
+          <td class="col-product">{{ product.name }}</td>
+        </tr>
+      } @empty {
+        <tr class="empty-row">
+          <td colspan="2">There is no product in ranking</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

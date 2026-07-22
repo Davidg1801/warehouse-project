@@ -11,8 +11,21 @@
     </div>
   </header>
 
-  <main class="app-content">
-    <router-outlet></router-outlet>
-  </main>
+  <div class="app-body">
+    <aside class="app-sidebar">
+      <nav class="sidebar-nav">
+        <a routerLink="/products" routerLinkActive="active" class="nav-item">
+          <span class="nav-label">Products</span>
+        </a>
+        <a routerLink="/orders" routerLinkActive="active" class="nav-item">
+          <span class="nav-label">Orders</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+  <app-modal-component></app-modal-component>
 </div>
-<app-modal-component></app-modal-component>

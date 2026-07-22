@@ -40,6 +40,15 @@ export const routes: Routes = [
           ),
         title: 'Edit product',
       },
+
+      {
+        path: 'orders',
+        loadComponent: () =>
+          import('@features/orders/components/orders-component/orders-component').then(
+            (c) => c.OrdersComponent,
+          ),
+        title: 'Orders',
+      },
     ],
   },
 ];

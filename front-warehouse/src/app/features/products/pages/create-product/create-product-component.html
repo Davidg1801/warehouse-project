@@ -56,6 +56,9 @@
               @if (form.get('quantity')?.hasError('required')) {
                 <span>Field is required</span>
               }
+              @if (form.get('quantity')?.hasError('min')) {
+                <span>Quantity cannot be less than 0</span>
+              }
               @if (form.get('quantity')?.hasError('max')) {
                 <span>Quantity cannot exceed 9999</span>
               }

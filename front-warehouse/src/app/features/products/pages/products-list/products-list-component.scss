@@ -1,8 +1,7 @@
 .products-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding: 2rem;
+  gap: 1.5rem;
   min-height: 100vh;
   background-color: var(--background-p-color);
   color: var(--text-p-color);
@@ -14,7 +13,7 @@
   align-items: center;
   padding: 1.5rem;
   background-color: var(--background-s-color);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-p-color);
   border-radius: 1rem;
 }
 
@@ -49,39 +48,79 @@
   color: var(--button-p-text);
   cursor: pointer;
   font-size: 0.95rem;
+  text-decoration: none;
   transition:
     background-color 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.15s ease,
-    box-shadow 0.2s ease;
+    transform 0.15s ease;
+
+  &:hover {
+    background-color: var(--button-p-bg-hover);
+  }
 
   &:active {
     transform: translateY(1px);
   }
+}
 
-  &:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 5px rgb(from var(--accent-color) r g b / 0.25);
-  }
+.page-body {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
 
-  &:hover {
-    background-color: var(--button-p-bg-hover);
-    border-color: var(--button-p-bg-hover);
-  }
-
-  &:active {
-    background-color: var(--button-p-bg-active);
-    border-color: var(--button-p-bg-active);
-  }
+.products-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .table-meta {
   color: var(--text-s-color);
   font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.ranking-sidebar {
+  position: sticky;
+  top: 0rem;
+}
+
+@media (max-width: 1150px) {
+  .page-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .ranking-sidebar {
+    position: static;
+    order: 1;
+    width: 100%;
+  }
+
+  .ranking-sidebar ::ng-deep .ranking-card {
+    max-width: 100% !important;
+  }
+
+  .products-content {
+    order: 2;
+    width: 100%;
+  }
 }
 
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+
+    .add-btn {
+      width: 100%;
+    }
   }
 }

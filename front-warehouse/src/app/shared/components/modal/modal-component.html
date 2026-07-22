@@ -9,9 +9,11 @@
     </div>
 
     <div class="modal-footer">
-      <button class="btn cancel-btn" (click)="close()">
-        {{ modalService.config().cancelLabel || 'Cancel' }}
-      </button>
+      @if (modalService.config().cancelLabel !== '') {
+        <button class="btn cancel-btn" (click)="close()">
+          {{ modalService.config().cancelLabel }}
+        </button>
+      }
       <button class="btn confirm-btn" (click)="confirm()">
         {{ modalService.config().confirmLabel || 'OK' }}
       </button>

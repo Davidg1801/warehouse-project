@@ -1,0 +1,60 @@
+.ranking-card {
+  background: var(--background-s-color);
+  border: 1px solid var(--border-s-color);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  width: 100%;
+  max-width: 450px;
+  box-sizing: border-box;
+}
+
+.ranking-header {
+  padding-bottom: 1rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-s-color);
+}
+
+.ranking-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  color: var(--text-p-color);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.ranking-table {
+  width: 100%;
+
+  thead {
+    th {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-s-color);
+    }
+  }
+}
+
+.col-nr {
+  padding: 0.2rem 0.2rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  width: 48px;
+}
+
+.col-product {
+  padding: 0.2rem 0.2rem;
+  text-align: left;
+  color: var(--text-p-color);
+}
+
+.empty-row {
+  td {
+    text-align: center;
+    padding: 1.5rem;
+    color: var(--text-s-color);
+  }
+}
