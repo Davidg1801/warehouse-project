@@ -41,7 +41,38 @@ export class OrderNatsController implements IOrderController {
             } catch (error) {
                 console.error(`[NATS] Error during creating order: ${error}`);
                 const errorMessage = error instanceof Error ? error.message : "Anyknow error";
-                msg.respond(this.sc.encode(`ERROR:${errorMessage}`));
+                msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
+            }
+        }
+    }
+
+    private async listenForGetOrder() : Promise<void> {
+        const subject = "orders.get";
+        const sub: Subscription = this.nc.subscribe(subject);
+        console.log(`[NATS] Listen on topic: ${subject}`);
+        for await (const msg of sub) {
+            try {
+                const uuid = this.sc.decode(msg.data);
+
+                console.log(`[NATS] Received request:: orders.get for UUID: ${uuid} `);
+
+                const order = await this.orderService.getOrder(uuid);
+                if (order) {
+                    const responseDto: OrderResponse = {
+                        uuid: order.uuid,
+                        customerId: order.customerId,
+                        items: order.items,
+                        createdAt: order.created_at
+                    };
+                    const responseJson = JSON.stringify(responseDto);
+                    msg.respond(this.sc.encode(responseJson));
+                } else {
+                    msg.respond(this.sc.encode("ERROR: Order not found"));
+                }
+            } catch (error) {
+                console.error(`[NATS] Error during getting order": ${error}`);
+                const errorMessage = error instanceof Error ? error.message : "Anyknow error";
+                msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
             }
         }
     }
