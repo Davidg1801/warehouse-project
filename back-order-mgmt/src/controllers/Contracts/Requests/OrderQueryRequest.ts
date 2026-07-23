@@ -1,7 +1,7 @@
 export class OrderQueryRequest {
     public readonly pageNumber: number = 1;
     public readonly pageSize: number = 10;
-    public readonly orderBy: string = "createdAt"; // createdAt, customerId
+    public readonly orderBy?: string = "createdAt"; // createdAt, customerId
     public readonly descending: boolean = false; 
 
     public readonly customerId?: string;

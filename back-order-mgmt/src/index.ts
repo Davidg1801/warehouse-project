@@ -6,7 +6,7 @@ import { DatabaseMigrator, PostgresRepository } from "./infrastructure/index.js"
 
 import { OrderService } from "./core/Services/index.js";
 
-import { OrderNatsController } from "./controllers/Contracts/OrderNatsController.js";
+import { OrderNatsController } from "./controllers/OrderNatsController.js";
 import type { IOrderController } from "./controllers/Contracts/Interfaces/IOrderController.js";
 
 const { Pool } = pg;

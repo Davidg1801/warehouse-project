@@ -2,7 +2,7 @@ import type { Order } from "../Entities/Order.js";
 import type { OrderQuery } from "../Queries/OrderQuery.js";
 import type { PagedResult } from "../Results/PagedResult.js";
 export interface IOrderRepository {
-    save(order : Order) : Promise<void>;
-    getByUuid(uuid : string): Promise< Order | null>;
-    getPaged(query : OrderQuery): Promise<PagedResult<Order>>;
+    saveAsync(order : Order) : Promise<void>;
+    getByUuidAsync(uuid : string): Promise< Order | null>;
+    getPagedAsync(query : OrderQuery): Promise<PagedResult<Order>>;
 }

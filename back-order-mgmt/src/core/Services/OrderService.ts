@@ -10,19 +10,19 @@ export class OrderService implements IOrderService {
     constructor(
         private readonly orderRepository: IOrderRepository
     ){}
-    async getAllOrder(orderQuery: OrderQuery): Promise<PagedResult<Order>> {
-        return await this.orderRepository.getPaged(orderQuery);
+    async getAllOrderAsync(orderQuery: OrderQuery): Promise<PagedResult<Order>> {
+        return await this.orderRepository.getPagedAsync(orderQuery);
     }
 
-    async getOrder(uuid: string): Promise<Order | null> {
-        const order = await this.orderRepository.getByUuid(uuid);
+    async getOrderAsync(uuid: string): Promise<Order | null> {
+        const order = await this.orderRepository.getByUuidAsync(uuid);
         return order ?? null;
     }
 
 
-    async addOrder(customerId: string, items: OrderItem[]): Promise<Order> {
+    async addOrderAsync(customerId: string, items: OrderItem[]): Promise<Order> {
         const order = Order.create(customerId,items);
-        await this.orderRepository.save(order);
+        await this.orderRepository.saveAsync(order);
         return order;
     }
 

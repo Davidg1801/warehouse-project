@@ -1,8 +1,10 @@
 import { StringCodec, type NatsConnection, type Subscription } from "nats";
-import type { IOrderController } from "./Interfaces/IOrderController.js";
-import type { IOrderService } from "../../core/Interfaces/IOrderService.js";
-import type { CreateOrderRequest } from "./Requests/CreateOrderRequest.js";
-import type { OrderResponse } from "./Responses/OrderResponse.js";
+import type { IOrderController } from "./Contracts/Interfaces/IOrderController.js";
+import type { IOrderService } from "../core/Interfaces/IOrderService.js";
+import type { CreateOrderRequest } from "./Contracts/Requests/CreateOrderRequest.js";
+import type { OrderResponse } from "./Contracts/Responses/OrderResponse.js";
+import { OrderQueryRequest } from "./Contracts/Requests/OrderQueryRequest.js";
+import type { OrderQuery } from "../core/Queries/OrderQuery.js";
 
 export class OrderNatsController implements IOrderController {
     
@@ -14,7 +16,7 @@ export class OrderNatsController implements IOrderController {
         
         console.log(`[NATS Controller] Start Listeners`);
 
-        await Promise.all([this.listenForCreateOrder()]);
+        await Promise.all([this.listenForCreateOrder(), this.listenForGetOrder(), this.listenForGetAllOrders()]);
     }
 
     private async listenForCreateOrder() : Promise<void> {
@@ -28,7 +30,7 @@ export class OrderNatsController implements IOrderController {
 
                 console.log(`[NATS] Customer no. : ${request.customerId} try create new order`);
 
-                const createdOrder = await this.orderService.addOrder(request.customerId, request.items);
+                const createdOrder = await this.orderService.addOrderAsync(request.customerId, request.items);
                 const responseDto: OrderResponse = {
                     uuid: createdOrder.uuid,
                     customerId: createdOrder.customerId,
@@ -56,7 +58,7 @@ export class OrderNatsController implements IOrderController {
 
                 console.log(`[NATS] Received request:: orders.get for UUID: ${uuid} `);
 
-                const order = await this.orderService.getOrder(uuid);
+                const order = await this.orderService.getOrderAsync(uuid);
                 if (order) {
                     const responseDto: OrderResponse = {
                         uuid: order.uuid,
@@ -71,6 +73,49 @@ export class OrderNatsController implements IOrderController {
                 }
             } catch (error) {
                 console.error(`[NATS] Error during getting order": ${error}`);
+                const errorMessage = error instanceof Error ? error.message : "Anyknow error";
+                msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
+            }
+        }
+    }
+
+    private async listenForGetAllOrders() : Promise<void> {
+        const subject = "orders.getall";
+        const sub: Subscription = this.nc.subscribe(subject);
+        console.log(`[NATS] Listen on topic: ${subject}`);
+
+        for await (const msg of sub) {
+            try {
+                const stringRequest = this.sc.decode(msg.data);
+                const request = new OrderQueryRequest(JSON.parse(stringRequest || "{}"));
+
+                console.log("[NATS] Received request:: orders.getall");
+                const query: OrderQuery = {
+                    pageNumber: request.pageNumber ?? 1,
+                    pageSize: request.pageSize ?? 10,
+                    descending: request.descending ?? false,
+                    orderBy: request.orderBy ?? "createdAt",
+                    customerId: request.customerId ?? undefined,
+                    productIds: request.productIds ?? undefined,
+                    uuid: request.uuid ?? undefined,
+                    dateFrom: request.dateFrom ?? undefined,
+                    dateTo: request.dateTo ?? undefined
+                };
+                const ordersPaged = await this.orderService.getAllOrderAsync(query);
+                const responseData = ordersPaged.data.map(order => ({
+                    uuid: order.uuid,
+                    customerId: order.customerId,
+                    items: order.items,
+                    createdAt: order.created_at
+                }));
+                const responsePayload = {
+                    totalCount: ordersPaged.totalCount,
+                    data: responseData
+                };
+                const response = JSON.stringify(responsePayload);
+                msg.respond(this.sc.encode(response));
+            } catch (error) {
+                console.error(`[NATS] Error during getting orders": ${error}`);
                 const errorMessage = error instanceof Error ? error.message : "Anyknow error";
                 msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
             }

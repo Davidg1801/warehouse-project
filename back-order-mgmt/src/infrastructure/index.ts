@@ -1,2 +1,2 @@
-export * from "./data/PostgresRepository.js";
+export * from "./data/index.js";
 export * from "./migrations/DatabaseMigrator.js";

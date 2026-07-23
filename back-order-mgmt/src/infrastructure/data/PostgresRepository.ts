@@ -8,7 +8,7 @@ export class PostgresRepository implements IOrderRepository {
 
     constructor (private readonly pool : Pool){};
 
-    async getPaged(query: OrderQuery): Promise<PagedResult<Order>> {
+    async getPagedAsync(query: OrderQuery): Promise<PagedResult<Order>> {
         try {
             const values: any[] = [];
             let filters = "";
@@ -17,6 +17,11 @@ export class PostgresRepository implements IOrderRepository {
             if (query.customerId) {
                 values.push(`%${query.customerId}%`);
                 filters += ` AND Data->>'customerId' ILIKE $${values.length}`;
+            }
+
+            if (query.uuid) {
+                values.push(`%${query.uuid}%`);
+                filters += ` AND Uuid::text ILIKE $${values.length}`;
             }
 
             if (query.productIds && query.productIds.length > 0) {
@@ -89,7 +94,7 @@ export class PostgresRepository implements IOrderRepository {
         }
     }
 
-    async save(order: Order): Promise<void> {
+    async saveAsync(order: Order): Promise<void> {
         try {
             const orderJson : string = JSON.stringify(order);
             const values : string[] = [order.uuid, orderJson];
@@ -100,7 +105,7 @@ export class PostgresRepository implements IOrderRepository {
             throw error;
         } 
     }   
-    async getByUuid(uuid: string): Promise<Order | null> {
+    async getByUuidAsync(uuid: string): Promise<Order | null> {
         try {
             const script : string = "SELECT Data FROM Orders WHERE Uuid = $1;";
             const result = await this.pool.query(script, [uuid]);
