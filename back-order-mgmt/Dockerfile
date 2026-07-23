@@ -2,10 +2,14 @@ FROM node:22-slim
 
 WORKDIR /app
 
+COPY ZscalerRootCA.cer ./ZscalerRootCA.crt
+
+ARG NODE_EXTRA_CA_CERTS="/app/ZscalerRootCA.crt"
+
 COPY package*.json ./
 
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 COPY . .
 
-CMD ["npx", "tsc", "watch", "src/index.ts"]
+CMD ["npm", "run", "dev"]

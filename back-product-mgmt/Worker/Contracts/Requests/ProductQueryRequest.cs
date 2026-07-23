@@ -9,3 +9,4 @@ public class ProductQueryRequest
     public string? Name { get; set; }
     public int[]? CategoryIds { get; set; }
 }
+

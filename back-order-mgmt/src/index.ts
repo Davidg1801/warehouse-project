@@ -1,4 +1,4 @@
-import pg from "../node_modules/@types/pg/index.js";
+import pg from "pg";
 import { connect } from "nats";
 import type { NatsConnection } from "nats";
 
