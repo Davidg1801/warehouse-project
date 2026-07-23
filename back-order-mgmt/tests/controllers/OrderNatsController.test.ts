@@ -14,7 +14,7 @@ async function* mockEmptyStream<T>(): AsyncIterable<T> {
 describe("OrderNatsController", () => {
     const sc = StringCodec();
 
-    it("should successufly process order.create message and respond with JSON", async () => {
+    it("should successufly process orders.create message and respond with JSON", async () => {
         //Arrange
         const mockOrderService = mock<IOrderService>();
         const mockNc = mock<NatsConnection>();
@@ -23,7 +23,7 @@ describe("OrderNatsController", () => {
         const requestDto = { customerId: "customer", items: [ {productId: "product", quantity: 2} ]};
 
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
-         mockNc.subscribe.mockImplementation((subject: string) => {
+        mockNc.subscribe.mockImplementation((subject: string) => {
             if (subject === "orders.create") {
                 return mockSingleMessageStream(mockMsg) as unknown as Subscription;
             }
@@ -31,13 +31,13 @@ describe("OrderNatsController", () => {
         });
 
         const order = Order.create(requestDto.customerId, requestDto.items);
-        mockOrderService.addOrder.mockResolvedValue(order);
+        mockOrderService.addOrderAsync.mockResolvedValue(order);
     
         const sut = new OrderNatsController(mockNc, mockOrderService);
         //Act
         await sut.startListening();
         //Assert
-        expect(mockOrderService.addOrder).toHaveBeenCalledWith(requestDto.customerId, requestDto.items);
+        expect(mockOrderService.addOrderAsync).toHaveBeenCalledWith(requestDto.customerId, requestDto.items);
         expect(mockMsg.respond).toHaveBeenCalledOnce();
 
         const calls = (mockMsg.respond as any).mock.calls;
@@ -47,5 +47,120 @@ describe("OrderNatsController", () => {
 
         expect(responseObject.uuid).toBe(order.uuid);
         expect(responseObject.customerId).toBe(requestDto.customerId);
+    });
+
+    it("should successfully process orders.get message and respong with Order Json", async () => {
+        //Arrange
+        const mockOrderService = mock<IOrderService>();
+        const mockNc = mock<NatsConnection>();
+        const mockMsg = mock<Msg>();
+        const targetUuid = "123e4567-e89b-12d3-a456-426614174000";
+        mockMsg.data = sc.encode(targetUuid);
+        mockNc.subscribe.mockImplementation((subject: string) => {
+            if (subject === "orders.get") {
+                return mockSingleMessageStream(mockMsg) as unknown as Subscription;
+            }
+            return mockEmptyStream() as unknown as Subscription;
+        });
+        const order = Order.create("cust1", [{productId: "prod1", quantity: 2}]);
+        (order as any).uuid = targetUuid;
+        mockOrderService.getOrderAsync.mockResolvedValue(order);
+        const sut = new OrderNatsController(mockNc, mockOrderService);
+        //Act
+        await sut.startListening();
+        //Assert
+        expect(mockOrderService.getOrderAsync).toHaveBeenCalledExactlyOnceWith(targetUuid);
+        const calls = (mockMsg.respond as any).mock.calls;
+        const respondArg = calls[0][0];
+        const responseString = sc.decode(respondArg as Uint8Array);
+        const responseObject : Order = JSON.parse(responseString);
+        expect(responseObject.uuid).toBe(targetUuid);
+        expect(responseObject.customerId).toBe("cust1");
+        expect(responseObject.items.length).toBe(1);
+    });
+
+    it("should process orders.get message and return ERROR when order does not exist", async () => {
+        //Arrange
+        const mockOrderService = mock<IOrderService>();
+        const mockNc = mock<NatsConnection>();
+        const mockMsg = mock<Msg>();
+        const targetUuid = "123e4567-e89b-12d3-a456-426614174000";
+        mockMsg.data = sc.encode(targetUuid);
+        mockNc.subscribe.mockImplementation((subject: string) => {
+            if (subject === "orders.get") {
+                return mockSingleMessageStream(mockMsg) as unknown as Subscription;
+            }
+            return mockEmptyStream() as unknown as Subscription;
+        });
+        
+        mockOrderService.getOrderAsync.mockResolvedValue(null);
+        const sut = new OrderNatsController(mockNc, mockOrderService);
+        //Act
+        await sut.startListening();
+        //Assert
+        expect(mockOrderService.getOrderAsync).toHaveBeenCalledExactlyOnceWith(targetUuid);
+        const calls = (mockMsg.respond as any).mock.calls;
+        const respondArg = calls[0][0];
+        const responseString = sc.decode(respondArg as Uint8Array);
+        expect(responseString).toBe("ERROR: Order not found");
+    });
+
+    it("should process orders.get message and return ERROR when appear connection problem", async () => {
+        //Arrange
+        const mockOrderService = mock<IOrderService>();
+        const mockNc = mock<NatsConnection>();
+        const mockMsg = mock<Msg>();
+        const targetUuid = "123e4567-e89b-12d3-a456-426614174000";
+        mockMsg.data = sc.encode(targetUuid);
+        mockNc.subscribe.mockImplementation((subject: string) => {
+            if (subject === "orders.get") {
+                return mockSingleMessageStream(mockMsg) as unknown as Subscription;
+            }
+            return mockEmptyStream() as unknown as Subscription;
+        });
+        const errorMessage = "Connection problem";
+        mockOrderService.getOrderAsync.mockRejectedValue(new Error(errorMessage));
+        const sut = new OrderNatsController(mockNc, mockOrderService);
+        //Act
+        await sut.startListening();
+        //Assert
+        expect(mockOrderService.getOrderAsync).toHaveBeenCalledExactlyOnceWith(targetUuid);
+        const calls = (mockMsg.respond as any).mock.calls;
+        const respondArg = calls[0][0];
+        const responseString = sc.decode(respondArg as Uint8Array);
+        expect(responseString).toBe(`ERROR: ${errorMessage}`);
+    });
+
+    it("should successfully process orders.getall message and handle default default values", async () => {
+        //Arrange
+        const mockOrderService = mock<IOrderService>();
+        const mockNc = mock<NatsConnection>();
+        const mockMsg = mock<Msg>();
+
+        const requestDto = { customerId: "test"};
+        mockMsg.data = sc.encode(JSON.stringify(requestDto));
+        mockNc.subscribe.mockImplementation((subject: string) => {
+            if (subject === "orders.getall") {
+                return mockSingleMessageStream(mockMsg) as unknown as Subscription;
+            }
+            return mockEmptyStream() as unknown as Subscription;
+        });
+        const order = Order.create("test", [{productId: "prod1", quantity: 2}]);
+        mockOrderService.getAllOrderAsync.mockResolvedValue( { totalCount: 1, data: [order]});
+        const sut = new OrderNatsController(mockNc, mockOrderService);
+        //Act
+        await sut.startListening();
+        //Asserts
+        expect(mockOrderService.getAllOrderAsync).toHaveBeenCalledWith(expect.objectContaining({pageNumber: 1, pageSize: 10, descending: false, orderBy: "createdAt", customerId: "test"}));
+        const calls = (mockMsg.respond as any).mock.calls;
+        const respondArg = calls[0][0];
+        const responseString = sc.decode(respondArg as Uint8Array);
+        const responseObject = JSON.parse(responseString);
+        expect(responseObject.data).toHaveLength(1);
+        expect(responseObject.totalCount).toBe(1);
+        expect(responseObject.data[0].customerId).toBe("test");
+        expect(responseObject.data[0].items[0].productId).toBe("prod1");
+        expect(responseObject.data[0].createdAt).toBeDefined();
+        expect(responseObject.data[0].created_at).toBeUndefined();
     });
 });

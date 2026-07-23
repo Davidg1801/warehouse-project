@@ -1,4 +1,4 @@
-import pg from "../node_modules/@types/pg/index.js";
+import pg from "pg";
 import { connect } from "nats";
 import type { NatsConnection } from "nats";
 
@@ -6,7 +6,7 @@ import { DatabaseMigrator, PostgresRepository } from "./infrastructure/index.js"
 
 import { OrderService } from "./core/Services/index.js";
 
-import { OrderNatsController } from "./controllers/Contracts/OrderNatsController.js";
+import { OrderNatsController } from "./controllers/OrderNatsController.js";
 import type { IOrderController } from "./controllers/Contracts/Interfaces/IOrderController.js";
 
 const { Pool } = pg;
