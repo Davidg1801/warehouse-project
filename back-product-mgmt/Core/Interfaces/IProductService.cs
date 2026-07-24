@@ -1,3 +1,4 @@
+using Core.Commands;
 using Core.Entities;
 using Core.Queries;
 using Core.Results;
@@ -11,4 +12,5 @@ public interface IProductService
     Task<bool> DeleteProductAsync(Guid uuid);
     Task<Product?> UpdateProductAsync(Guid uuid, string name, ProductCategory categoryId, decimal price, int quantity);
     Task<Product?> GetProductAsync(Guid uuid);
+    Task<ReserveStockResult> ReserveStockAsync(ReserveStockCommand command);
 }

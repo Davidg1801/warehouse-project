@@ -3,6 +3,7 @@ using back_warehouse_bff.Contracts.Common;
 using back_warehouse_bff.Contracts.Requests;
 using back_warehouse_bff.Contracts.Responses;
 using back_warehouse_bff.Services.Interfaces;
+using Microsoft.VisualBasic;
 using NATS.Client.Core;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -11,15 +12,20 @@ namespace back_warehouse_bff.Services;
 public class OrderNatsService : IOrderService
 {
     private readonly INatsClient _natsClient;
-    public OrderNatsService(INatsClient natsClient)
+    private readonly IProductNotificationService _notificationService;
+    private readonly IProductTopCacheService _topCacheService;
+    public OrderNatsService(INatsClient natsClient, IProductNotificationService notificationService, IProductTopCacheService topCacheService)
     {
         _natsClient = natsClient;
+        _notificationService = notificationService;
+        _topCacheService = topCacheService;
     }
     public async Task<ApiResponse<OrderResponseDto>> AddOrderAsync(OrderRequestDto request)
     {
         try
         {
-            var payload = JsonSerializer.Serialize(request);
+            var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var payload = JsonSerializer.Serialize(request, jsonOptions);
 
             var reply = await _natsClient.RequestAsync<string, string>(
                 subject: "orders.add",
@@ -31,11 +37,43 @@ public class OrderNatsService : IOrderService
 
             if (responseText != null && responseText.StartsWith("ERROR:"))
             {
-                return ApiResponse<OrderResponseDto>.Fail(responseText.Replace("ERROR: ", ""));
+                var cleanErrorString = responseText.Replace("ERROR: ", "");
+                var errorList = cleanErrorString
+                    .Split(" | ", StringSplitOptions.RemoveEmptyEntries)
+                    .Select(e => e.Trim())
+                    .ToList();
+                return ApiResponse<OrderResponseDto>.Fail(errorList);
             }
 
             var order = JsonSerializer.Deserialize<OrderResponseDto>(responseText!, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
+            var topProductsChanged = false;
+            foreach (var item in order!.Items)
+            {
+                var isTop = await _topCacheService.IsProductInTopAsync(item.ProductId);
+                if (isTop)
+                {
+                    var productReply = await _natsClient.RequestAsync<Guid, string>("products.get", item.ProductId);
+                    if (productReply.Data != null && !productReply.Data.StartsWith("ERROR:"))
+                    {
+                        var updatedProduct = JsonSerializer.Deserialize<ProductResponseDto>(
+                            productReply.Data,
+                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                        );
+
+                        if (updatedProduct != null)
+                        {
+                            await _topCacheService.UpdateProductDataAsync(updatedProduct);
+                            topProductsChanged = true;
+                        }
+                    }
+                }
+            }
+            if (topProductsChanged)
+            {
+                await _notificationService.NotifyTopProductsUpdatedAsync();
+            }
+            await _notificationService.NotifyProductsUpdatedAsync();
             return ApiResponse<OrderResponseDto>.Ok(order!, "Order has been successfully created.");
         }
         catch (Exception ex)
@@ -65,7 +103,8 @@ public class OrderNatsService : IOrderService
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo
             };
-            var payload = JsonSerializer.Serialize(natsPayload);
+            var serializeOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+            var payload = JsonSerializer.Serialize(natsPayload, serializeOptions);
             var reply = await _natsClient.RequestAsync<string, string>(
                 subject: "orders.getall",
                 data: payload,
@@ -102,9 +141,9 @@ public class OrderNatsService : IOrderService
     {
         try
         {
-            var reply = await _natsClient.RequestAsync<Guid, string>(
+            var reply = await _natsClient.RequestAsync<string, string>(
                 subject: "orders.get",
-                data: uuid,
+                data: uuid.ToString(),
                 cancellationToken: new CancellationTokenSource(TimeSpan.FromSeconds(5)).Token
             );
 

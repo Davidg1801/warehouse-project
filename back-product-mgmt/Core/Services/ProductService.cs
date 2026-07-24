@@ -1,3 +1,4 @@
+using Core.Commands;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Queries;
@@ -71,4 +72,47 @@ public class ProductService : IProductService
         return await _repository.GetByIdAsync(uuid);
     }
 
+    public async Task<ReserveStockResult> ReserveStockAsync(ReserveStockCommand command)
+    {
+        var result = new ReserveStockResult();
+
+        var aggregatedItems = command.Items
+            .GroupBy(i => i.ProductId)
+            .Select(g => new ReserveStockItem
+            {
+                ProductId = g.Key,
+                Quantity = g.Sum(i => i.Quantity)
+            })
+            .ToList();
+
+        var productIds = aggregatedItems.Select(i => i.ProductId).ToList();
+        var productsResult = await _repository.GetByIdsAsync(productIds);
+        var products = productsResult.ToList();
+
+        foreach (var item in command.Items)
+        {
+            var product = products.FirstOrDefault(p => p.Uuid == item.ProductId);
+            if (product == null)
+            {
+                result.Errors.Add($"Product with UUID {item.ProductId} not found.");
+            }
+            else if (product.Quantity < item.Quantity)
+            {
+                result.Errors.Add($"Insufficient quantity for '{product.Name}'. Available: {product.Quantity}, Requested: {item.Quantity}.");
+            }
+        }
+        if (result.Errors.Any())
+        {
+            result.Success = false;
+            return result;
+        }
+
+        foreach (var item in command.Items)
+        {
+            var product = products.First(p => p.Uuid == item.ProductId);
+            product.Quantity -= item.Quantity;
+        }
+        await _repository.UpdateManyAsync(products);
+        return result;
+    }
 }

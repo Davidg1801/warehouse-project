@@ -8,6 +8,6 @@ public class OrderRequestDto
 
 public class OrderItemDto
 {
-    public string ProductId { get; set; } = String.Empty;
+    public Guid ProductId { get; set; }
     public int Quantity { get; set; }
 }

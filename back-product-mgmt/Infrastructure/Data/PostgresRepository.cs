@@ -3,6 +3,7 @@ using Core.Entities;
 using Core.Interfaces;
 using Core.Queries;
 using Core.Results;
+using Core.Services;
 using Npgsql;
 
 namespace Infrastructure.Data;
@@ -170,4 +171,47 @@ public class PostgresRepository : IProductRepository
         }
         return new PagedResult<Product>(totalCount, products);
     }
+
+    public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> uuids)
+    {
+        var products = new List<Product>();
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var sqlCommands = "SELECT Data from Products WHERE Uuid = ANY(@uuids)";
+        await connection.OpenAsync();
+        await using var command = new NpgsqlCommand(sqlCommands, connection);
+        command.Parameters.AddWithValue("uuids", uuids.ToArray());
+
+        await using var read = await command.ExecuteReaderAsync();
+        while (await read.ReadAsync())
+        {
+            var product = JsonSerializer.Deserialize<Product>(read.GetString(0), _jsonOptions);
+            if (product != null)
+                products.Add(product);
+        }
+        return products;
+    }
+
+    public async Task<IEnumerable<Product>?> UpdateManyAsync(IEnumerable<Product> products)
+    {
+        await using var connection = new NpgsqlConnection(_connectionString);
+        var sqlCommands = "UPDATE Products SET Data = @data::jsonb WHERE Uuid = @uuid";
+        await connection.OpenAsync();
+        int updatedRows = 0;
+        foreach (var product in products)
+        {
+            var productJson = JsonSerializer.Serialize(product, _jsonOptions);
+            await using var command = new NpgsqlCommand(sqlCommands, connection);
+            command.Parameters.AddWithValue("uuid", product.Uuid);
+            command.Parameters.AddWithValue("data", productJson);
+            updatedRows += await command.ExecuteNonQueryAsync();
+        }
+
+        if (updatedRows > 0)
+        {
+            return products;
+        }
+        return null;
+    }
+
+
 }

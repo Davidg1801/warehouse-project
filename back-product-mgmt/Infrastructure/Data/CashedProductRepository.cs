@@ -83,4 +83,28 @@ public class CashedProductRepository : IProductRepository
         }
         return isDeleted;
     }
+
+    public async Task<IEnumerable<Product>> GetByIdsAsync(IEnumerable<Guid> uuids)
+    {
+        return await _innerRepository.GetByIdsAsync(uuids);
+    }
+
+    public async Task<IEnumerable<Product>?> UpdateManyAsync(IEnumerable<Product> products)
+    {
+        var updatedProducts = await _innerRepository.UpdateManyAsync(products);
+        if (updatedProducts != null)
+        {
+            foreach (var product in updatedProducts)
+            {
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10)
+                };
+                string cacheKey = $"product:{product.Uuid}";
+                var jsonProduct = JsonSerializer.Serialize(product, _jsonOptions);
+                await _cache.SetStringAsync(cacheKey, jsonProduct, cacheOptions);
+            }
+        }
+        return updatedProducts;
+    }
 }

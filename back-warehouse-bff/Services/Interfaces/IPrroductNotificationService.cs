@@ -7,4 +7,5 @@ public interface IProductNotificationService
     Task NotifyTopProductsUpdatedAsync();
     Task NotifyProductUpdatedAsync(ProductResponseDto product);
     Task NotifyProductDeletedAsync(Guid uuid);
+    Task NotifyProductsUpdatedAsync();
 }

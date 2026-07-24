@@ -40,6 +40,7 @@ public class Program
             var notificationService = provider.GetRequiredService<IProductNotificationService>();
             return new ProductCashedService(natsService, cacheService, notificationService);
         });
+        builder.Services.AddScoped<IOrderService, OrderNatsService>();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(options =>
         {
@@ -116,6 +117,7 @@ public class Program
         app.UseAuthorization(); //3
         app.MapProductEndpoints(); //4
         app.MapWebSocketEndpoints(); //5
+        app.MapOrdersEndpoints(); //6
         app.Run();
 
     }
