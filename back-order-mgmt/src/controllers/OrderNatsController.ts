@@ -20,7 +20,7 @@ export class OrderNatsController implements IOrderController {
     }
 
     private async listenForCreateOrder() : Promise<void> {
-        const subject = "orders.create";
+        const subject = "orders.add";
         const sub: Subscription = this.nc.subscribe(subject);
         console.log(`[NATS] Listen on topic: ${subject}`);
         for await (const msg of sub) {
@@ -28,7 +28,33 @@ export class OrderNatsController implements IOrderController {
                 const payloadString = this.sc.decode(msg.data);
                 const request: CreateOrderRequest = JSON.parse(payloadString);
 
-                console.log(`[NATS] Customer no. : ${request.customerId} try create new order`);
+                console.log(`[NATS] Customer no. : ${request} try create new order`);
+
+                console.log(`[NATS] Reserving stock for order...`);
+                const reservePayload = JSON.stringify({ items: request.items });
+                console.log(`[NATS] Payload for C# Worker: ${reservePayload}`);
+                const reserveReply = await this.nc.request("products.reserve", this.sc.encode(reservePayload), { timeout: 5000 });
+                const reserveReplyString = this.sc.decode(reserveReply.data);
+
+                if (reserveReplyString.startsWith("ERROR:")) {
+                    msg.respond(this.sc.encode(reserveReplyString));
+                    continue; 
+                }
+
+                const reserveResult = JSON.parse(reserveReplyString);
+                
+                const isSuccess = reserveResult.Success ?? reserveResult.success;
+
+                if (!isSuccess) {
+                    const errors: string[] = reserveResult.Errors ?? reserveResult.errors ?? ["Unknown stock error"];
+                    const combinedErrors = errors.join(" | ");
+
+                    console.log(`[NATS] Stock reservation failed: ${combinedErrors}`);
+                    
+                    msg.respond(this.sc.encode(`ERROR: ${combinedErrors}`));
+                    continue; 
+                }
+                console.log(`[NATS] Stock reserved successfully. Saving order to database...`);
 
                 const createdOrder = await this.orderService.addOrderAsync(request.customerId, request.items);
                 const responseDto: OrderResponse = {

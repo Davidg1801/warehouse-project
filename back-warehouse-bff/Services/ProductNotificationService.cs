@@ -31,4 +31,9 @@ public class ProductNotificationService : IProductNotificationService
     {
         await _hubContext.Clients.All.SendAsync("ProductDeleted", uuid);
     }
+
+    public async Task NotifyProductsUpdatedAsync()
+    {
+        await _hubContext.Clients.All.SendAsync("ProductsUpdated");
+    }
 }

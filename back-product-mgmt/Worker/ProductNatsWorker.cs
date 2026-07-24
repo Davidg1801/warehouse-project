@@ -6,6 +6,8 @@ using Worker.Contracts.Request;
 using Worker.Contracts;
 using Core.Queries;
 using Core.Interfaces;
+using Core.Commands;
+using Worker.Contracts.Requests;
 
 namespace Worker;
 
@@ -34,8 +36,9 @@ public class ProductNatsWorker : BackgroundService
         var deleteProductTask = ListenForDeleteProduct(stoppingToken);
         var updateProductTask = ListenForUpdateProduct(stoppingToken);
         var getProductTask = ListenForGetProduct(stoppingToken);
+        var reserveStockTask = ListenForReserveStock(stoppingToken);
 
-        await Task.WhenAll(getAllProductTask, addProductTask, deleteProductTask, updateProductTask, getProductTask);
+        await Task.WhenAll(getAllProductTask, addProductTask, deleteProductTask, updateProductTask, getProductTask, reserveStockTask);
     }
 
     private async Task ListenForGetAllProducts(CancellationToken stoppingToken)
@@ -194,6 +197,52 @@ public class ProductNatsWorker : BackgroundService
             {
                 _logger.LogError(ex, "Error during getting product");
                 await msg.ReplyAsync($"ERROR: {ex.Message}", cancellationToken: stoppingToken);
+            }
+        }
+    }
+
+    private async Task ListenForReserveStock(CancellationToken stoppingToken)
+    {
+        await foreach (var msg in _natsClient.SubscribeAsync<string>("products.reserve", cancellationToken: stoppingToken))
+        {
+            try
+            {
+                _logger.LogInformation("Received request:: products.reserve");
+
+                var request = JsonSerializer.Deserialize<ReserveStockRequest>(msg.Data ?? "{}", _jsonOptions);
+
+                if (request == null || request.Items == null || !request.Items.Any())
+                {
+                    var errorResponse = new ReserveStockResponse { Success = false, Errors = new List<string> { "Invalid or empty request data." } };
+                    await msg.ReplyAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions), cancellationToken: stoppingToken);
+                    continue;
+                }
+
+                var command = new ReserveStockCommand
+                {
+                    Items = request.Items.Select(i => new Core.Commands.ReserveStockItem
+                    {
+                        ProductId = i.ProductId,
+                        Quantity = i.Quantity
+                    }).ToList()
+                };
+
+                var coreResult = await _productService.ReserveStockAsync(command);
+
+                var responseDto = new ReserveStockResponse
+                {
+                    Success = coreResult.Success,
+                    Errors = coreResult.Errors
+                };
+
+                var responseJson = JsonSerializer.Serialize(responseDto, _jsonOptions);
+                await msg.ReplyAsync(responseJson, cancellationToken: stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during reserving stock");
+                var errorResponse = new ReserveStockResponse { Success = false, Errors = new List<string> { $"Internal error: {ex.Message}" } };
+                await msg.ReplyAsync(JsonSerializer.Serialize(errorResponse, _jsonOptions), cancellationToken: stoppingToken);
             }
         }
     }
