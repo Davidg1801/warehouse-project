@@ -35,7 +35,7 @@
                 <button
                   class="button-action"
                   [routerLink]="['/products', product.uuid, 'edit']"
-                  aria-label="Edit product"
+                  data-testid="edit-product-button"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -52,8 +52,8 @@
 
                 <button
                   class="button-action"
-                  (click)="delete.emit(product.uuid)"
-                  aria-label="Delete product"
+                  (click)="productDeleted.emit(product.uuid)"
+                  data-testid="delete-product-button"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

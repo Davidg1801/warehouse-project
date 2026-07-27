@@ -1,18 +1,20 @@
-import { Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-product-pagination-component',
   imports: [],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './product-pagination-component.html',
   styleUrl: './product-pagination-component.scss',
 })
 export class ProductPaginationComponent {
-  currentPage = input.required<number>();
+  readonly pageSizes = [10, 30, 50];
+  readonly currentPage = input.required<number>();
   totalPages = input.required<number>();
   pageSize = input.required<number>();
 
-  pageChanged = output<number>();
+  readonly pageChanged = output<number>();
   pageSizeChanged = output<number>();
 
   onPrevPage(): void {
@@ -28,8 +30,8 @@ export class ProductPaginationComponent {
   }
 
   onPageSizeChange(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const newSize = Number(selectElement.value);
-    this.pageSizeChanged.emit(newSize);
+    const value = Number((event.target as HTMLSelectElement).value);
+    if (!Number.isFinite(value)) return;
+    this.pageSizeChanged.emit(value);
   }
 }

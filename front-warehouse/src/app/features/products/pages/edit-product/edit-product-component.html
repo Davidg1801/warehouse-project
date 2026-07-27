@@ -6,7 +6,7 @@
     </div>
 
     @if (productResource.isLoading()) {
-      <div class="loading-message">Loading product...</div>
+      <div class="loading-state">Loading product...</div>
     } @else if (productResource.error()) {
       <div class="failed-load-message">Failed to load product</div>
     } @else {
@@ -101,7 +101,13 @@
         </div>
 
         <div class="form-actions">
-          <button type="button" class="btn btn-cancel" (click)="onCancel()" [disabled]="isSaving()">
+          <button
+            type="button"
+            class="btn btn-cancel"
+            data-testid="cancel-btn"
+            (click)="onCancel()"
+            [disabled]="isSaving()"
+          >
             Cancel
           </button>
 

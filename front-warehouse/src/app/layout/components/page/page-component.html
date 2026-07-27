@@ -3,11 +3,13 @@
     <div class="app-title">Warehouse Inventory System</div>
 
     <div class="app-user">
-      <span class="username">
-        Logged in: <strong>{{ username }}</strong>
-      </span>
+      @if (username()) {
+        <span class="username" data-testid="username-field">
+          Logged in: <strong>{{ username() }}</strong>
+        </span>
+      }
 
-      <button class="logout-btn" (click)="logout()">Logout</button>
+      <button class="logout-btn" data-testid="logout-btn" (click)="logout()">Logout</button>
     </div>
   </header>
 

@@ -14,7 +14,12 @@ describe('CreateProductComponent', () => {
   };
 
   const categoriesServiceMock = {
-    getAllCategories: vi.fn().mockReturnValue(of([])),
+    getAllCategories: vi.fn().mockReturnValue(
+      of([
+        { id: 1, name: 'Category 1' },
+        { id: 2, name: 'Category 2' },
+      ]),
+    ),
   };
 
   const modalServiceMock = {
@@ -49,13 +54,11 @@ describe('CreateProductComponent', () => {
   describe('required field validation', () => {
     it('should require name', () => {
       const control = component.form.controls['name'];
-
       expect(control.hasError('required')).toBe(true);
     });
 
     it('should require categoryId', () => {
       const control = component.form.controls['categoryId'];
-
       expect(control.hasError('required')).toBe(true);
     });
   });
