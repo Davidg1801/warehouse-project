@@ -1,9 +1,17 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, InjectionToken } from '@angular/core';
 import * as signalR from '@microsoft/signalr';
 import Keycloak from 'keycloak-js';
 import { auditTime, Observable, Subject } from 'rxjs';
 import { environment } from '@environments/environment.dev';
 import { ProductDto } from '../dtos/product.dto';
+
+export const SIGNALR_BUILDER = new InjectionToken<typeof signalR.HubConnectionBuilder>(
+  'SIGNALR_BUILDER',
+  {
+    providedIn: 'root',
+    factory: () => signalR.HubConnectionBuilder,
+  },
+);
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +19,7 @@ import { ProductDto } from '../dtos/product.dto';
 export class ProductNotificationService {
   private readonly keycloak = inject(Keycloak);
   private hubConnection!: signalR.HubConnection;
+  private readonly hubBuilder = inject(SIGNALR_BUILDER);
 
   // Seperate stream for each event from backend
   private topProductsUpdatedSubject = new Subject<void>();
@@ -42,20 +51,28 @@ export class ProductNotificationService {
       return;
     }
 
-    // const url = `${this.wsUrl}/websocket/products`;
-    const token = this.keycloak.token;
-    const url = `${this.wsUrl}/websocket/products?accessToken=${token}`;
+    const url = `${this.wsUrl}/websocket/products`;
 
-    // Create connection
-    this.hubConnection = new signalR.HubConnectionBuilder()
+    this.hubConnection = new this.hubBuilder()
       .withUrl(url, {
-        // accessTokenFactory: () => this.getAccessToken(),
+        accessTokenFactory: () => this.getAccessToken(),
         skipNegotiation: true,
         transport: signalR.HttpTransportType.WebSockets,
       })
       .withAutomaticReconnect()
       .configureLogging(signalR.LogLevel.Error)
       .build();
+
+    // Create connection
+    // this.hubConnection = new signalR.HubConnectionBuilder()
+    //   .withUrl(url, {
+    //     accessTokenFactory: () => this.getAccessToken(),
+    //     skipNegotiation: true,
+    //     transport: signalR.HttpTransportType.WebSockets,
+    //   })
+    //   .withAutomaticReconnect()
+    //   .configureLogging(signalR.LogLevel.Error)
+    //   .build();
 
     this.registerEventHandlers();
 
@@ -69,7 +86,6 @@ export class ProductNotificationService {
   }
 
   private registerEventHandlers(): void {
-    console.log('######## registerEventHandlers');
     if (!this.hubConnection) return;
 
     // Event: Top Products Updated

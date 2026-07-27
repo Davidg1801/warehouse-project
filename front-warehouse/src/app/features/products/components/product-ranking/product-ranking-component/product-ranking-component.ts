@@ -20,10 +20,11 @@ import { ProductsService } from '@features/products/services/products.service';
   styleUrl: './product-ranking-component.scss',
 })
 export class ProductRankingComponent implements OnInit {
-  private productService = inject(ProductsService);
-  private destroyRef = inject(DestroyRef);
-  private productNotificationService = inject(ProductNotificationService);
-
+  private readonly productService = inject(ProductsService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly productNotificationService = inject(ProductNotificationService);
+  private readonly rankingLimit = 10;
+  readonly isLoading = signal(true);
   readonly topProducts = signal<Product[]>([]);
 
   ngOnInit() {
@@ -33,22 +34,23 @@ export class ProductRankingComponent implements OnInit {
     this.listenProductDeleted();
   }
 
-  // Get the top product list
   private getTopProducts(): void {
+    this.isLoading.set(true);
     this.productService
-      .getTopProducts(10)
+      .getTopProducts(this.rankingLimit)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
           this.topProducts.set(response);
+          this.isLoading.set(false);
         },
         error: (err) => {
           console.error('Error while retrieving the top product list: ', err);
+          this.isLoading.set(false);
         },
       });
   }
 
-  //Listen TopProductsUpdated event
   private listenTopProductsUpdated(): void {
     this.productNotificationService.topProductsUpdated$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -57,13 +59,12 @@ export class ProductRankingComponent implements OnInit {
       });
   }
 
-  //Listen ProductDeleted event
   private listenProductDeleted(): void {
     this.productNotificationService.productDeleted$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((deletedUuid: string) => {
         this.topProducts.update((products) =>
-          products.filter((product) => product.uuid != deletedUuid),
+          products.filter((product) => product.uuid !== deletedUuid),
         );
       });
   }

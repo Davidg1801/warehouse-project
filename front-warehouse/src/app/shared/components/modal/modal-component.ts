@@ -1,42 +1,53 @@
-import { Component, effect, ElementRef, inject, viewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  viewChild,
+} from '@angular/core';
 import { ModalService } from '../../services/modal.service';
-import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-modal-component',
   standalone: true,
-  imports: [NgClass],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [],
   templateUrl: './modal-component.html',
   styleUrl: './modal-component.scss',
 })
 export class ModalComponent {
-  protected modalService = inject(ModalService);
-  private dialogRef = viewChild<ElementRef<HTMLDialogElement>>('dialogElement');
+  protected readonly modalService = inject(ModalService);
+  private readonly dialogRef = viewChild<ElementRef<HTMLDialogElement>>('dialogElement');
 
   constructor() {
     effect(() => {
       const dialog = this.dialogRef()?.nativeElement;
-      const isOpen = this.modalService.isOpen();
+      if (!dialog) return;
 
-      if (dialog && isOpen && !dialog.open) {
+      const isOpen = this.modalService.isOpen();
+      if (isOpen && !dialog.open) {
         dialog.showModal();
+      } else if (!isOpen && dialog.open) {
+        dialog.close();
       }
     });
   }
 
-  confirm() {
-    const dialog = this.dialogRef()?.nativeElement;
-    if (dialog && dialog.open) {
-      dialog.close();
-    }
+  confirm(): void {
+    this.closeDialogNative();
     this.modalService.submitResult(true);
   }
 
-  close() {
+  close(): void {
+    this.closeDialogNative();
+    this.modalService.submitResult(false);
+  }
+
+  private closeDialogNative(): void {
     const dialog = this.dialogRef()?.nativeElement;
-    if (dialog && dialog.open) {
+    if (dialog?.open) {
       dialog.close();
     }
-    this.modalService.submitResult(false);
   }
 }

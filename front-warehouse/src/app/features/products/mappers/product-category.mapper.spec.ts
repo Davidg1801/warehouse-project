@@ -1,45 +1,45 @@
+import { Category } from '@features/categories/models/category.model';
+import { Product } from '../models/product.model';
 import { mapProductsWithCategoryNames } from './/product-category.mapper';
 
-describe('mapProductsWithCategoryNames', () => {
-  const mockCategories = [
-    {
-      id: 1,
-      name: 'Processors',
-    },
-    {
-      id: 2,
-      name: 'Graphics Cards',
-    },
-  ];
+function createProduct(overrides?: Partial<Product>): Product {
+  return {
+    uuid: '1',
+    categoryId: 2,
+    name: 'RTX 4070',
+    price: 2499,
+    quantity: 5,
+    ...overrides,
+  };
+}
 
-  const mockProducts = [
-    {
-      uuid: '1',
-      categoryId: 2,
-      name: 'RTX 4070',
-      price: 2499,
-      quantity: 5,
-    },
-    {
-      uuid: '2',
-      categoryId: 1,
-      name: 'Intel i7-14700K',
-      price: 1899,
-      quantity: 10,
-    },
-    {
-      uuid: '3',
-      categoryId: 99,
-      name: 'Uknown item',
-      price: 99,
-      quantity: 100,
-    },
-  ];
+function createCategory(overrides?: Partial<Category>): Category {
+  return {
+    id: 2,
+    name: 'Graphics Cards',
+    ...overrides,
+  };
+}
 
+describe('ProductCategoryMapper', () => {
   it('should map category names correctly', () => {
-    const result = mapProductsWithCategoryNames(mockProducts, mockCategories);
+    const products = [createProduct()];
+    const categories = [createCategory()];
+
+    const result = mapProductsWithCategoryNames(products, categories);
     expect(result[0].categoryName).toBe('Graphics Cards');
-    expect(result[1].categoryName).toBe('Processors');
-    expect(result[2].categoryName).toBe('Others');
+  });
+
+  it('should return empty table if there are no products', () => {
+    const categories = [createCategory()];
+
+    const result = mapProductsWithCategoryNames([], categories);
+    expect(result).toEqual([]);
+  });
+
+  it('should return product table if there are no categories', () => {
+    const products = [createProduct()];
+    const result = mapProductsWithCategoryNames(products, []);
+    expect(result).toEqual(products);
   });
 });

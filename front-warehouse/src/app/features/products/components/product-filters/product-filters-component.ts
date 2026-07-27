@@ -1,7 +1,11 @@
 import { Component, effect, inject, input, OnInit, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Category } from '@features/categories/models/category.model';
-import { ProductFilters } from '@features/products/models/product-filters.model';
+import {
+  PRODUCT_SORT_OPTIONS,
+  ProductFilters,
+  ProductSort,
+} from '@features/products/models/product-filters.model';
 
 @Component({
   selector: 'app-product-filters-component',
@@ -11,6 +15,7 @@ import { ProductFilters } from '@features/products/models/product-filters.model'
   styleUrl: './product-filters-component.scss',
 })
 export class ProductFiltersComponent implements OnInit {
+  readonly sortOptions = PRODUCT_SORT_OPTIONS;
   currentFilters = input<ProductFilters>();
   categories = input.required<Category[]>();
   private fb = inject(FormBuilder);
@@ -19,9 +24,7 @@ export class ProductFiltersComponent implements OnInit {
 
   filterForm = this.fb.group({
     name: this.fb.control(''),
-    sort: this.fb.control<
-      'Name_ASC' | 'Name_DESC' | 'Price_ASC' | 'Price_DESC' | 'Quantity_ASC' | 'Quantity_DESC' | ''
-    >(''),
+    sort: this.fb.control<ProductSort>(''),
     categoryIds: this.fb.control<number[]>([]),
   });
 

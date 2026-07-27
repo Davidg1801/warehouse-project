@@ -23,7 +23,7 @@
       } @else {
         <app-product-table-component
           [products]="productsWithCategories()"
-          (delete)="onDeleteProduct($event)"
+          (productDeleted)="onDeleteProduct($event)"
         />
       }
 

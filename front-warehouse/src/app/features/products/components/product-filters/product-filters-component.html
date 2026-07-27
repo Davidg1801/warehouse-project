@@ -43,15 +43,9 @@
       <div class="sort-field">
         <select formControlName="sort">
           <option value="">Default</option>
-
-          <option value="Name_ASC">Name (A-Z)</option>
-          <option value="Name_DESC">Name (Z-A)</option>
-
-          <option value="Price_ASC">Price (Low → High)</option>
-          <option value="Price_DESC">Price (High → Low)</option>
-
-          <option value="Quantity_ASC">Quantity (Low → High)</option>
-          <option value="Quantity_DESC">Quantity (High → Low)</option>
+          @for (option of sortOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
         </select>
       </div>
     </div>

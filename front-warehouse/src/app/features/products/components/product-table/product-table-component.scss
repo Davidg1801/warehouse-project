@@ -7,21 +7,13 @@
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
   border-radius: 16px;
-
   color: var(--text-p-color);
-
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
 }
 
-/*
- CHANGE:
- Tabela nie będzie się ściskać.
- Przy małej szerokości pojawi się scroll.
-*/
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-
   -webkit-overflow-scrolling: touch;
 }
 
@@ -38,16 +30,11 @@ thead {
 
 th {
   padding: 1rem 1.5rem;
-
   text-align: left;
-
   font-size: 1.1rem;
   font-weight: 600;
-
   color: var(--text-p-color);
-
   border-bottom: 1px solid var(--border-p-color);
-
   white-space: nowrap;
 }
 
@@ -66,68 +53,39 @@ tbody {
 
   td {
     padding: 16px 20px;
-
     color: var(--text-s-color);
-
     vertical-align: middle;
   }
 }
 
-/*
- CHANGE:
- Akcje zawsze obok siebie
-*/
 .actions-cell {
   white-space: nowrap;
 }
 
 .button-action {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
-
-  /*
-   CHANGE:
-   przycisk nie może się kurczyć
-  */
   flex-shrink: 0;
-
   width: 38px;
   height: 38px;
-
   margin-inline: 0.25rem;
-
   background: transparent;
-
   border: 0;
-
   border-radius: 11px;
-
   cursor: pointer;
-
   transition:
     background-color 0.2s ease,
     transform 0.2s ease;
 
   .icon-action {
-    /*
-     CHANGE:
-     stały rozmiar ikon
-    */
     display: block;
-
     width: 20px;
     height: 20px;
-
     fill: none;
-
     stroke-width: 2;
-
     stroke-linecap: round;
-
     stroke-linejoin: round;
-
     transition:
       stroke 0.2s ease,
       transform 0.2s ease;
@@ -143,18 +101,15 @@ tbody {
 
   &:hover {
     background-color: var(--button-s-bg-hover);
-
     transform: translateY(-1px);
 
     .edit {
       stroke: var(--info-color-hover);
-
       transform: scale(1.1);
     }
 
     .trash {
       stroke: var(--danger-color-hover);
-
       transform: scale(1.1);
     }
   }
@@ -164,15 +119,10 @@ tbody {
   }
 }
 
-/*
- CHANGE:
- Nie zmniejszamy ikon.
- Tabela sama dostaje scroll.
-*/
+// SCREEN 768PX
 @media (max-width: 768px) {
   th {
     padding: 0.8rem 1rem;
-
     font-size: 0.875rem;
   }
 
@@ -182,11 +132,8 @@ tbody {
 
   .stock-badge {
     min-width: 28px;
-
     height: 23px;
-
     padding: 0 5px;
-
     font-size: 0.8rem;
   }
 }

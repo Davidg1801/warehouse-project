@@ -6,13 +6,25 @@
   </div>
 
   <div class="pagination-center">
-    <button class="page-btn" [disabled]="currentPage() === 1" (click)="onPrevPage()"><</button>
+    <button
+      class="page-btn"
+      data-testid="prev-page-button"
+      [disabled]="currentPage() === 1"
+      (click)="onPrevPage()"
+    >
+      <
+    </button>
 
     <div class="pagination-current">
       {{ currentPage() }}
     </div>
 
-    <button class="page-btn" [disabled]="currentPage() === totalPages()" (click)="onNextPage()">
+    <button
+      class="page-btn"
+      data-testid="next-page-button"
+      [disabled]="currentPage() === totalPages()"
+      (click)="onNextPage()"
+    >
       >
     </button>
   </div>
@@ -20,10 +32,17 @@
   <div class="pagination-right">
     <span class="per-page-label">Results per page:</span>
 
-    <select class="per-page-select" [value]="pageSize()" (change)="onPageSizeChange($event)">
-      <option [value]="10">10</option>
-      <option [value]="30">30</option>
-      <option [value]="50">50</option>
+    <select
+      class="per-page-select"
+      data-testid="page-size-select"
+      [value]="pageSize()"
+      (change)="onPageSizeChange($event)"
+    >
+      @for (size of pageSizes; track size) {
+        <option data-testid="page-size-option" [value]="size">
+          {{ size }}
+        </option>
+      }
     </select>
   </div>
 </div>

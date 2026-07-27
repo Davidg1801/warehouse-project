@@ -12,9 +12,9 @@ import { map, of } from 'rxjs';
 
 interface EditProductForm {
   name: FormControl<string>;
-  categoryId: FormControl<number>;
-  quantity: FormControl<number>;
-  price: FormControl<number>;
+  categoryId: FormControl<number | null>;
+  quantity: FormControl<number | null>;
+  price: FormControl<number | null>;
 }
 
 @Component({
@@ -55,16 +55,13 @@ export class EditProductComponent {
       nonNullable: true,
       validators: [Validators.required, Validators.maxLength(50)],
     }),
-    categoryId: new FormControl<number>(0, {
-      nonNullable: true,
+    categoryId: new FormControl<number | null>(null, {
       validators: [Validators.required],
     }),
-    quantity: new FormControl<number>(0, {
-      nonNullable: true,
+    quantity: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(9999)],
     }),
-    price: new FormControl<number>(0, {
-      nonNullable: true,
+    price: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0.01), Validators.max(9999999)],
     }),
   });
@@ -114,8 +111,12 @@ export class EditProductComponent {
     const currentUuid = this.uuid();
     if (!currentUuid) return;
 
+    const value = this.editForm.getRawValue();
     const product: EditProductDto = {
-      ...this.editForm.getRawValue(),
+      name: value.name,
+      categoryId: value.categoryId!,
+      quantity: value.quantity!,
+      price: value.price!,
       uuid: currentUuid,
     };
 
