@@ -50,24 +50,32 @@ public class OrderNatsService : IOrderService
             var topProductsChanged = false;
             foreach (var item in order!.Items)
             {
-                var isTop = await _topCacheService.IsProductInTopAsync(item.ProductId);
-                if (isTop)
+                try
                 {
-                    var productReply = await _natsClient.RequestAsync<Guid, string>("products.get", item.ProductId);
-                    if (productReply.Data != null && !productReply.Data.StartsWith("ERROR:"))
+                    var isTop = await _topCacheService.IsProductInTopAsync(item.ProductId);
+                    if (isTop)
                     {
-                        var updatedProduct = JsonSerializer.Deserialize<ProductResponseDto>(
-                            productReply.Data,
-                            new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
-                        );
-
-                        if (updatedProduct != null)
+                        var productReply = await _natsClient.RequestAsync<Guid, string>("products.get", item.ProductId);
+                        if (productReply.Data != null && !productReply.Data.StartsWith("ERROR:"))
                         {
-                            await _topCacheService.UpdateProductDataAsync(updatedProduct);
-                            topProductsChanged = true;
+                            var updatedProduct = JsonSerializer.Deserialize<ProductResponseDto>(
+                                productReply.Data,
+                                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+                            );
+
+                            if (updatedProduct != null)
+                            {
+                                await _topCacheService.UpdateProductDataAsync(updatedProduct);
+                                topProductsChanged = true;
+                            }
                         }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}] [WARNING] Could not update cache for top product {item.ProductId}. Error: {ex.Message}");
+                }
+
             }
             if (topProductsChanged)
             {
