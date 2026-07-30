@@ -28,11 +28,11 @@ export class OrderNatsController implements IOrderController {
                 const payloadString = this.sc.decode(msg.data);
                 const request: CreateOrderRequest = JSON.parse(payloadString);
 
-                console.log(`[NATS] Customer no. : ${request} try create new order`);
+                console.log(`[NATS] Customer no. : ${request.customerId} try create new order`);
 
                 console.log(`[NATS] Reserving stock for order...`);
                 const reservePayload = JSON.stringify({ items: request.items });
-                console.log(`[NATS] Payload for C# Worker: ${reservePayload}`);
+                //console.log(`[NATS] Payload for C# Worker: ${reservePayload}`);
                 const reserveReply = await this.nc.request("products.reserve", this.sc.encode(reservePayload), { timeout: 5000 });
                 const reserveReplyString = this.sc.decode(reserveReply.data);
 
@@ -98,7 +98,7 @@ export class OrderNatsController implements IOrderController {
                     msg.respond(this.sc.encode("ERROR: Order not found"));
                 }
             } catch (error) {
-                console.error(`[NATS] Error during getting order": ${error}`);
+                console.error(`[NATS] Error during getting order: ${error}`);
                 const errorMessage = error instanceof Error ? error.message : "Anyknow error";
                 msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
             }
@@ -141,7 +141,7 @@ export class OrderNatsController implements IOrderController {
                 const response = JSON.stringify(responsePayload);
                 msg.respond(this.sc.encode(response));
             } catch (error) {
-                console.error(`[NATS] Error during getting orders": ${error}`);
+                console.error(`[NATS] Error during getting orders: ${error}`);
                 const errorMessage = error instanceof Error ? error.message : "Anyknow error";
                 msg.respond(this.sc.encode(`ERROR: ${errorMessage}`));
             }
