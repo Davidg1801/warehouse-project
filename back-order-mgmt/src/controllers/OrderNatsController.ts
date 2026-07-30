@@ -32,7 +32,7 @@ export class OrderNatsController implements IOrderController {
 
                 console.log(`[NATS] Reserving stock for order...`);
                 const reservePayload = JSON.stringify({ items: request.items });
-                console.log(`[NATS] Payload for C# Worker: ${reservePayload}`);
+                //console.log(`[NATS] Payload for C# Worker: ${reservePayload}`);
                 const reserveReply = await this.nc.request("products.reserve", this.sc.encode(reservePayload), { timeout: 5000 });
                 const reserveReplyString = this.sc.decode(reserveReply.data);
 

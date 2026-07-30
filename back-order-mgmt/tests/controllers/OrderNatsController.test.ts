@@ -13,22 +13,24 @@ async function* mockEmptyStream<T>(): AsyncIterable<T> {
 
 describe("OrderNatsController", () => {
     const sc = StringCodec();
-
-    it("should successufly process orders.create message and respond with JSON", async () => {
+    it("should successufly process orders.add message and respond with JSON", async () => {
         //Arrange
         const mockOrderService = mock<IOrderService>();
         const mockNc = mock<NatsConnection>();
         const mockMsg = mock<Msg>();
-
         const requestDto = { customerId: "customer", items: [ {productId: "product", quantity: 2} ]};
-
+        
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         mockNc.subscribe.mockImplementation((subject: string) => {
-            if (subject === "orders.create") {
+            if (subject === "orders.add") {
                 return mockSingleMessageStream(mockMsg) as unknown as Subscription;
             }
             return mockEmptyStream() as unknown as Subscription;
         });
+
+        const mockReserveReply = mock<Msg>();
+        mockReserveReply.data = sc.encode(JSON.stringify({ success: true }));
+        mockNc.request.mockResolvedValue(mockReserveReply);
 
         const order = Order.create(requestDto.customerId, requestDto.items);
         mockOrderService.addOrderAsync.mockResolvedValue(order);
@@ -37,6 +39,7 @@ describe("OrderNatsController", () => {
         //Act
         await sut.startListening();
         //Assert
+        expect(mockNc.request).toHaveBeenCalledWith("products.reserve", expect.any(Uint8Array), { timeout: 5000 });
         expect(mockOrderService.addOrderAsync).toHaveBeenCalledWith(requestDto.customerId, requestDto.items);
         expect(mockMsg.respond).toHaveBeenCalledOnce();
 
@@ -47,6 +50,42 @@ describe("OrderNatsController", () => {
 
         expect(responseObject.uuid).toBe(order.uuid);
         expect(responseObject.customerId).toBe(requestDto.customerId);
+        expect(responseObject.createdAt).toBeDefined();
+    });
+
+    it("should process orders.add message and return ERROR when product reservation fails", async () => {
+        //Arrange
+        const mockOrderService = mock<IOrderService>();
+        const mockNc = mock<NatsConnection>();
+        const mockMsg = mock<Msg>();
+        const requestDto = { customerId: "customer", items: [{ productId: "product", quantity: 2 }] };
+        
+        mockMsg.data = sc.encode(JSON.stringify(requestDto));
+        mockNc.subscribe.mockImplementation((subject: string) => {
+            if (subject === "orders.add") {
+                return mockSingleMessageStream(mockMsg) as unknown as Subscription;
+            }
+            return mockEmptyStream() as unknown as Subscription;
+        });
+
+        const mockReserveReply = mock<Msg>();
+        mockReserveReply.data = sc.encode(JSON.stringify({ success: false, errors: ["Insufficient stock"] }));
+        mockNc.request.mockResolvedValue(mockReserveReply);
+
+        const sut = new OrderNatsController(mockNc, mockOrderService);
+        
+        //Act
+        await sut.startListening();
+        
+        // Assert
+        expect(mockNc.request).toHaveBeenCalledWith("products.reserve", expect.any(Uint8Array), { timeout: 5000 });
+        expect(mockOrderService.addOrderAsync).not.toHaveBeenCalled(); 
+        
+        const calls = (mockMsg.respond as any).mock.calls;
+        const respondArg = calls[0][0];
+        const responseString = sc.decode(respondArg as Uint8Array);
+        
+        expect(responseString).toBe("ERROR: Insufficient stock");
     });
 
     it("should successfully process orders.get message and respong with Order Json", async () => {
@@ -73,10 +112,11 @@ describe("OrderNatsController", () => {
         const calls = (mockMsg.respond as any).mock.calls;
         const respondArg = calls[0][0];
         const responseString = sc.decode(respondArg as Uint8Array);
-        const responseObject : Order = JSON.parse(responseString);
+        const responseObject = JSON.parse(responseString);
         expect(responseObject.uuid).toBe(targetUuid);
         expect(responseObject.customerId).toBe("cust1");
         expect(responseObject.items.length).toBe(1);
+        expect(responseObject.createdAt).toBeDefined();
     });
 
     it("should process orders.get message and return ERROR when order does not exist", async () => {

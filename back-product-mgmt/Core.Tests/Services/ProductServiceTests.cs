@@ -1,3 +1,4 @@
+using Core.Commands;
 using Core.Entities;
 using Core.Interfaces;
 using Core.Queries;
@@ -228,5 +229,78 @@ public class ProductServiceTests
         //Assert
         Assert.Null(result);
         await _repositoryMock.Received(1).GetByIdAsync(uuid);
+    }
+
+    [Fact]
+    public async Task ReserveStockAsync_WhenStockIsAvailable_ReducesQuantityAndReturnsSuccess()
+    {
+        //Arrange
+        var prod1 = Guid.NewGuid();
+        var prod2 = Guid.NewGuid();
+        var command = new ReserveStockCommand
+        {
+            Items = new List<ReserveStockItem>
+            {
+                new ReserveStockItem {ProductId = prod1, Quantity = 1},
+                new ReserveStockItem {ProductId = prod2, Quantity = 3}
+            }
+        };
+
+        var products = new List<Product>
+        {
+            new Product(prod1, "Test1", ProductCategory.GraphicsCards, 0.99m, 99),
+            new Product(prod2, "Test2", ProductCategory.GraphicsCards, 0.99m, 55)
+        };
+
+        _repositoryMock.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>()).Returns(products);
+        //Act
+        var result = await _sut.ReserveStockAsync(command);
+        //Asserts
+        Assert.NotNull(result);
+        Assert.True(result.Success);
+        Assert.Empty(result.Errors);
+        Assert.Equal(98, products.First(p => p.Uuid == prod1).Quantity);
+        Assert.Equal(52, products.First(p => p.Uuid == prod2).Quantity);
+        await _repositoryMock.Received(1).GetByIdsAsync(Arg.Is<List<Guid>>(list =>
+            list.Count == 2 &&
+            list.Contains(prod1) &&
+            list.Contains(prod2)
+        ));
+        await _repositoryMock.Received(1).UpdateManyAsync(Arg.Is<List<Product>>(list =>
+            list.Count == 2 &&
+            list.First(p => p.Uuid == prod1).Quantity == 98 &&
+            list.First(p => p.Uuid == prod2).Quantity == 52
+        ));
+    }
+    [Fact]
+    public async Task ReserveStockAsync_WhenQuantityIsInsufficient_ReturnsErrorAndDoesNotUpdate()
+    {
+        //Arrange
+        var prod1 = Guid.NewGuid();
+        var prod2 = Guid.NewGuid();
+        var command = new ReserveStockCommand
+        {
+            Items = new List<ReserveStockItem>
+            {
+                new ReserveStockItem {ProductId = prod1, Quantity = 5},
+                new ReserveStockItem {ProductId = prod2, Quantity = 6}
+            }
+        };
+
+        var products = new List<Product>
+        {
+            new Product(prod1, "Test1", ProductCategory.GraphicsCards, 0.99m, 6),
+            new Product(prod2, "Test2", ProductCategory.GraphicsCards, 0.99m, 3)
+        };
+        _repositoryMock.GetByIdsAsync(Arg.Any<IEnumerable<Guid>>()).Returns(products);
+        //Act
+        var result = await _sut.ReserveStockAsync(command);
+        //Asserts
+        Assert.NotNull(result);
+        Assert.False(result.Success);
+        Assert.Single(result.Errors);
+        Assert.Contains(result.Errors, e => e.Contains("Insufficient quantity"));
+        Assert.Equal(6, products.First().Quantity);
+        await _repositoryMock.DidNotReceiveWithAnyArgs().UpdateManyAsync(Arg.Any<List<Product>>());
     }
 }
