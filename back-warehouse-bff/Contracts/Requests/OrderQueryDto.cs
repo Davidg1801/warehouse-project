@@ -19,7 +19,7 @@ public class OrderQueryDto : IValidatableObject
 
     public bool? Descending { get; set; } = false;
 
-    [RegularExpression("^(?i)(CreatedAt|CustomerId)$", ErrorMessage = "You can only order by CreatedAt and CustomerId.")]
+    [EnumDataType(typeof(OrderSortColumn), ErrorMessage = "You can only order by CreatedAt and CustomerId.")]
     public OrderSortColumn? OrderBy { get; set; } = OrderSortColumn.CreatedAt;
 
     [MaxLength(100, ErrorMessage = "Search term is too long.")]

@@ -51,12 +51,12 @@ export class PostgresRepository implements IOrderRepository {
                 return { totalCount: 0, data: [] };
             }
             //Sort
-            const allowedSortColumns = ["createdAt", "customerId"];
-            const sortColumn = allowedSortColumns.includes(query.orderBy || "") ? query.orderBy : "createdAt";
+            const allowedSortColumns = ["createdat", "customerid"];
+            const sortColumn = allowedSortColumns.includes(query.orderBy?.toLowerCase() || "") ? query.orderBy : "createdAt";
             const direction = query.descending ? "DESC" : "ASC";
 
             let sortClause = "";
-            if (sortColumn === "customerId") {
+            if (sortColumn?.toLowerCase() === "customerid") {
                 sortClause = ` ORDER BY LOWER(Data->>'customerId') ${direction}`;
             } else {
                 sortClause = ` ORDER BY (Data->>'created_at')::timestamp ${direction}`;
@@ -75,6 +75,8 @@ export class PostgresRepository implements IOrderRepository {
 
             //execute
             const dataSql = `SELECT Data FROM Orders WHERE 1=1 ${filters} ${sortClause} ${paginationClause}`;
+            //console.log("SQL Execute: ->" + dataSql);
+            //console.log(JSON.stringify(query, null, 2));
             const dataResult = await this.pool.query(dataSql, dataValues);
 
             const orders: Order[] = dataResult.rows.map(row => {
