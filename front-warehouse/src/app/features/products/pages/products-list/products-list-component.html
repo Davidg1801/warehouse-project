@@ -26,17 +26,13 @@
           (productDeleted)="onDeleteProduct($event)"
         />
       }
-
-      <div class="table-meta">
-        Showing {{ productsWithCategories().length }} of {{ totalCount() }} results
-      </div>
-
-      <app-product-pagination-component
+      <app-pagination
         [currentPage]="pageNumber()"
         [totalPages]="totalPages()"
+        [totalCount]="totalCount()"
         [pageSize]="pageSize()"
-        (pageChanged)="onPageChanged($event)"
-        (pageSizeChanged)="onPageSizeChanged($event)"
+        (pageChange)="onPageChanged($event)"
+        (pageSizeChange)="onPageSizeChanged($event)"
       />
     </main>
     <aside class="ranking-sidebar">

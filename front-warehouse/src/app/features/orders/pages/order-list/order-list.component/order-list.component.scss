@@ -1,4 +1,4 @@
-.products-page {
+.orders-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -14,7 +14,7 @@
   padding: 1.5rem;
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 1rem;
+  border-radius: var(--border-radius-l);
 }
 
 .page-title {
@@ -42,19 +42,17 @@
   align-items: center;
   justify-content: center;
   padding: 0 1rem;
-  border-radius: 0.75rem;
-  border: 1px solid transparent;
-  background-color: var(--button-p-bg);
+  border-radius: var(--border-radius-m);
+  border: 1px solid var(--orders-accent-p);
+  background-color: var(--orders-accent-p);
   color: var(--button-p-text);
+  font-weight: 500;
   cursor: pointer;
   font-size: 0.95rem;
-  text-decoration: none;
-  transition:
-    background-color 0.2s ease,
-    transform 0.15s ease;
+  transition: all 0.2s ease;
 
   &:hover {
-    background-color: var(--button-p-bg-hover);
+    background-color: var(--orders-accent-p-hover);
   }
 
   &:active {
@@ -63,21 +61,15 @@
 }
 
 .page-body {
-  display: grid;
-  grid-template-columns: 1fr 320px;
+  display: flex;
   gap: 1.5rem;
   align-items: start;
 }
 
-.products-content {
+.orders-content {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-}
-
-.ranking-sidebar {
-  position: sticky;
-  top: 0rem;
 }
 
 @media (max-width: 1150px) {
@@ -86,18 +78,13 @@
     flex-direction: column;
     gap: 1.5rem;
   }
-
-  .ranking-sidebar {
+  .order-details-sidebar {
     position: static;
     order: 1;
     width: 100%;
   }
 
-  .ranking-sidebar ::ng-deep .ranking-card {
-    max-width: 100% !important;
-  }
-
-  .products-content {
+  .orders-content {
     order: 2;
     width: 100%;
   }

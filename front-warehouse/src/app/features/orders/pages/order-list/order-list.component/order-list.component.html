@@ -1,0 +1,48 @@
+<div class="orders-page">
+  <header class="page-header">
+    <div class="header-info">
+      <h1 class="page-title">Orders</h1>
+      <p class="page-subtitle">Track, filter, and process customer commercial orders</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="add-btn" type="button">
+        <!-- <button class="add-btn" type="button" [routerLink]="['/orders/create']"> -->
+        ✚ Create Order
+      </button>
+    </div>
+  </header>
+
+  <div class="page-body">
+    <main class="orders-content">
+      <app-order-filters
+        [initialFilters]="currentFilters()"
+        (filtersChange)="onFiltersChange($event)"
+      />
+
+      <app-order-table
+        [orders]="orders()"
+        [currentSort]="sortState()"
+        (orderSelected)="selectOrder($event)"
+        (sortChange)="onSortChange($event)"
+      />
+      <!-- FOOTER PAGINATION -->
+      <app-pagination
+        [currentPage]="pageNumber()"
+        [totalPages]="totalPages()"
+        [totalCount]="totalCount()"
+        [pageSize]="pageSize()"
+        (pageChange)="onPageChanged($event)"
+        (pageSizeChange)="onPageSizeChanged($event)"
+      />
+    </main>
+    @if (selectedOrder(); as activeOrder) {
+      <aside class="order-details-sidebar">
+        <app-order-details
+          [selectedOrder]="selectedOrder()"
+          (closeOrderDetails)="selectOrder($event)"
+        />
+      </aside>
+    }
+  </div>
+</div>

@@ -10,12 +10,11 @@ import {
 } from '@angular/core';
 import { Product } from '@features/products/models/product.model';
 import { ProductsService } from '@features/products/services/products.service';
-import { ProductTableComponent } from '@features/products/components/product-table/product-table-component';
+
 import { CategoriesService } from '@features/categories/services/categories.service';
 import { Category } from '@features/categories/models/category.model';
 import { ProductFiltersComponent } from '@features/products/components/product-filters/product-filters-component';
 import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
-import { ProductPaginationComponent } from '@features/products/components/product-pagination/product-pagination-component';
 import { ProductFilters } from '@features/products/models/product-filters.model';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ModalService } from '@shared/services/modal.service';
@@ -28,6 +27,9 @@ import { ProductRankingComponent } from '@features/products/components/product-r
 import { mapProductsWithCategoryNames } from '@features/products/mappers/product-category.mapper';
 import { ProductNotificationService } from '@features/products/services/product-notification.service';
 import { switchMap } from 'rxjs';
+import { PaginationComponent } from '@shared/components/pagination/pagination.component/pagination.component';
+import { Pagination } from '@shared/models/pagination.model';
+import { ProductTableComponent } from '@features/products/components/product-table/product-table-component';
 
 @Component({
   selector: 'app-products-page-component',
@@ -35,8 +37,8 @@ import { switchMap } from 'rxjs';
     ProductTableComponent,
     ProductFiltersComponent,
     RouterLink,
-    ProductPaginationComponent,
     ProductRankingComponent,
+    PaginationComponent,
   ],
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -133,8 +135,8 @@ export class ProductsListComponent implements OnInit {
     this.updateQueryParams({ pageNumber });
   }
 
-  onPageSizeChanged(pageSize: number): void {
-    this.updateQueryParams({ pageSize });
+  onPageSizeChanged(pageState: Pagination): void {
+    this.updateQueryParams({ pageNumber: pageState.pageNumber, pageSize: pageState.pageSize });
   }
 
   async onDeleteProduct(uuid: string): Promise<void> {

@@ -40,12 +40,19 @@ export const routes: Routes = [
           ),
         title: 'Edit product',
       },
-
       {
         path: 'orders',
         loadComponent: () =>
-          import('@features/orders/components/orders-component/orders-component').then(
-            (c) => c.OrdersComponent,
+          import('@features/orders/pages/order-list/order-list.component/order-list.component').then(
+            (c) => c.OrderListComponent,
+          ),
+        title: 'Orders',
+      },
+      {
+        path: 'orders/create',
+        loadComponent: () =>
+          import('@features/orders/pages/create-order/create-order.component/create-order.component').then(
+            (c) => c.CreateOrderComponent,
           ),
         title: 'Orders',
       },
