@@ -58,4 +58,17 @@
   --info-color: var(--color-teal-60);
   --info-color-hover: var(--color-teal-50);
   --info-color-active: var(--color-teal-70);
+
+  /* Orders Core Brand Accent */
+  --orders-accent-p: var(--color-blue-60); /* #3b82f6 - Primary Indigo/Blue */
+  --orders-accent-p-hover: var(--color-blue-50); /* #60a5fa */
+  --orders-accent-p-active: var(--color-blue-70); /* #2563eb */
+  --orders-accent-glow: rgba(59, 130, 246, 0.25);
+  --orders-accent-subtle: rgba(59, 130, 246, 0.08);
+
+  --border-radius-xs: 5px;
+  --border-radius-s: 8px;
+  --border-radius-m: 12px;
+  --border-radius-l: 16px;
+  --border-radius-xl: 20px;
 }

@@ -1,0 +1,80 @@
+<div class="page-body">
+  <div class="order-table">
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th class="sortable-th" (click)="toggleSort('CustomerId')">
+              <div class="th-content">
+                <span>Customer</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'CustomerId'">
+                  @if (currentSort().column === 'CustomerId') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('CreatedAt')">
+              <div class="th-content">
+                <span>Date</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'CreatedAt'">
+                  @if (currentSort().column === 'CreatedAt') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
+            <th>
+              <span>Total price</span>
+            </th>
+
+            <th class="col-actions">Details</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (order of orders(); track order.uuid) {
+            <tr>
+              <td>{{ order.orderNr }}</td>
+              <td>
+                <div class="customer-cell">
+                  <span class="customer-id">{{ order.customerId }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="created-cell">
+                  <span class="created-date">{{ order.createdAt | date: 'dd.MM.yyyy' }}</span>
+                  <span class="created-time">{{ order.createdAt | date: 'HH:mm:ss' }}</span>
+                </div>
+              </td>
+              <td class="price-cell">
+                {{ order.totalPrice | currency }}
+              </td>
+              <td class="actions-cell">
+                <button
+                  class="button-action inspect"
+                  (click)="orderSelected.emit(order)"
+                  title="Show details"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon-action" viewBox="0 0 24 24">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="5" class="empty-state">No orders found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

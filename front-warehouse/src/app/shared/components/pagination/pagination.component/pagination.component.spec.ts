@@ -1,21 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ProductPaginationComponent } from './product-pagination-component';
+import { PaginationComponent } from './pagination.component';
+import { Pagination } from '@shared/models/pagination.model';
+import { FormsModule } from '@angular/forms';
 
-describe('ProductPaginationComponent', () => {
-  let component: ProductPaginationComponent;
-  let fixture: ComponentFixture<ProductPaginationComponent>;
+describe('PaginationComponent', () => {
+  let component: PaginationComponent;
+  let fixture: ComponentFixture<PaginationComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ProductPaginationComponent],
+      imports: [PaginationComponent, FormsModule],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ProductPaginationComponent);
+    fixture = TestBed.createComponent(PaginationComponent);
     component = fixture.componentInstance;
+
     fixture.componentRef.setInput('currentPage', 1);
-    fixture.componentRef.setInput('totalPages', 10);
+    fixture.componentRef.setInput('totalPages', 5);
     fixture.componentRef.setInput('pageSize', 10);
+    fixture.componentRef.setInput('totalCount', 55);
+    fixture.componentRef.setInput('pageSizeOptions', [10, 25, 50]);
     fixture.detectChanges();
 
     await fixture.whenStable();
@@ -27,19 +32,15 @@ describe('ProductPaginationComponent', () => {
 
   it('should disable previous button on first page', () => {
     fixture.componentRef.setInput('currentPage', 1);
-    fixture.componentRef.setInput('totalPages', 5);
-    fixture.componentRef.setInput('pageSize', 10);
     fixture.detectChanges();
 
     const previousButton = fixture.nativeElement.querySelector('[data-testid="prev-page-button"]');
-
     expect(previousButton.disabled).toBeTruthy();
   });
 
   it('should disable next button on the last page', () => {
     fixture.componentRef.setInput('currentPage', 5);
     fixture.componentRef.setInput('totalPages', 5);
-    fixture.componentRef.setInput('pageSize', 10);
     fixture.detectChanges();
 
     const nextButton = fixture.nativeElement.querySelector('[data-testid="next-page-button"]');
@@ -47,34 +48,29 @@ describe('ProductPaginationComponent', () => {
   });
 
   it('should emit previous page number', () => {
-    vi.spyOn(component.pageChanged, 'emit');
+    vi.spyOn(component.pageChange, 'emit');
 
-    fixture.componentRef.setInput('currentPage', 5);
-    fixture.componentRef.setInput('totalPages', 10);
-    fixture.componentRef.setInput('pageSize', 10);
+    fixture.componentRef.setInput('currentPage', 3);
     fixture.detectChanges();
-    component.onPrevPage();
+    component.onPageChange(component.currentPage() - 1);
 
-    expect(component.pageChanged.emit).toHaveBeenCalledWith(4);
+    expect(component.pageChange.emit).toHaveBeenCalledWith(2);
   });
 
   it('should emit next page number', () => {
-    vi.spyOn(component.pageChanged, 'emit');
+    vi.spyOn(component.pageChange, 'emit');
 
-    fixture.componentRef.setInput('currentPage', 5);
-    fixture.componentRef.setInput('totalPages', 10);
-    fixture.componentRef.setInput('pageSize', 10);
-    component.onNextPage();
+    fixture.componentRef.setInput('currentPage', 1);
+    fixture.detectChanges();
+    component.onPageChange(component.currentPage() + 1);
 
-    expect(component.pageChanged.emit).toHaveBeenCalledWith(6);
+    expect(component.pageChange.emit).toHaveBeenCalledWith(2);
   });
 
   it('should emit next page when user clicks next button', () => {
     const emittedValues: number[] = [];
 
-    component.pageChanged.subscribe((value) => {
-      emittedValues.push(value);
-    });
+    component.pageChange.subscribe((value) => emittedValues.push(value));
 
     fixture.componentRef.setInput('currentPage', 2);
     fixture.componentRef.setInput('totalPages', 5);
@@ -85,13 +81,10 @@ describe('ProductPaginationComponent', () => {
     expect(emittedValues).toEqual([3]);
   });
 
-  //EMIT PREV PAGE AFTER CLICKING BUTTON
   it('should emit prev page when user clicks prev button', () => {
     const emittedValues: number[] = [];
 
-    component.pageChanged.subscribe((value) => {
-      emittedValues.push(value);
-    });
+    component.pageChange.subscribe((value) => emittedValues.push(value));
 
     fixture.componentRef.setInput('currentPage', 2);
     fixture.componentRef.setInput('totalPages', 5);
@@ -102,9 +95,9 @@ describe('ProductPaginationComponent', () => {
     expect(emittedValues).toEqual([1]);
   });
 
-  it('should emit new page size when user changes select', () => {
-    const emittedValues: number[] = [];
-    component.pageSizeChanged.subscribe((value) => {
+  it('should emit new page size and page number 1 when user changes select', async () => {
+    const emittedValues: Pagination[] = [];
+    component.pageSizeChange.subscribe((value) => {
       emittedValues.push(value);
     });
 
@@ -112,22 +105,18 @@ describe('ProductPaginationComponent', () => {
     fixture.detectChanges();
 
     const select = fixture.nativeElement.querySelector('[data-testid="page-size-select"]');
-    select.value = '50';
+    select.value = select.options[2].value;
     select.dispatchEvent(new Event('change'));
 
-    expect(emittedValues).toEqual([50]);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(emittedValues).toEqual([{ pageNumber: 1, pageSize: 50 }]);
   });
 
   it('should ignore invalid page size', () => {
-    vi.spyOn(component.pageSizeChanged, 'emit');
-
-    const event = {
-      target: {
-        value: 'abc',
-      },
-    } as unknown as Event;
-
-    component.onPageSizeChange(event);
-    expect(component.pageSizeChanged.emit).not.toHaveBeenCalled();
+    vi.spyOn(component.pageSizeChange, 'emit');
+    component.onPageSizeChange(-1);
+    expect(component.pageSizeChange.emit).not.toHaveBeenCalled();
   });
 });

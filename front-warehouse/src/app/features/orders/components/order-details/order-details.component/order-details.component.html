@@ -1,0 +1,56 @@
+<div class="details-card">
+  <div class="details-header">
+    <div class="drawer-title-group">
+      <h3>Order Details</h3>
+    </div>
+    <button class="close-btn" (click)="closeOrderDetails.emit(selectedOrder())" type="button">
+      ✕
+    </button>
+  </div>
+
+  <div class="drawer-scrollable-content">
+    <!-- Meta Info Card -->
+    <div class="drawer-section">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">Order number</span>
+          <span class="value val-highlight">{{ selectedOrder()?.orderNr }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Customer</span>
+          <span class="value">{{ selectedOrder()?.customerId }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">Date Created</span>
+          <span class="value">{{ selectedOrder()?.createdAt | date: 'fullDate' }}</span>
+          <span class="value">{{ selectedOrder()?.createdAt | date: 'H:mm:ss' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="drawer-section">
+      <h4 class="section-subtitle">Purchased Products</h4>
+      <div class="items-list">
+        @for (item of selectedOrder()?.items; track item.productId) {
+          <div class="item-row">
+            <div class="item-info">
+              <span class="item-name">{{ item.productName }}</span>
+              <span class="item-id">ID: {{ item.productName }}</span>
+            </div>
+            <div class="item-pricing">
+              <span class="item-qty">{{ item.quantity }}x</span>
+              <span class="item-price">{{ item.unitPrice | currency }}</span>
+            </div>
+          </div>
+        }
+      </div>
+      <div class="summary-line total-line">
+        <span>Total Amount</span>
+        <span class="total-val">{{ selectedOrder()?.totalPrice | currency }}</span>
+      </div>
+    </div>
+
+    <!-- Summary Breakdown -->
+  </div>
+</div>

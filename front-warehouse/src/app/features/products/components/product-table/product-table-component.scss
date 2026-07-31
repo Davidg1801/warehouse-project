@@ -1,4 +1,4 @@
-.page {
+.page-body {
   width: 100%;
 }
 
@@ -26,16 +26,16 @@ table {
 
 thead {
   background-color: var(--background-p-color);
-}
 
-th {
-  padding: 1rem 1.5rem;
-  text-align: left;
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--text-p-color);
-  border-bottom: 1px solid var(--border-p-color);
-  white-space: nowrap;
+  th {
+    text-align: left;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-s-color);
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border-p-color);
+  }
 }
 
 tbody {
@@ -52,10 +52,17 @@ tbody {
   }
 
   td {
-    padding: 16px 20px;
-    color: var(--text-s-color);
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-p-color);
     vertical-align: middle;
   }
+}
+
+.empty-state {
+  padding: 3rem 1.5rem;
+  color: var(--text-s-color);
+  font-style: italic;
 }
 
 .actions-cell {
@@ -119,7 +126,7 @@ tbody {
   }
 }
 
-// SCREEN 768PX
+/* RESPONSIVE */
 @media (max-width: 768px) {
   th {
     padding: 0.8rem 1rem;

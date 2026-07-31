@@ -1,0 +1,44 @@
+<section class="filters-card">
+  <div class="filters-grid">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-group">
+        <label for="dateFrom">Date From</label>
+        <input type="date" class="form-control" formControlName="dateFrom" />
+      </div>
+
+      <!-- Date To -->
+      <div class="filter-group">
+        <label for="dateTo">Date To</label>
+        <input type="date" class="form-control" formControlName="dateTo" />
+      </div>
+
+      <!-- Customer Search -->
+      <div class="filter-group">
+        <label for="customer">Customer</label>
+        <div class="input-icon-wrapper">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by name..."
+            class="form-control with-icon"
+            formControlName="customerId"
+          />
+        </div>
+      </div>
+
+      <!-- Product Filter -->
+      <div class="filter-group">
+        <label for="product">Contains Product</label>
+        <input
+          type="text"
+          placeholder="Product ID..."
+          class="form-control"
+          formControlName="productsId"
+        />
+      </div>
+    </form>
+  </div>
+</section>

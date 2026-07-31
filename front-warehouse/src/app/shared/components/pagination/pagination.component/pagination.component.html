@@ -1,0 +1,63 @@
+<div class="pagination-card">
+  <div class="pagination-meta">
+    @if (totalCount() === 0) {
+      Showing <strong class="highlight-text">0</strong> results
+    } @else {
+      Showing <strong class="highlight-text">{{ resultFrom() }}</strong> to
+      <strong class="highlight-text">{{ resultTo() }}</strong> of
+      <strong class="highlight-text">{{ totalCount() }}</strong> results
+    }
+  </div>
+
+  <div class="pagination-nav">
+    <button
+      type="button"
+      class="nav-btn"
+      [disabled]="currentPage() === 1"
+      (click)="onPageChange(currentPage() - 1)"
+      data-testid="prev-page-button"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
+    </button>
+
+    <div class="page-indicator">
+      @if (totalPages() === 0) {
+        Page <strong>0</strong> of <strong>0</strong>
+      } @else {
+        Page <strong>{{ currentPage() }}</strong> of <strong>{{ totalPages() }}</strong>
+      }
+    </div>
+
+    <button
+      type="button"
+      class="nav-btn"
+      [disabled]="currentPage() >= totalPages()"
+      (click)="onPageChange(currentPage() + 1)"
+      data-testid="next-page-button"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="btn-icon">
+        <path d="M9 18l6-6-6-6" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="pagination-size">
+    <p class="size-label">Rows per page:</p>
+    <div class="select-wrapper">
+      <select
+        class="size-select"
+        data-testid="page-size-select"
+        [ngModel]="pageSize()"
+        (ngModelChange)="onPageSizeChange($event)"
+      >
+        @for (size of pageSizeOptions(); track size) {
+          <option data-testid="page-size-option" [ngValue]="size">
+            {{ size }}
+          </option>
+        }
+      </select>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,157 @@
+// Zapewniamy, że sam komponent Angulara poprawnie dopasowuje się do rodzica
+:host {
+  display: block;
+  width: 100%;
+  // Zezwalamy kontenerowi na reagowanie na własną szerokość (Container Queries)
+  container-type: inline-size;
+}
+
+.pagination-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  background-color: var(--background-s-color);
+  border: 1px solid var(--border-p-color);
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  // Kluczowe dla responsywności:
+  width: 100%;
+  box-sizing: border-box; // Gwarantuje, że padding nie powiększa width
+}
+
+.pagination-meta {
+  font-size: 0.875rem;
+  color: var(--text-s-color);
+  text-align: center;
+
+  .highlight-text {
+    color: var(--text-p-color);
+    font-weight: 600;
+  }
+}
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap; // Pozwala przyciskom zejść niżej na ekstremalnie małych ekranach (np. 320px)
+}
+
+.page-indicator {
+  font-size: 0.9rem;
+  color: var(--text-s-color);
+  padding: 0 0.5rem;
+  white-space: nowrap; // Zapobiega brzydkiemu łamaniu tekstu "Strona 1 z 10"
+
+  strong {
+    color: var(--text-p-color);
+    font-weight: 600;
+  }
+}
+
+.nav-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border-p-color);
+  background-color: var(--background-p-color);
+  color: var(--text-p-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0; // Przycisk nigdy nie ulegnie zgnieceniu
+
+  .btn-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover:not(:disabled) {
+    background-color: var(--button-s-bg-hover);
+    border-color: var(--border-s-color);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+}
+
+.pagination-size {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+
+.size-label {
+  font-size: 0.85rem;
+  color: var(--text-s-color);
+  white-space: nowrap;
+}
+
+.size-select {
+  height: 2.5rem;
+  padding: 0 0.85rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--input-border);
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--input-border-hover);
+  }
+
+  &:focus {
+    border-color: var(--accent-color, var(--orders-accent-p));
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+}
+
+/* RESPONSIVE (Modern Container Query Zamiast Media Query) */
+// Zapytanie reaguje na dostępny rozmiar *komponentu*, a nie całego okna!
+@container (max-width: 768px) {
+  .pagination-card {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .pagination-meta {
+    order: 1;
+  }
+
+  .pagination-nav {
+    order: 2;
+  }
+
+  .pagination-size {
+    order: 3;
+  }
+}
+
+// Opcjonalne awaryjne Media Query (jeśli nie używasz Container Queries)
+@media (max-width: 768px) {
+  :host {
+    width: 100%;
+  }
+}
