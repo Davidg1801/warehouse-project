@@ -20,8 +20,8 @@ public class ProductQueryDto
 
     public bool? Descending { get; set; } = false;
 
-    [EnumDataType(typeof(ProductSortColumn), ErrorMessage = "You can only order by Name, Price, or Quantity.")]
-    public ProductSortColumn? OrderBy { get; set; } = ProductSortColumn.Name;
+    [RegularExpression("(?i)^(Name|Price|Quantity)$", ErrorMessage = "You can only order by Name, Price, or Quantity.")]
+    public string? OrderBy { get; set; } = nameof(ProductSortColumn.Name);
 
     [MaxLength(100, ErrorMessage = "Search term is too long.")]
     public string? Name { get; set; }

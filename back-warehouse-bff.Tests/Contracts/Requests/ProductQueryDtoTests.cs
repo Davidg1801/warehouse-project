@@ -21,7 +21,7 @@ public class ProductQueryDtoTests
             PageNumber = 1,
             PageSize = 10,
             Name = "Lapt",
-            OrderBy = ProductSortColumn.Price
+            OrderBy = ProductSortColumn.Price.ToString()
         };
         //Act
         var results = ValidateModel(dto);
@@ -34,7 +34,7 @@ public class ProductQueryDtoTests
     public void Valide_WhenPageNumberIsLessThanOne_ReturnsError(int invalidPageNumber)
     {
         //Arrange
-        var dto = new ProductQueryDto { PageNumber = invalidPageNumber, PageSize = 10, Name = "Lapt", OrderBy = ProductSortColumn.Price };
+        var dto = new ProductQueryDto { PageNumber = invalidPageNumber, PageSize = 10, Name = "Lapt", OrderBy = ProductSortColumn.Price.ToString() };
         //Act
         var results = ValidateModel(dto);
         //Assert
@@ -47,7 +47,7 @@ public class ProductQueryDtoTests
     public void Validate_WhenPageSizeIsOutOfBounds_ReturnsError(int invalidPageSize)
     {
         //Arrange
-        var dto = new ProductQueryDto { PageNumber = 1, PageSize = invalidPageSize, Name = "Lapt", OrderBy = ProductSortColumn.Price };
+        var dto = new ProductQueryDto { PageNumber = 1, PageSize = invalidPageSize, Name = "Lapt", OrderBy = ProductSortColumn.Price.ToString() };
         //Act
         var results = ValidateModel(dto);
         //Assert
@@ -56,10 +56,10 @@ public class ProductQueryDtoTests
     }
 
     [Fact]
-    public void Validate_WhenOrderByIsInvalidEnum_ReturnsError()
+    public void Validate_WhenOrderByIsInvalidValue_ReturnsError()
     {
         //Arrange
-        var dto = new ProductQueryDto { PageNumber = 1, PageSize = 10, Name = "Lapt", OrderBy = (ProductSortColumn)99 };
+        var dto = new ProductQueryDto { PageNumber = 1, PageSize = 10, Name = "Lapt", OrderBy = "Test" };
         //Act
         var results = ValidateModel(dto);
         //Assert
@@ -71,7 +71,7 @@ public class ProductQueryDtoTests
     public void Validate_WhenNameIsTooLong_ReturnsError()
     {
         //Arrange
-        var dto = new ProductQueryDto { PageNumber = 1, PageSize = 10, Name = new string('A', 101), OrderBy = ProductSortColumn.Price };
+        var dto = new ProductQueryDto { PageNumber = 1, PageSize = 10, Name = new string('A', 101), OrderBy = ProductSortColumn.Price.ToString() };
         //Act
         var results = ValidateModel(dto);
         //Assert

@@ -179,10 +179,127 @@ public class PostgresRepositoryTests : IAsyncLifetime
         var query = new ProductQuery(1, 10, "tes", [(int)ProductCategory.Processors], false, null);
         //Act
         var result = await _sut.GetPagedAsync(query);
-        //Arrange
+        //Assert
         Assert.Equal(2, result.TotalCount);
         Assert.Equal(2, result.Data.Count());
         Assert.Equal(prod1.Uuid, result.Data.First().Uuid);
         Assert.Equal(prod2.Uuid, result.Data.Last().Uuid);
+    }
+    [Fact]
+    public async Task GetPagedAsync_WhenFiltersNoProductsMatch_ReturnsEmptyResult()
+    {
+        //Arrange
+        var prod1 = Product.CreateProduct("test", ProductCategory.Processors, 10.99m, 1);
+        var prod2 = Product.CreateProduct("test2", ProductCategory.Processors, 10.99m, 2);
+        await _sut.AddAsync(prod1);
+        await _sut.AddAsync(prod2);
+        var query = new ProductQuery(1, 10, "d", [(int)ProductCategory.Processors], false, null);
+        //Act
+        var result = await _sut.GetPagedAsync(query);
+        //Assert
+        Assert.NotNull(result);
+        Assert.Equal(0, result.TotalCount);
+        Assert.Empty(result.Data);
+    }
+    [Fact]
+    public async Task GetPagedAsync_WhenPageSizeIsSmalletThanTotal_ReturnsCorrectPage()
+    {
+        //Arrange
+        var prod1 = Product.CreateProduct("test", ProductCategory.Processors, 10.99m, 1);
+        var prod2 = Product.CreateProduct("test2", ProductCategory.Processors, 10.99m, 2);
+        var prod3 = Product.CreateProduct("test3", ProductCategory.Processors, 10.99m, 2);
+        await _sut.AddAsync(prod1);
+        await _sut.AddAsync(prod2);
+        await _sut.AddAsync(prod3);
+        var query = new ProductQuery(2, 2, null, null, false, null);
+        //Act
+        var result = await _sut.GetPagedAsync(query);
+        //Assert
+        Assert.NotNull(result);
+        Assert.Equal(3, result.TotalCount);
+        Assert.NotNull(result.Data);
+        Assert.Single(result.Data);
+    }
+    [Fact]
+    public async Task GetPagedAsync_WhenFiltersAreNullOrEmptu_ReturnsAllProducts()
+    {
+        //Arrange
+        var prod1 = Product.CreateProduct("test", ProductCategory.Processors, 10.99m, 1);
+        var prod2 = Product.CreateProduct("test2", ProductCategory.Processors, 10.99m, 2);
+        await _sut.AddAsync(prod1);
+        await _sut.AddAsync(prod2);
+        var query = new ProductQuery(1, 10, null, [], false, null);
+        //Act
+        var result = await _sut.GetPagedAsync(query);
+        //Assert
+        Assert.Equal(2, result.TotalCount);
+        Assert.Equal(2, result.Data.Count());
+    }
+    [Fact]
+    public async Task GetPagedAsync_WhenSortedByPriceDesceding_ReturnsProperlySortedProducts()
+    {
+        //Arrange
+        var cheapest = Product.CreateProduct("the cheapest", ProductCategory.Processors, 1.99m, 1);
+        var cheap = Product.CreateProduct("cheap", ProductCategory.Processors, 10.99m, 2);
+        var expensive = Product.CreateProduct("expensive", ProductCategory.RAM_Memory, 3000.99m, 4);
+        await _sut.AddAsync(cheapest);
+        await _sut.AddAsync(cheap);
+        await _sut.AddAsync(expensive);
+        var query = new ProductQuery(1, 10, null, [], true, "Price");
+        //Act
+        var result = await _sut.GetPagedAsync(query);
+        //Assert
+        var products = result.Data.ToList();
+        Assert.Equal(3, result.TotalCount);
+        Assert.Equal(expensive.Uuid, products[0].Uuid);
+        Assert.Equal(cheap.Uuid, products[1].Uuid);
+        Assert.Equal(cheapest.Uuid, products[2].Uuid);
+    }
+
+    [Fact]
+    public async Task UpdateManyAsync_WhenProductsExists_UptadesAllProducts()
+    {
+        //Arrange
+        var prod1 = Product.CreateProduct("test", ProductCategory.Processors, 10.99m, 1);
+        var prod2 = Product.CreateProduct("test2", ProductCategory.Processors, 10.99m, 2);
+        await _sut.AddAsync(prod1);
+        await _sut.AddAsync(prod2);
+        var updatedProd1 = new Product(prod1.Uuid, prod1.Name, prod1.CategoryId, prod1.Price, (prod1.Quantity - 1));
+        var updatedProd2 = new Product(prod2.Uuid, prod2.Name, prod2.CategoryId, prod2.Price, (prod2.Quantity - 1));
+        //Act
+        await _sut.UpdateManyAsync(new[] { updatedProd1, updatedProd2 });
+        //Assert
+        var result1 = await _sut.GetByIdAsync(prod1.Uuid);
+        var result2 = await _sut.GetByIdAsync(prod2.Uuid);
+        Assert.NotNull(result1);
+        Assert.NotNull(result2);
+        Assert.Equal(prod1.Name, result1.Name);
+        Assert.Equal(prod2.Name, result2.Name);
+        Assert.Equal(updatedProd1.Quantity, result1.Quantity);
+        Assert.Equal(updatedProd2.Quantity, result2.Quantity);
+    }
+
+    [Fact]
+    public async Task UpdateManyAsync_WhenListIstEmpty_NotThrowException()
+    {
+        //Arrange
+        var emptyList = new List<Product>();
+        //Act
+        var exception = await Record.ExceptionAsync(() => _sut.UpdateManyAsync(emptyList));
+        //Assert
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public async Task UpdateManyAsync_WhenProductDoesNotExist_IgnoresAndDoesNotThrow()
+    {
+        // Arrange
+        var fakeProduct = Product.CreateProduct("test", ProductCategory.Processors, 10m, 1);
+        // Act
+        var exception = await Record.ExceptionAsync(() => _sut.UpdateManyAsync(new[] { fakeProduct }));
+        // Assert
+        Assert.Null(exception);
+        var result = await _sut.GetByIdAsync(fakeProduct.Uuid);
+        Assert.Null(result);
     }
 }
