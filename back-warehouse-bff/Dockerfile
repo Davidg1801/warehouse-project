@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 8080
 
-CMD ["dotnet", "watch", "run", "--urls", "http://+:8080"]
+CMD ["dotnet", "run", "--urls", "http://+:8080"]
