@@ -19,4 +19,6 @@ public class OrderItemDto
     public Guid ProductId { get; set; }
     [Range(1, int.MaxValue, ErrorMessage = "Quantity can not be lower than 1.")]
     public int Quantity { get; set; }
+    [MaxLength(100, ErrorMessage = "Product name is too long.")]
+    public string Name { get; set; } = string.Empty;
 }

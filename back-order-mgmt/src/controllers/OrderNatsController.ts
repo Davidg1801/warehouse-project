@@ -1,7 +1,7 @@
 import { StringCodec, type NatsConnection, type Subscription } from "nats";
 import type { IOrderController } from "./Contracts/Interfaces/IOrderController.js";
 import type { IOrderService } from "../core/Interfaces/IOrderService.js";
-import type { CreateOrderRequest } from "./Contracts/Requests/CreateOrderRequest.js";
+import type { CreateOrderRequest, OrderItemDto } from "./Contracts/Requests/CreateOrderRequest.js";
 import type { OrderResponse } from "./Contracts/Responses/OrderResponse.js";
 import { OrderQueryRequest } from "./Contracts/Requests/OrderQueryRequest.js";
 import type { OrderQuery } from "../core/Queries/OrderQuery.js";
@@ -55,8 +55,31 @@ export class OrderNatsController implements IOrderController {
                     continue; 
                 }
                 console.log(`[NATS] Stock reserved successfully. Saving order to database...`);
+                const populatedItems: OrderItemDto[] = [];
+                for (const item of request.items) {
+                    try {
+                        const productReply = await this.nc.request(
+                            "products.get", 
+                            this.sc.encode(item.productId), 
+                            { timeout: 3000 }
+                        );  
+                        const productString = this.sc.decode(productReply.data);
+                        if (productString.startsWith("ERROR:")) {
+                            throw new Error(`Product ${item.productId} details not found`);
+                        }
+                        const productInfo = JSON.parse(productString);
+                        populatedItems.push({
+                            productId: item.productId,
+                            quantity: item.quantity,
+                            name: productInfo.name ?? productInfo.Name ?? "Unknown Product" 
+                        });
 
-                const createdOrder = await this.orderService.addOrderAsync(request.customerId, request.items);
+                    } catch (err) {
+                        console.error(`[NATS] Failed to fetch product info for ${item.productId}:`, err);
+                        throw new Error(`Missing product data for ID: ${item.productId}`);
+                    }
+                }
+                const createdOrder = await this.orderService.addOrderAsync(request.customerId, populatedItems);
                 const responseDto: OrderResponse = {
                     uuid: createdOrder.uuid,
                     customerId: createdOrder.customerId,
