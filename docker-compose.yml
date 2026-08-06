@@ -44,12 +44,30 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_PASSWORD}
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME_URL: http://localhost/auth/
+      KC_HOSTNAME_ADMIN_URL: http://localhost/auth/
     command: start-dev
     ports:
       - "8080:8080"
     volumes:
       - keycloak_data:/opt/keycloak/data
       - ./warehouse-theme:/opt/keycloak/themes/warehouse-theme
+
+  nginx:
+    image: nginx:alpine
+    container_name: warehouse-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - bff
+      - keycloak
 
   # --- Main services
   bff:
