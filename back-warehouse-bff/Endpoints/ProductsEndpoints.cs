@@ -10,7 +10,7 @@ public static class ProductEndpoints
 {
     public static void MapProductEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bff/products");
+        var group = app.MapGroup("/products");
 
         group.MapPost("/", async (ProductRequestDto request, IProductService productService) =>
         {

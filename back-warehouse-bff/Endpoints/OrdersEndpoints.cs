@@ -10,7 +10,7 @@ public static class OrdersEndpoints
 {
     public static void MapOrdersEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("bff/orders");
+        var group = app.MapGroup("/orders");
 
         group.MapPost("/", async (OrderRequestDto request, IOrderService orderService) =>
         {

@@ -51,8 +51,8 @@ public class Program
                 {
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri("http://localhost:8080/realms/warehouse-realm/protocol/openid-connect/auth"),
-                        TokenUrl = new Uri("http://localhost:8080/realms/warehouse-realm/protocol/openid-connect/token"),
+                        AuthorizationUrl = new Uri("http://localhost/auth/realms/warehouse-realm/protocol/openid-connect/auth"),
+                        TokenUrl = new Uri("http://localhost/auth/realms/warehouse-realm/protocol/openid-connect/token"),
                         Scopes = new Dictionary<string, string>
                         {
                             { "openid", "OpenID Connect" }
@@ -67,21 +67,26 @@ public class Program
         {
             options.AddPolicy("AngularApp", policy =>
             {
-                policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+                policy.WithOrigins("http://localhost", "http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
             });
         });
 
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
-            options.Authority = "http://keycloak:8080/realms/warehouse-realm";
+            options.Authority = "http://keycloak:8080/auth/realms/warehouse-realm";
             //https off
             options.RequireHttpsMetadata = false;
+
+            options.Backchannel = new HttpClient(new KeycloakDockerHandler { InnerHandler = new HttpClientHandler() })
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
                 //For angular
-                ValidIssuer = "http://localhost:8080/realms/warehouse-realm",
+                ValidIssuer = "http://localhost/auth/realms/warehouse-realm",
                 ValidateAudience = false, // on PROD should be true
                 ValidateLifetime = true
             };
@@ -104,7 +109,13 @@ public class Program
         var app = builder.Build();
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
+            app.UseSwagger(c =>
+            {
+                c.PreSerializeFilters.Add((swagger, httpReq) =>
+                {
+                    swagger.Servers = new List<OpenApiServer> { new OpenApiServer { Url = "http://localhost/bff" } };
+                });
+            });
             app.UseSwaggerUI(options =>
             {
                 options.OAuthClientId("angular-frontend");
@@ -122,7 +133,22 @@ public class Program
 
     }
 }
-
+public class KeycloakDockerHandler : DelegatingHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        if (request.RequestUri != null && request.RequestUri.Host == "localhost")
+        {
+            var uriBuilder = new UriBuilder(request.RequestUri)
+            {
+                Host = "keycloak",
+                Port = 8080
+            };
+            request.RequestUri = uriBuilder.Uri;
+        }
+        return base.SendAsync(request, cancellationToken);
+    }
+}
 public class SecurityRequirementsOperationFilter : IOperationFilter
 {
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
