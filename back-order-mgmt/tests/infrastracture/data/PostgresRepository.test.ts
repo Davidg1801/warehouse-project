@@ -168,6 +168,26 @@ describe("PostgresRepository integration tests", () => {
             expect(result.totalCount).toBe(0);
             expect(result.data).toHaveLength(0);
         });
+
+        it("should filter correctly by productName inside JSONB items array (case-insensitive)", async () => {
+            //Arrange
+            const order1 = Order.create("Cust1", [{ productId: "p1", quantity: 1, name: "Mouse" }]);
+            const order2 = Order.create("Cust2", [{ productId: "p2", quantity: 1, name: "MOUSE2" }]);
+            const order3 = Order.create("Cust3", [{ productId: "p3", quantity: 1, name: "Keybouard" }]);
+            await sut.saveAsync(order1);
+            await sut.saveAsync(order2);
+            await sut.saveAsync(order3);
+
+            const query = { pageNumber: 1, pageSize: 10, descending: false, productName: "mouse" };
+            //Act
+            const result = await sut.getPagedAsync(query);
+            //Asserts
+            expect(result.totalCount).toBe(2); 
+            const returnedCustomerIds = result.data.map(o => o.customerId);
+            expect(returnedCustomerIds).toContain("Cust1");
+            expect(returnedCustomerIds).toContain("Cust2");
+            expect(returnedCustomerIds).not.toContain("Cust3"); 
+        });
     });
 
     describe("getByUuidAsync", () => {

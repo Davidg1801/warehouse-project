@@ -27,7 +27,7 @@ public class OrderQueryDto : IValidatableObject
     [MaxLength(100, ErrorMessage = "Search term is too long.")]
     public string? CustomerId { get; set; }
     public string[]? ProductIds { get; set; }
-    public Guid? Uuid { get; set; }
+    public string? Uuid { get; set; }
     [MaxLength(100, ErrorMessage = "Search term is too long.")]
     public string? ProductName { get; set; }
     public DateTime? DateFrom { get; set; } //ISO

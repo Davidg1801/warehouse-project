@@ -136,4 +136,15 @@ public class OrderQueryDtoTests
         Assert.Empty(results1);
         Assert.Empty(results2);
     }
+
+    [Fact]
+    public void Validate_WhenProductNameIsTooLong_ReturnsError()
+    {
+        //Arrange
+        var model = new OrderQueryDto { ProductName = new string('A', 101) };
+        //Act
+        var results = ValidateModel(model);
+        //Assert
+        Assert.Contains(results, r => r.ErrorMessage == "Search term is too long.");
+    }
 }

@@ -285,7 +285,8 @@ describe("OrderNatsController", () => {
             pageNumber: 3, 
             pageSize: 50, 
             descending: true, 
-            orderBy: "customerId" 
+            orderBy: "customerId",
+            productName: "prod"
         };
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         
@@ -307,7 +308,8 @@ describe("OrderNatsController", () => {
             pageNumber: 3, 
             pageSize: 50, 
             descending: true, 
-            orderBy: "customerId"
+            orderBy: "customerId",
+            productName: "prod"
         }));
     });
 });
