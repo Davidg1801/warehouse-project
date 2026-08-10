@@ -8,7 +8,7 @@ export interface OrderQuery {
     customerId?: string | undefined;
     productIds?: string[] | undefined;
     uuid?: string | undefined;
-
+    productName?: string | undefined;
     dateFrom?: string //ISO
     | undefined //ISO
     dateTo?: string //ISO

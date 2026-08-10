@@ -7,6 +7,7 @@ export class OrderQueryRequest {
     public readonly customerId?: string;
     public readonly productIds?: string[];
     public readonly uuid?: string;
+    public readonly productName?: string;
     public readonly dateFrom?: string; //ISO
     public readonly dateTo?: string; //ISO
 
