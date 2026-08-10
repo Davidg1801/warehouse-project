@@ -108,6 +108,8 @@ public class OrderNatsService : IOrderService
                 OrderBy = query.OrderBy?.ToString(),
                 CustomerId = query.CustomerId?.ToString(),
                 ProductIds = query.ProductIds?.ToArray(),
+                Uuid = query.Uuid,
+                ProductName = query.ProductName,
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo
             };

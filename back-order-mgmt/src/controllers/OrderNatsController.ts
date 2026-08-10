@@ -147,6 +147,7 @@ export class OrderNatsController implements IOrderController {
                     customerId: request.customerId ?? undefined,
                     productIds: request.productIds ?? undefined,
                     uuid: request.uuid ?? undefined,
+                    productName: request.productName ?? undefined,
                     dateFrom: request.dateFrom ?? undefined,
                     dateTo: request.dateTo ?? undefined
                 };
