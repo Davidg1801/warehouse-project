@@ -21,4 +21,5 @@ public class OrderItemDto
     public int Quantity { get; set; }
     [MaxLength(100, ErrorMessage = "Product name is too long.")]
     public string Name { get; set; } = string.Empty;
+    public decimal PricePerUnit { get; set; }
 }

@@ -6,8 +6,8 @@ describe('Create Order Entity', () => {
         //Arrange
         const customerId = "test";
         const items: OrderItem[] = [
-            { productId: "prod1", quantity: 2},
-            { productId: "prod2", quantity: 1}
+            { productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00},
+            { productId: "prod2", quantity: 1, name: "prod2", pricePerUnit: 50.00}
         ];
         //Act
         const newOrder = Order.create(customerId, items);
@@ -25,8 +25,8 @@ describe('Create Order Entity', () => {
         //Arrange
         const customerId = "";
         const items: OrderItem[] = [
-            { productId: "prod1", quantity: 2},
-            { productId: "prod2", quantity: 1}
+            { productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00},
+            { productId: "prod2", quantity: 1, name: "prod2", pricePerUnit: 50.00}
         ];
         //Act
         //Assert
@@ -50,8 +50,8 @@ describe('Create Order Entity', () => {
         //Arrange
         const customerId = "customer";
         const items: OrderItem[] = [
-            { productId: "prod1", quantity: 2},
-            { productId: "prod2", quantity: 0}
+            { productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00},
+            { productId: "prod2", quantity: 0, name: "prod1", pricePerUnit: 50.00}
         ];
         //Act
         //Arrange

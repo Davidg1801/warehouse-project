@@ -18,7 +18,7 @@ describe("OrderNatsController", () => {
         const mockOrderService = mock<IOrderService>();
         const mockNc = mock<NatsConnection>();
         const mockMsg = mock<Msg>();
-        const requestDto = { customerId: "customer", items: [ {productId: "product", quantity: 2, name: "prod"} ]};
+        const requestDto = { customerId: "customer", items: [ {productId: "product", quantity: 2, name: "prod", pricePerUnit: 150.00} ]};
         
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         mockNc.subscribe.mockImplementation((subject: string) => {
@@ -33,11 +33,11 @@ describe("OrderNatsController", () => {
             if (subject === "products.reserve") {
                 mockReply.data = sc.encode(JSON.stringify({ success: true }));
             } else if (subject === "products.get") {
-                mockReply.data = sc.encode(JSON.stringify({ name: "Product" }));
+                mockReply.data = sc.encode(JSON.stringify({ name: "prod", price: 150.00 }));
             }
             return mockReply;
         });
-        const expectedItems = [{ productId: "product", quantity: 2, name: "Product" }];
+        const expectedItems = [{ productId: "product", quantity: 2, name: "prod", pricePerUnit: 150.00 }];
         const order = Order.create(requestDto.customerId, expectedItems);
         mockOrderService.addOrderAsync.mockResolvedValue(order);
     
@@ -59,6 +59,7 @@ describe("OrderNatsController", () => {
         expect(responseObject.createdAt).toBeDefined();
         expect(responseObject.items).toHaveLength(1);
         expect(responseObject.items[0].productId).toBe("product");
+        expect(responseObject.totalPrice).toBe(300.00);
     });
 
     it("should process orders.add message and return ERROR when product reservation fails", async () => {
@@ -66,7 +67,7 @@ describe("OrderNatsController", () => {
         const mockOrderService = mock<IOrderService>();
         const mockNc = mock<NatsConnection>();
         const mockMsg = mock<Msg>();
-        const requestDto = { customerId: "customer", items: [{ productId: "product", quantity: 2 }] };
+        const requestDto = { customerId: "customer", items: [{ productId: "product", quantity: 2, pricePerUnit: 150.00 }] };
         
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         mockNc.subscribe.mockImplementation((subject: string) => {
@@ -101,7 +102,7 @@ describe("OrderNatsController", () => {
         const mockOrderService = mock<IOrderService>();
         const mockNc = mock<NatsConnection>();
         const mockMsg = mock<Msg>();
-        const requestDto = { customerId: "customer", items: [{ productId: "product", quantity: 2 }] };
+        const requestDto = { customerId: "customer", items: [{ productId: "product", quantity: 2, pricePerUnit: 150.00 }] };
 
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         mockNc.subscribe.mockImplementation((subject: string) => {
@@ -143,7 +144,7 @@ describe("OrderNatsController", () => {
             }
             return mockEmptyStream() as unknown as Subscription;
         });
-        const order = Order.create("cust1", [{productId: "prod1", quantity: 2, name: "Prod1"}]);
+        const order = Order.create("cust1", [{productId: "prod1", quantity: 2, name: "Prod1", pricePerUnit: 50.00}]);
         (order as any).uuid = targetUuid;
         mockOrderService.getOrderAsync.mockResolvedValue(order);
         const sut = new OrderNatsController(mockNc, mockOrderService);
@@ -227,7 +228,7 @@ describe("OrderNatsController", () => {
             }
             return mockEmptyStream() as unknown as Subscription;
         });
-        const order = Order.create("test", [{productId: "prod1", quantity: 2, name: "test1"}]);
+        const order = Order.create("test", [{productId: "prod1", quantity: 2, name: "test1", pricePerUnit: 50.00}]);
         mockOrderService.getAllOrderAsync.mockResolvedValue( { totalCount: 1, data: [order]});
         const sut = new OrderNatsController(mockNc, mockOrderService);
         //Act
@@ -244,6 +245,7 @@ describe("OrderNatsController", () => {
         expect(responseObject.data[0].items[0].productId).toBe("prod1");
         expect(responseObject.data[0].createdAt).toBeDefined();
         expect(responseObject.data[0].created_at).toBeUndefined();
+        expect(responseObject.data[0].totalPrice).toBe(100.00);
     });
 
     it("should process orders.getall message and return ERROR when exception occurs", async () => {
@@ -285,7 +287,8 @@ describe("OrderNatsController", () => {
             pageNumber: 3, 
             pageSize: 50, 
             descending: true, 
-            orderBy: "customerId" 
+            orderBy: "customerId",
+            productName: "prod"
         };
         mockMsg.data = sc.encode(JSON.stringify(requestDto));
         
@@ -307,7 +310,8 @@ describe("OrderNatsController", () => {
             pageNumber: 3, 
             pageSize: 50, 
             descending: true, 
-            orderBy: "customerId"
+            orderBy: "customerId",
+            productName: "prod"
         }));
     });
 });

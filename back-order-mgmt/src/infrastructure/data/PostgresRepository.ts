@@ -32,6 +32,14 @@ export class PostgresRepository implements IOrderRepository {
                 )`;
             }
 
+            if (query.productName) {
+                values.push(`%${query.productName}%`);
+                filters += ` AND EXISTS (
+                    SELECT 1 FROM jsonb_array_elements(Data->'items') AS item 
+                    WHERE item->>'name' ILIKE $${values.length}
+                )`;
+            }
+
             if (query.dateFrom) {
                 values.push(query.dateFrom);
                 filters += ` AND (Data->>'created_at')::timestamp >= $${values.length}::timestamp`;

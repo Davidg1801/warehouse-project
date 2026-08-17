@@ -4,6 +4,7 @@ export interface OrderResponse {
     uuid: string;
     customerId: string;
     items: OrderItemDto[];
+    totalPrice: number;
     createdAt: Date;
 }
 
