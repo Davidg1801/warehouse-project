@@ -7,5 +7,6 @@ public class OrderResponseDto
     public Guid Uuid { get; set; }
     public string CustomerId { get; set; } = String.Empty;
     public List<OrderItemDto> Items { get; set; } = new();
+    public decimal TotalPrice { get; set; }
     public DateTime CreatedAt { get; set; }
 }

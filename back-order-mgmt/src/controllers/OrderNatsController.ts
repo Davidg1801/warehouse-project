@@ -71,7 +71,8 @@ export class OrderNatsController implements IOrderController {
                         populatedItems.push({
                             productId: item.productId,
                             quantity: item.quantity,
-                            name: productInfo.name ?? productInfo.Name ?? "Unknown Product" 
+                            name: productInfo.name ?? productInfo.Name ?? "Unknown Product",
+                            pricePerUnit: productInfo.price ?? productInfo.Price
                         });
 
                     } catch (err) {
@@ -84,6 +85,7 @@ export class OrderNatsController implements IOrderController {
                     uuid: createdOrder.uuid,
                     customerId: createdOrder.customerId,
                     items: createdOrder.items,
+                    totalPrice: createdOrder.totalPrice,
                     createdAt: createdOrder.created_at
                 };
                 const responseJson = JSON.stringify(responseDto);
@@ -113,6 +115,7 @@ export class OrderNatsController implements IOrderController {
                         uuid: order.uuid,
                         customerId: order.customerId,
                         items: order.items,
+                        totalPrice: order.totalPrice,
                         createdAt: order.created_at
                     };
                     const responseJson = JSON.stringify(responseDto);
@@ -156,6 +159,7 @@ export class OrderNatsController implements IOrderController {
                     uuid: order.uuid,
                     customerId: order.customerId,
                     items: order.items,
+                    totalPrice: order.totalPrice,
                     createdAt: order.created_at
                 }));
                 const responsePayload = {

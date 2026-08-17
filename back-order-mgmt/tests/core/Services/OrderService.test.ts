@@ -10,12 +10,13 @@ describe("OrderService addOrderAsync" , () => {
         const mockRepository = mock<IOrderRepository>();
         const sut = new OrderService(mockRepository);
         const customerId = "customer";
-        const items: OrderItem[] = [{productId: "prod1", quantity: 2}];
+        const items: OrderItem[] = [{productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00}];
         //Act
         const result = await sut.addOrderAsync(customerId, items);
         //Arrange
         expect(result).toBeDefined();
         expect(result.customerId).toBe(customerId);
+        expect(result.totalPrice).toBe(100.00);
 
         expect(mockRepository.saveAsync).toHaveBeenCalledOnce();
         expect(mockRepository.saveAsync).toHaveBeenCalledWith(expect.objectContaining({customerId, items}));
@@ -27,7 +28,7 @@ describe("OrderService addOrderAsync" , () => {
         const sut = new OrderService(mockRepository);
         
         const customerId = ""; 
-        const items: OrderItem[] = [{ productId: "prod1", quantity: 2 }];
+        const items: OrderItem[] = [{ productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00 }];
 
         // Act & Assert
         await expect(
@@ -43,7 +44,7 @@ describe("OrderService addOrderAsync" , () => {
         const sut = new OrderService(mockRepository);
 
         const customerId = "customer";
-        const items: OrderItem[] = [{productId: "prod1", quantity: 2}];
+        const items: OrderItem[] = [{productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00}];
 
         mockRepository.saveAsync.mockRejectedValue(new Error("DB_CRASHED"));
         //Act Arrange
@@ -66,7 +67,7 @@ describe("OrderService getOrderAsync" , () => {
         const sut = new OrderService(mockRepository);
         const customerId = "customer";
         const targetUuid = "123e4567-e89b-12d3-a456-426614174000";
-        const items: OrderItem[] = [{productId: "prod1", quantity: 2}];
+        const items: OrderItem[] = [{productId: "prod1", quantity: 2, name: "prod1", pricePerUnit: 50.00}];
         const order = Order.create(customerId, items);
         (order as any).uuid = targetUuid;
         mockRepository.getByUuidAsync.mockResolvedValue(order);
@@ -76,7 +77,7 @@ describe("OrderService getOrderAsync" , () => {
         expect(result).not.toBeNull();
         expect(result!.uuid).toBe(targetUuid);
         expect(result!.customerId).toBe(customerId);
-
+        expect(result!.totalPrice).toBe(100.00);
         expect(mockRepository.getByUuidAsync).toHaveBeenCalledOnce();
         expect(mockRepository.getByUuidAsync).toHaveBeenCalledWith(targetUuid);
     });
@@ -123,7 +124,7 @@ describe("OrderService getAllOrderAsync", () => {
             orderBy: "createdAt",
             customerId: "customer"
         };
-        const dummyOrder = Order.create("customer", [{ productId: "prod1", quantity: 1 }]);
+        const dummyOrder = Order.create("customer", [{ productId: "prod1", quantity: 1, name: "prod1", pricePerUnit: 50.00}]);
         const expectedResult: PagedResult<Order> = {
             totalCount: 1,
             data: [dummyOrder]

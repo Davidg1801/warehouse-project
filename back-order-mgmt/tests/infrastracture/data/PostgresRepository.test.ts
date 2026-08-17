@@ -36,7 +36,7 @@ describe("PostgresRepository integration tests", () => {
     describe("addOrderAsync", () => {
         it("should sucessfully save order to DB when Order is valid", async () => {
             //Arrange
-            const order = Order.create("customer", [{productId: "test", quantity: 2}]);
+            const order = Order.create("customer", [{productId: "test", quantity: 2, name: "prod1", pricePerUnit: 50.00}]);
             //Act
             await sut.saveAsync(order);
             //Asserts
@@ -52,7 +52,7 @@ describe("PostgresRepository integration tests", () => {
 
         it("should successfully get order from DB when Order is exist", async () => {
             //Arrange
-            const order = Order.create("customer", [{productId: "test", quantity: 2}]);
+            const order = Order.create("customer", [{productId: "test", quantity: 2, name: "prod1", pricePerUnit: 50.00}]);
             await sut.saveAsync(order);
             //Act
             const result = await sut.getByUuidAsync(order.uuid);
@@ -78,9 +78,9 @@ describe("PostgresRepository integration tests", () => {
     describe("getPagedAsync", () => {
         it("should return paged results and totalCount when no filters applied", async () => {
             //Arrange
-            const order1 = Order.create("Cust1", [{ productId: "prod1", quantity: 1 }]);
-            const order2 = Order.create("Cust2", [{ productId: "prod2", quantity: 2 }]);
-            const order3 = Order.create("Cust3", [{ productId: "prod3", quantity: 3 }]);
+            const order1 = Order.create("Cust1", [{ productId: "prod1", quantity: 1, name: "prod1", pricePerUnit: 50.00 }]);
+            const order2 = Order.create("Cust2", [{ productId: "prod2", quantity: 2, name: "prod2", pricePerUnit: 50.00 }]);
+            const order3 = Order.create("Cust3", [{ productId: "prod3", quantity: 3, name: "prod3", pricePerUnit: 50.00 }]);
             
             await sut.saveAsync(order1);
             await sut.saveAsync(order2);
@@ -96,8 +96,8 @@ describe("PostgresRepository integration tests", () => {
 
         it("should filter correctly by customerId (case-insensitive)", async () => {
             //Arrange
-            const order1 = Order.create("JeremyDoe123", [{ productId: "prod1", quantity: 1 }]);
-            const order2 = Order.create("JadeSmith1", [{ productId: "prod2", quantity: 2 }]);
+            const order1 = Order.create("JeremyDoe123", [{ productId: "prod1", quantity: 1, name: "prod1", pricePerUnit: 50.00 }]);
+            const order2 = Order.create("JadeSmith1", [{ productId: "prod2", quantity: 2, name: "prod2", pricePerUnit: 50.00 }]);
             await sut.saveAsync(order1);
             await sut.saveAsync(order2);
 
@@ -111,7 +111,7 @@ describe("PostgresRepository integration tests", () => {
 
         it("should filter correctly by partial UUID", async () => {
             //Arrange
-            const order = Order.create("Customer", [{ productId: "prod1", quantity: 1 }]);
+            const order = Order.create("Customer", [{ productId: "prod1", quantity: 1, name: "prod1", pricePerUnit: 50.00 }]);
             await sut.saveAsync(order);
 
             const partialUuid = order.uuid.substring(0, 5);
@@ -125,8 +125,8 @@ describe("PostgresRepository integration tests", () => {
 
         it("should filter correctly by productIds inside JSONB items array", async () => {
             //Arrange
-            const order1 = Order.create("Cust1", [{ productId: "XBOX", quantity: 1 }]);
-            const order2 = Order.create("Cust2", [{ productId: "PROD2", quantity: 1 }]);
+            const order1 = Order.create("Cust1", [{ productId: "XBOX", quantity: 1, name: "XBOX", pricePerUnit: 50.00 }]);
+            const order2 = Order.create("Cust2", [{ productId: "PROD2", quantity: 1, name: "PROD2", pricePerUnit: 50.00 }]);
             await sut.saveAsync(order1);
             await sut.saveAsync(order2);
             const query = { pageNumber: 1, pageSize: 10, descending: false, productIds: ["XBOX"] };
@@ -139,9 +139,9 @@ describe("PostgresRepository integration tests", () => {
 
         it("should sort results correctly by customerId descending", async () => {
             //Arrange
-            const order1 = Order.create("AAA", [{ productId: "p1", quantity: 1 }]);
-            const order2 = Order.create("CCC", [{ productId: "p2", quantity: 2 }]);
-            const order3 = Order.create("BBB", [{ productId: "p3", quantity: 3 }]);
+            const order1 = Order.create("AAA", [{ productId: "p1", quantity: 1, name: "prod1", pricePerUnit: 50.00 }]);
+            const order2 = Order.create("CCC", [{ productId: "p2", quantity: 2,name: "prod2", pricePerUnit: 50.00 }]);
+            const order3 = Order.create("BBB", [{ productId: "p3", quantity: 3, name: "prod3", pricePerUnit: 50.00 }]);
             
             await sut.saveAsync(order1);
             await sut.saveAsync(order2);
@@ -158,7 +158,7 @@ describe("PostgresRepository integration tests", () => {
         });
 
         it("should return empty result when no orders match filters", async () => {
-            const order = Order.create("Cust", [{ productId: "p1", quantity: 1 }]);
+            const order = Order.create("Cust", [{ productId: "p1", quantity: 1, name: "p1", pricePerUnit: 50.00 }]);
             await sut.saveAsync(order);
 
             const query = { pageNumber: 1, pageSize: 10, descending: false, customerId: "NotExisting" };
@@ -171,9 +171,9 @@ describe("PostgresRepository integration tests", () => {
 
         it("should filter correctly by productName inside JSONB items array (case-insensitive)", async () => {
             //Arrange
-            const order1 = Order.create("Cust1", [{ productId: "p1", quantity: 1, name: "Mouse" }]);
-            const order2 = Order.create("Cust2", [{ productId: "p2", quantity: 1, name: "MOUSE2" }]);
-            const order3 = Order.create("Cust3", [{ productId: "p3", quantity: 1, name: "Keybouard" }]);
+            const order1 = Order.create("Cust1", [{ productId: "p1", quantity: 1, name: "Mouse", pricePerUnit: 50.00 }]);
+            const order2 = Order.create("Cust2", [{ productId: "p2", quantity: 1, name: "MOUSE2", pricePerUnit: 50.00 }]);
+            const order3 = Order.create("Cust3", [{ productId: "p3", quantity: 1, name: "Keybouard", pricePerUnit: 50.00 }]);
             await sut.saveAsync(order1);
             await sut.saveAsync(order2);
             await sut.saveAsync(order3);
@@ -193,7 +193,7 @@ describe("PostgresRepository integration tests", () => {
     describe("getByUuidAsync", () => {
         it("should successfully get order from DB when Order exists", async () => {
             //Arrange
-            const order = Order.create("customer", [{productId: "test", quantity: 2}]);
+            const order = Order.create("customer", [{productId: "test", quantity: 2, name: "test", pricePerUnit: 50.00}]);
             await sut.saveAsync(order);
             //Act
             const result = await sut.getByUuidAsync(order.uuid);
