@@ -8,7 +8,8 @@ namespace back_warehouse_bff.Contracts.Requests;
 public enum OrderSortColumn
 {
     CreatedAt,
-    CustomerId
+    CustomerId,
+    TotalPrice
 }
 
 public class OrderQueryDto : IValidatableObject
@@ -21,7 +22,7 @@ public class OrderQueryDto : IValidatableObject
 
     public bool? Descending { get; set; } = false;
 
-    [RegularExpression("(?i)^(CreatedAt|CustomerId)$", ErrorMessage = "You can only order by CreatedAt and CustomerId.")]
+    [RegularExpression("(?i)^(CreatedAt|CustomerId|TotalPrice)$", ErrorMessage = "You can only order by CreatedAt, CustomerId and TotalPrice.")]
     public string? OrderBy { get; set; } = nameof(OrderSortColumn.CreatedAt);
 
     [MaxLength(100, ErrorMessage = "Search term is too long.")]

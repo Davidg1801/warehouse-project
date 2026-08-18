@@ -59,13 +59,16 @@ export class PostgresRepository implements IOrderRepository {
                 return { totalCount: 0, data: [] };
             }
             //Sort
-            const allowedSortColumns = ["createdat", "customerid"];
+            const allowedSortColumns = ["createdat", "customerid", "totalprice"];
             const sortColumn = allowedSortColumns.includes(query.orderBy?.toLowerCase() || "") ? query.orderBy : "createdAt";
             const direction = query.descending ? "DESC" : "ASC";
 
             let sortClause = "";
             if (sortColumn?.toLowerCase() === "customerid") {
                 sortClause = ` ORDER BY LOWER(Data->>'customerId') ${direction}`;
+            }
+            else if (sortColumn?.toLowerCase() === "totalprice") {
+                sortClause = ` ORDER BY COALESCE((Data->>'totalPrice')::numeric, 0) ${direction}`;
             } else {
                 sortClause = ` ORDER BY (Data->>'created_at')::timestamp ${direction}`;
             }

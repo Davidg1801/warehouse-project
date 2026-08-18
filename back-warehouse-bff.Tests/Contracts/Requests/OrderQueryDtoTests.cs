@@ -76,7 +76,7 @@ public class OrderQueryDtoTests
         //Act
         var results = ValidateModel(model);
         //Assert
-        Assert.Contains(results, r => r.ErrorMessage == "You can only order by CreatedAt and CustomerId.");
+        Assert.Contains(results, r => r.ErrorMessage == "You can only order by CreatedAt, CustomerId and TotalPrice.");
     }
 
     [Fact]
