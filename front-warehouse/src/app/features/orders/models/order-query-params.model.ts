@@ -1,19 +1,16 @@
+import { SortState } from '@shared/models/sort.model';
+
 export interface OrderQueryParams {
   pageNumber?: number;
   pageSize?: number;
   descending?: boolean;
-  orderBy?: SortColumn;
+  orderBy?: OrderSortColumn;
   customerId?: string;
-  productsId?: string[];
-  orderId?: string;
+  uuid?: string;
+  productName?: string[];
   dateFrom?: string;
   dateTo?: string;
 }
 
-export interface SortState {
-  column: SortColumn;
-  direction: SortDirection;
-}
-
-export type SortColumn = 'CreatedAt' | 'CustomerId';
-export type SortDirection = 'asc' | 'desc';
+export type OrderSortState = SortState<OrderSortColumn>;
+export type OrderSortColumn = 'CreatedAt' | 'CustomerId' | 'TotalPrice';

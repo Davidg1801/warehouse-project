@@ -2,7 +2,7 @@
   <header class="page-header">
     <div class="header-info">
       <h1 class="page-title">Inventory Management</h1>
-      <p class="page-subtitle">Manage products, stock levels and categories</p>
+      <p class="page-subtitle">Manage, filter and update product inventory</p>
     </div>
 
     <div class="header-actions">
@@ -23,6 +23,8 @@
       } @else {
         <app-product-table-component
           [products]="productsWithCategories()"
+          [currentSort]="sortState()"
+          (sortChange)="onSortChange($event)"
           (productDeleted)="onDeleteProduct($event)"
         />
       }

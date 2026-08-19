@@ -2,83 +2,51 @@
   <!-- BREADCRUMB & HEADER -->
   <header class="page-header">
     <div class="header-info">
-      <div class="breadcrumb">
-        <a [routerLink]="['/orders']" class="back-link">← Back to Orders</a>
-      </div>
-      <h1 class="page-title">Create New Commercial Order</h1>
+      <h1 class="page-title">Create Order</h1>
       <p class="page-subtitle">
         Configure customer details, select products and review total pricing
       </p>
     </div>
 
     <div class="header-actions">
-      <button class="secondary-btn" [routerLink]="['/orders']" type="button">Cancel</button>
-      <button
-        class="draft-btn"
-        (click)="submitOrder('DRAFT')"
-        [disabled]="isSubmitting() || cartItems().length === 0"
-        type="button"
-      >
-        Save as Draft
-      </button>
+      <button class="back-btn" [routerLink]="['/orders']" type="button">Back to orders</button>
     </div>
   </header>
 
   <!-- FORM BODY (SPLIT-SCREEN) -->
   <div class="form-body">
-    <!-- LEFT MAIN COLUMN: CONFIGURATION -->
+    <!-- LEFT MAIN COLUMN -->
     <main class="form-main-content">
       <!-- STEP 1: CUSTOMER SELECTION -->
       <section class="form-card">
         <div class="card-header">
-          <div class="step-badge">1</div>
           <h2>Customer Details</h2>
         </div>
-
         <div class="card-body">
-          <div class="form-group">
-            <label for="customerSelect">Select B2B Account</label>
-            <select
-              id="customerSelect"
-              [ngModel]="selectedCustomerId()"
-              (ngModelChange)="selectCustomer($event)"
-              class="form-control"
-            >
-              @for (customer of availableCustomers; track customer.id) {
-                <option [value]="customer.id">{{ customer.name }} ({{ customer.taxId }})</option>
-              }
-            </select>
+          <div class="info-cell">
+            <span class="label">User / Customer ID</span>
+            <span class="val">{{ userLogin() }}</span>
           </div>
-
-          @if (selectedCustomer(); as customer) {
-            <div class="customer-preview-box">
-              <div class="info-cell">
-                <span class="label">Contact Email</span>
-                <span class="val">{{ customer.email }}</span>
-              </div>
-              <div class="info-cell">
-                <span class="label">Payment Terms</span>
-                <span class="val badge-terms">{{ customer.paymentTerms }}</span>
-              </div>
-              <div class="info-cell full-width">
-                <span class="label">Shipping Address</span>
-                <span class="val">{{ customer.shippingAddress }}</span>
-              </div>
-            </div>
-          }
+          <div class="info-cell">
+            <span class="label">Name</span>
+            <span class="val">{{ userName() }}</span>
+          </div>
+          <div class="info-cell">
+            <span class="label">Email</span>
+            <span class="val">{{ userEmail() }}</span>
+          </div>
         </div>
       </section>
 
       <!-- STEP 2: PRODUCT SEARCH & ADD -->
       <section class="form-card">
         <div class="card-header">
-          <div class="step-badge">2</div>
-          <h2>Add Products to Order</h2>
+          <h2>Add Product to Order</h2>
         </div>
 
         <div class="card-body">
           <div class="search-box-wrapper">
-            <label for="productSearch">Search Inventory Catalog</label>
+            <label for="productSearch">Search product</label>
             <div class="input-icon-wrapper">
               <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <circle cx="11" cy="11" r="8"></circle>
@@ -87,32 +55,30 @@
               <input
                 id="productSearch"
                 type="text"
-                placeholder="Type product name or SKU (e.g. Router, RTR-X1)..."
-                [ngModel]="productSearchQuery()"
-                (ngModelChange)="productSearchQuery.set($event)"
+                placeholder="Type product name..."
+                [ngModel]="store.searchQuery()"
+                (ngModelChange)="store.setSearchQuery($event)"
                 class="form-control with-icon"
+                autocomplete="off"
               />
             </div>
 
             <!-- Autocomplete Dropdown Results -->
-            @if (filteredCatalog().length > 0) {
+            @if (store.products().length > 0) {
               <div class="autocomplete-dropdown">
-                @for (product of filteredCatalog(); track product.id) {
+                @for (product of store.products(); track product.uuid) {
                   <div
                     class="autocomplete-item"
                     tabindex="0"
-                    (click)="addProductToCart(product)"
-                    (keydown.enter)="addProductToCart(product)"
-                    (keydown.space)="$event.preventDefault(); addProductToCart(product)"
+                    (click)="store.addProduct(product)"
+                    (keydown.enter)="store.addProduct(product)"
                   >
                     <div class="prod-meta">
                       <span class="prod-name">{{ product.name }}</span>
-                      <span class="prod-sku"
-                        >SKU: {{ product.sku }} | In Stock: {{ product.stockAvailable }}</span
-                      >
+                      <span class="prod-quantity">In Stock: {{ product.quantity }}</span>
                     </div>
                     <div class="prod-action">
-                      <span class="prod-price">{{ product.unitPrice | currency }}</span>
+                      <span class="prod-price">{{ product.price | currency }}</span>
                       <button class="add-item-btn" type="button" tabindex="-1">✚ Add</button>
                     </div>
                   </div>
@@ -121,61 +87,76 @@
             }
           </div>
 
+          @if (store.stockWarningMessage(); as warningMsg) {
+            <div class="stock-alert-banner">
+              <span class="alert-text">{{ warningMsg }}</span>
+            </div>
+          }
+
           <!-- SELECTED ITEMS TABLE -->
           <div class="order-items-table">
-            <h3>Order Line Items ({{ cartItems().length }})</h3>
+            <h3>Selected products ({{ store.totalItemsCount() }})</h3>
 
-            @if (cartItems().length > 0) {
+            @if (store.cartItems().length > 0) {
               <table class="items-table">
                 <thead>
                   <tr>
                     <th>Product</th>
                     <th>Unit Price</th>
-                    <th class="text-center">Quantity</th>
-                    <th class="text-right">Total</th>
-                    <th class="text-center"></th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  @for (item of cartItems(); track item.product.id) {
+                  @for (item of store.cartItems(); track item.product.uuid) {
                     <tr>
                       <td>
                         <div class="table-prod-info">
                           <span class="name">{{ item.product.name }}</span>
-                          <span class="sku">SKU: {{ item.product.sku }}</span>
                         </div>
                       </td>
-                      <td>{{ item.product.unitPrice | currency }}</td>
-                      <td class="text-center">
+                      <td>{{ item.product.price | currency }}</td>
+                      <td>
                         <div class="qty-picker">
                           <button
                             class="qty-btn"
-                            (click)="updateQuantity(item.product.id, -1)"
+                            (click)="store.updateQuantity(item.product.uuid, -1)"
                             type="button"
                           >
                             -
                           </button>
-                          <span class="qty-val">{{ item.quantity }}</span>
+                          <span class="qty-val">{{ item.quantityToOrder }}</span>
                           <button
                             class="qty-btn"
-                            (click)="updateQuantity(item.product.id, 1)"
+                            (click)="store.updateQuantity(item.product.uuid, 1)"
                             type="button"
                           >
                             +
                           </button>
                         </div>
                       </td>
-                      <td class="text-right font-bold">
-                        {{ item.product.unitPrice * item.quantity | currency }}
+                      <td>
+                        {{ item.product.price * item.quantityToOrder | currency }}
                       </td>
-                      <td class="text-center">
+                      <td>
                         <button
-                          class="remove-btn"
-                          (click)="removeCartItem(item.product.id)"
+                          class="button-action"
+                          (click)="store.removeItem(item.product.uuid)"
                           title="Remove item"
                           type="button"
                         >
-                          ✕
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="icon-action trash"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M10 11v6" />
+                            <path d="M14 11v6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                            <path d="M3 6h18" />
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          </svg>
                         </button>
                       </td>
                     </tr>
@@ -184,122 +165,53 @@
               </table>
             } @else {
               <div class="empty-cart-state">
-                <p>No items added yet. Search and add products above.</p>
+                <p>No products added yet. Search and add products above</p>
               </div>
             }
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 3: ADDITIONAL NOTES -->
-      <section class="form-card">
-        <div class="card-header">
-          <div class="step-badge">3</div>
-          <h2>Order Notes & Instructions</h2>
-        </div>
-        <div class="card-body">
-          <div class="form-group">
-            <label for="notes">Internal / Logistics Notes</label>
-            <textarea
-              id="notes"
-              rows="3"
-              placeholder="Add any special delivery requirements or billing references..."
-              [ngModel]="customNotes()"
-              (ngModelChange)="customNotes.set($event)"
-              class="form-control textarea"
-            ></textarea>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- RIGHT STICKY COLUMN: LIVE ORDER SUMMARY -->
+    <!-- RIGHT STICKY COLUMN -->
     <aside class="summary-sidebar">
       <div class="summary-card">
         <div class="summary-header">
           <h3>Order Summary</h3>
-          <span class="live-tag">Live Calc</span>
         </div>
 
         <div class="summary-body">
-          <!-- Discount Selector -->
-          <div class="discount-box">
-            <p>Commercial Discount</p>
-            <div class="discount-buttons">
-              <button
-                [class.active]="discountPercent() === 0"
-                (click)="setDiscount(0)"
-                type="button"
-              >
-                0%
-              </button>
-              <button
-                [class.active]="discountPercent() === 5"
-                (click)="setDiscount(5)"
-                type="button"
-              >
-                5%
-              </button>
-              <button
-                [class.active]="discountPercent() === 10"
-                (click)="setDiscount(10)"
-                type="button"
-              >
-                10%
-              </button>
-              <button
-                [class.active]="discountPercent() === 15"
-                (click)="setDiscount(15)"
-                type="button"
-              >
-                15%
-              </button>
-            </div>
-          </div>
-
-          <!-- Breakdown Lines -->
           <div class="calc-lines">
             <div class="calc-line">
-              <span>Subtotal Net</span>
-              <span>{{ subtotal() | currency }}</span>
+              <span>Name</span>
+              <span>{{ userName() }}</span>
             </div>
-
-            @if (discountPercent() > 0) {
-              <div class="calc-line discount-line">
-                <span>Discount ({{ discountPercent() }}%)</span>
-                <span>-{{ discountAmount() | currency }}</span>
-              </div>
-            }
-
             <div class="calc-line">
-              <span>Net After Discount</span>
-              <span>{{ netAmount() | currency }}</span>
+              <span>Email</span>
+              <span>{{ userEmail() }}</span>
             </div>
-
-            <div class="calc-line">
-              <span>VAT / Tax (23%)</span>
-              <span>{{ taxAmount() | currency }}</span>
-            </div>
-
             <div class="calc-line total-line">
-              <span>Total Gross</span>
-              <span class="total-price">{{ totalAmount() | currency }}</span>
+              <span>Total Products</span>
+              <span class="total-price">{{ store.totalItemsCount() }}</span>
+            </div>
+            <div class="calc-line total-line">
+              <span>Total Price</span>
+              <span class="total-price">{{ store.totalPrice() | currency }}</span>
             </div>
           </div>
         </div>
 
-        <!-- Sticky Card Actions -->
         <div class="summary-footer">
           <button
             class="submit-order-btn"
-            (click)="submitOrder('CONFIRMED')"
-            [disabled]="isSubmitting() || cartItems().length === 0"
+            (click)="submitOrder()"
+            [disabled]="store.isSubmitting() || store.cartItems().length === 0"
             type="button"
           >
-            @if (isSubmitting()) {
+            @if (store.isSubmitting()) {
               Processing...
             } @else {
-              Confirm & Submit Order
+              Submit Order
             }
           </button>
         </div>

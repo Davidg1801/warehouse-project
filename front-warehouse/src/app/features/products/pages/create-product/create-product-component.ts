@@ -1,19 +1,12 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-  Signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, Signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Location } from '@angular/common';
 import { CreateProductDto } from '@features/products/dtos/create-product.dto';
 import { ProductsService } from '@features/products/services/products.service';
 import { ModalService } from '@shared/services/modal.service';
-import { CategoriesService } from '@features/categories/services/categories.service';
-import { Category } from '@features/categories/models/category.model';
-import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { CategoriesService, Category } from '@features/categories';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { integerValidator } from '@shared/validators/integer.validator';
 
 interface CreateProductForm {
   name: FormControl<string>;
@@ -34,7 +27,6 @@ export class CreateProductComponent {
   private readonly location = inject(Location);
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly modalService = inject(ModalService);
 
   readonly isSaving = signal(false);
@@ -52,7 +44,7 @@ export class CreateProductComponent {
       validators: [Validators.required],
     }),
     quantity: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(0), Validators.max(9999)],
+      validators: [Validators.required, Validators.min(0), Validators.max(9999), integerValidator],
     }),
     price: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0.01), Validators.max(9999999)],
@@ -61,39 +53,36 @@ export class CreateProductComponent {
 
   saveProduct(newProduct: CreateProductDto) {
     this.isSaving.set(true);
-    this.productsService
-      .addProduct(newProduct)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: async () => {
-          this.isSaving.set(false);
-          this.form.reset();
+    this.productsService.addProduct(newProduct).subscribe({
+      next: async () => {
+        this.isSaving.set(false);
+        this.form.reset();
 
-          const confirmed = await this.modalService.open({
-            title: 'Success!',
-            message:
-              'Product has been added successfully. Would you like to go back to the product list?',
-            confirmLabel: 'Yes, go back',
-            cancelLabel: 'No, stay here',
-            variant: 'primary',
-          });
+        const confirmed = await this.modalService.open({
+          title: 'Success!',
+          message:
+            'Product has been added successfully. Would you like to go back to the product list?',
+          confirmLabel: 'Yes, go back',
+          cancelLabel: 'No, stay here',
+          variant: 'primary',
+        });
 
-          if (confirmed) {
-            this.location.back();
-          }
-        },
-        error: async (err) => {
-          this.isSaving.set(false);
-          console.log('Product has not been added: ' + err);
-          await this.modalService.open({
-            title: 'Failed!',
-            message: 'Product has not been added successfully. Please try it again. ',
-            confirmLabel: 'Try again',
-            cancelLabel: '',
-            variant: 'primary',
-          });
-        },
-      });
+        if (confirmed) {
+          this.location.back();
+        }
+      },
+      error: async (err) => {
+        this.isSaving.set(false);
+        console.log('Product has not been added: ' + err);
+        await this.modalService.open({
+          title: 'Failed!',
+          message: 'Product has not been added successfully. Please try it again. ',
+          confirmLabel: 'Try again',
+          cancelLabel: '',
+          variant: 'primary',
+        });
+      },
+    });
   }
 
   onSubmit() {
@@ -101,12 +90,17 @@ export class CreateProductComponent {
     if (this.form.invalid) {
       return;
     }
-    const value = this.form.getRawValue();
+    const { name, categoryId, quantity, price } = this.form.getRawValue();
+
+    if (categoryId === null || quantity === null || price === null) {
+      return;
+    }
+
     const newProduct: CreateProductDto = {
-      name: value.name,
-      categoryId: value.categoryId!,
-      quantity: value.quantity!,
-      price: value.price!,
+      name,
+      categoryId,
+      quantity,
+      price,
     };
 
     this.saveProduct(newProduct);

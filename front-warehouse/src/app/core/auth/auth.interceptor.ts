@@ -9,7 +9,6 @@ import {
 
 const urlCondition = createInterceptorCondition<IncludeBearerTokenCondition>({
   urlPattern: /^http:\/\/localhost(:5000)?\/bff(\/.*)?$/i,
-  //urlPattern: /^http:\/\/localhost:5000\/bff(\/.*)?$/i,
   bearerPrefix: 'Bearer',
 });
 

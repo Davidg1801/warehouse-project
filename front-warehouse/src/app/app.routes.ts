@@ -1,12 +1,12 @@
 import { Routes } from '@angular/router';
-import { canActivateAuthRole } from '@core/auth/auth.guard';
+import { canActivateAuth } from '@core/auth/auth.guard';
 import { PageComponent } from '@layout/components/page/page-component';
 
 export const routes: Routes = [
   {
     path: '',
     component: PageComponent,
-    canActivate: [canActivateAuthRole],
+    canActivate: [canActivateAuth],
     children: [
       {
         path: '',
@@ -54,7 +54,7 @@ export const routes: Routes = [
           import('@features/orders/pages/create-order/create-order.component/create-order.component').then(
             (c) => c.CreateOrderComponent,
           ),
-        title: 'Orders',
+        title: 'Create order',
       },
     ],
   },

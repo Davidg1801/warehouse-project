@@ -1,44 +1,68 @@
 <section class="filters-card">
-  <div class="filters-grid">
-    <form [formGroup]="filterForm" class="filters-form">
+  <form [formGroup]="filterForm" class="filters-form">
+    <div class="filters-grid">
       <div class="filter-group">
         <label for="dateFrom">Date From</label>
-        <input type="date" class="form-control" formControlName="dateFrom" />
+        <input
+          id="dateFrom"
+          type="date"
+          class="form-control"
+          [class.has-value]="!!filterForm.controls.dateFrom.value"
+          formControlName="dateFrom"
+        />
       </div>
 
       <!-- Date To -->
       <div class="filter-group">
         <label for="dateTo">Date To</label>
-        <input type="date" class="form-control" formControlName="dateTo" />
+        <input
+          id="dateTo"
+          type="date"
+          class="form-control"
+          [class.has-value]="!!filterForm.controls.dateTo.value"
+          formControlName="dateTo"
+        />
+      </div>
+
+      <!-- Order ID -->
+      <div class="filter-group">
+        <label for="orderId">Order ID</label>
+        <input
+          id="orderId"
+          type="text"
+          placeholder="Search by order id..."
+          class="form-control"
+          formControlName="orderId"
+        />
       </div>
 
       <!-- Customer Search -->
+
       <div class="filter-group">
         <label for="customer">Customer</label>
-        <div class="input-icon-wrapper">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            placeholder="Search by name..."
-            class="form-control with-icon"
-            formControlName="customerId"
-          />
-        </div>
+        <input
+          id="customer"
+          type="text"
+          placeholder="Search by customer..."
+          class="form-control"
+          formControlName="customerId"
+        />
       </div>
 
       <!-- Product Filter -->
       <div class="filter-group">
         <label for="product">Contains Product</label>
         <input
+          id="product"
           type="text"
-          placeholder="Product ID..."
+          placeholder="Product name..."
           class="form-control"
-          formControlName="productsId"
+          formControlName="productName"
         />
       </div>
-    </form>
-  </div>
+    </div>
+    @if (filterForm.hasError('dateRangeInvalid')) {
+      <span class="error-message">Date From cannot be later than Date To</span>
+    }
+  </form>
 </section>

@@ -6,8 +6,7 @@
   overflow: hidden;
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 16px;
-  color: var(--text-p-color);
+  border-radius: var(--border-radius-l);
   box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
 }
 
@@ -20,8 +19,9 @@
 table {
   width: 100%;
   table-layout: fixed;
-  min-width: 510px;
+  min-width: 600px;
   border-collapse: collapse;
+  text-align: left;
 }
 
 thead {
@@ -38,12 +38,62 @@ thead {
   }
 }
 
+th.sortable-th {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+
+  &:hover {
+    background-color: var(--products-accent-subtle);
+    color: var(--products-accent-p-hover);
+
+    .sort-icon {
+      opacity: 1;
+      color: var(--products-accent-p-hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--products-accent-p);
+  }
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sort-icon {
+  font-size: 0.75rem;
+  opacity: 0.35;
+  transition: all 0.2s ease;
+
+  &.active {
+    opacity: 1;
+    color: var(--products-accent-p-hover);
+    font-weight: bold;
+  }
+}
+
+.col-actions {
+  width: 6%;
+  text-align: center;
+}
+
 tbody {
   tr {
     transition: background-color 0.2s ease;
 
     &:hover {
-      background-color: rgb(from var(--color-teal-60) r g b / 0.08);
+      background-color: var(--products-accent-subtle);
+    }
+
+    &.is-selected {
+      background-color: rgba(59, 130, 246, 0.14);
+      border-left: 3px solid var(--products-accent-p);
     }
 
     &:not(:last-child) {
@@ -59,14 +109,28 @@ tbody {
   }
 }
 
-.empty-state {
-  padding: 3rem 1.5rem;
-  color: var(--text-s-color);
-  font-style: italic;
+.customer-cell {
+  display: flex;
+  flex-direction: column;
+
+  .customer-id {
+    font-weight: 500;
+    white-space: nowrap;
+  }
 }
 
-.actions-cell {
-  white-space: nowrap;
+.created-cell {
+  display: flex;
+  flex-direction: column;
+
+  .created-date {
+    font-weight: 500;
+  }
+
+  .created-time {
+    font-size: 0.75rem;
+    color: var(--text-s-color);
+  }
 }
 
 .button-action {
@@ -99,7 +163,7 @@ tbody {
   }
 
   .edit {
-    stroke: var(--info-color);
+    stroke: var(--products-accent-p);
   }
 
   .trash {
@@ -111,7 +175,7 @@ tbody {
     transform: translateY(-1px);
 
     .edit {
-      stroke: var(--info-color-hover);
+      stroke: var(--products-accent-p-hover);
       transform: scale(1.1);
     }
 
@@ -126,21 +190,15 @@ tbody {
   }
 }
 
-/* RESPONSIVE */
+/* ========================== RESPONSIVE < 768px ========================== */
 @media (max-width: 768px) {
-  th {
+  thead th {
     padding: 0.8rem 1rem;
     font-size: 0.875rem;
   }
 
-  td {
-    font-size: 0.8rem;
-  }
-
-  .stock-badge {
-    min-width: 28px;
-    height: 23px;
-    padding: 0 5px;
+  tbody td {
+    padding: 0.8rem 1rem;
     font-size: 0.8rem;
   }
 }

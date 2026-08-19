@@ -23,7 +23,7 @@ export class ProductRankingComponent implements OnInit {
   private readonly productService = inject(ProductsService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly productNotificationService = inject(ProductNotificationService);
-  private readonly rankingLimit = 10;
+  private readonly rankingLimit = 5;
   readonly isLoading = signal(true);
   readonly topProducts = signal<Product[]>([]);
 

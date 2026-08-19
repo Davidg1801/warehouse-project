@@ -1,27 +1,25 @@
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { Component, input, output } from '@angular/core';
-import {
-  SortColumn,
-  SortDirection,
-  SortState,
-} from '@features/orders/models/order-query-params.model';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { OrderSortColumn, OrderSortState } from '@features/orders/models/order-query-params.model';
 import { Order } from '@features/orders/models/order.model';
+import { SortDirection } from '@shared/models/sort.model';
 
 @Component({
   selector: 'app-order-table',
   imports: [DatePipe, CurrencyPipe],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './order-table.component.html',
   styleUrl: './order-table.component.scss',
 })
 export class OrderTableComponent {
   readonly orders = input.required<Order[]>();
-  readonly currentSort = input<SortState>({ column: 'CreatedAt', direction: 'desc' });
+  readonly currentSort = input<OrderSortState>({ column: 'CreatedAt', direction: 'desc' });
 
   readonly orderSelected = output<Order>();
-  readonly sortChange = output<SortState>();
+  readonly sortChange = output<OrderSortState>();
 
-  toggleSort(column: SortColumn): void {
-    console.log('toggleSort: ', column);
+  toggleSort(column: OrderSortColumn): void {
     const activeSort = this.currentSort();
     let sortDirection: SortDirection = 'asc';
 

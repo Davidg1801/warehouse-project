@@ -139,10 +139,6 @@
         font-size: 0.85rem;
         font-weight: 500;
       }
-      .item-id {
-        font-size: 0.75rem;
-        color: var(--text-s-color);
-      }
     }
 
     .item-pricing {
@@ -178,15 +174,6 @@
       color: var(--orders-accent-p-hover);
     }
   }
-}
-
-.drawer-sticky-footer {
-  padding: 1rem 1.25rem;
-  border-top: 1px solid var(--border-p-color);
-  background: var(--drawer-bg);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
 }
 
 /* RESPONSIVENESS */
