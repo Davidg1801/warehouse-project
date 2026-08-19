@@ -4,11 +4,45 @@
       <table>
         <thead>
           <tr>
-            <th>Name</th>
+            <th class="sortable-th" (click)="toggleSort('Name')">
+              <div class="th-content">
+                <span>Name</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'Name'">
+                  @if (currentSort().column === 'Name') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
             <th>Category</th>
-            <th>Quantity</th>
-            <th>Price</th>
-            <th>Actions</th>
+            <th class="sortable-th" (click)="toggleSort('Quantity')">
+              <div class="th-content">
+                <span>Quantity</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'Quantity'">
+                  @if (currentSort().column === 'Quantity') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
+            <th class="sortable-th" (click)="toggleSort('Price')">
+              <div class="th-content">
+                <span>Price</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'Price'">
+                  @if (currentSort().column === 'Price') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
+            </th>
+
+            <th class="col-actions">Actions</th>
           </tr>
         </thead>
 
@@ -16,21 +50,19 @@
           @for (product of products(); track product.uuid) {
             <tr>
               <td>{{ product.name }}</td>
-
               <td>
-                {{ product.categoryName }}
+                <div class="category-cell">
+                  <span>{{ product.categoryName }}</span>
+                </div>
               </td>
-
               <td>
-                <span class="stock-badge">
-                  {{ product.quantity }}
-                </span>
+                <div class="quantity-cell">
+                  <span>{{ product.quantity }}</span>
+                </div>
               </td>
-
-              <td>
+              <td class="price-cell">
                 {{ product.price | currency }}
               </td>
-
               <td class="actions-cell">
                 <button
                   class="button-action"

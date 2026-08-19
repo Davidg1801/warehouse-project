@@ -69,6 +69,10 @@
                 @if (editForm.controls.quantity.hasError('max')) {
                   <span>Quantity cannot exceed 9999</span>
                 }
+
+                @if (editForm.get('quantity')?.hasError('integer')) {
+                  <span>Quantity value should be integer</span>
+                }
               </div>
             }
           </div>

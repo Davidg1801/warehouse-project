@@ -9,12 +9,12 @@
   </div>
 
   <div class="drawer-scrollable-content">
-    <!-- Meta Info Card -->
+    <!-- Order -->
     <div class="drawer-section">
       <div class="info-grid">
         <div class="info-item">
           <span class="label">Order number</span>
-          <span class="value val-highlight">{{ selectedOrder()?.orderNr }}</span>
+          <span class="value val-highlight">{{ selectedOrder()?.uuid }}</span>
         </div>
         <div class="info-item">
           <span class="label">Customer</span>
@@ -28,19 +28,18 @@
       </div>
     </div>
 
-    <!-- Items Table -->
+    <!-- Items -->
     <div class="drawer-section">
       <h4 class="section-subtitle">Purchased Products</h4>
       <div class="items-list">
         @for (item of selectedOrder()?.items; track item.productId) {
           <div class="item-row">
             <div class="item-info">
-              <span class="item-name">{{ item.productName }}</span>
-              <span class="item-id">ID: {{ item.productName }}</span>
+              <span class="item-name">{{ item.name }}</span>
             </div>
             <div class="item-pricing">
               <span class="item-qty">{{ item.quantity }}x</span>
-              <span class="item-price">{{ item.unitPrice | currency }}</span>
+              <span class="item-price">{{ item.pricePerUnit | currency }}</span>
             </div>
           </div>
         }
@@ -50,7 +49,5 @@
         <span class="total-val">{{ selectedOrder()?.totalPrice | currency }}</span>
       </div>
     </div>
-
-    <!-- Summary Breakdown -->
   </div>
 </div>

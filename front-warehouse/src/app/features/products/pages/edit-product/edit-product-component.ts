@@ -9,6 +9,7 @@ import { ProductsService } from '@features/products/services/products.service';
 import { ModalService } from '@shared/services/modal.service';
 import { Location } from '@angular/common';
 import { map, of } from 'rxjs';
+import { integerValidator } from '@shared/validators/integer.validator';
 
 interface EditProductForm {
   name: FormControl<string>;
@@ -59,7 +60,7 @@ export class EditProductComponent {
       validators: [Validators.required],
     }),
     quantity: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(0), Validators.max(9999)],
+      validators: [Validators.required, Validators.min(0), Validators.max(9999), integerValidator],
     }),
     price: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0.01), Validators.max(9999999)],

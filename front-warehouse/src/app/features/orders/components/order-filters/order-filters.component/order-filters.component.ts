@@ -1,8 +1,17 @@
-import { ChangeDetectionStrategy, Component, effect, input } from '@angular/core';
-import { outputFromObservable } from '@angular/core/rxjs-interop';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input } from '@angular/core';
+import { outputFromObservable, takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { OrderFilters } from '@features/orders/models/order.model';
-import { debounceTime, map } from 'rxjs';
+import { dateRangeValidator } from '@shared/validators/dateRange.validator';
+import { debounceTime, filter, map } from 'rxjs';
+
+export interface OrderFiltersForm {
+  dateFrom: FormControl<string | null>;
+  dateTo: FormControl<string | null>;
+  orderId: FormControl<string | null>;
+  customerId: FormControl<string | null>;
+  productName: FormControl<string | null>;
+}
 
 @Component({
   selector: 'app-order-filters',
@@ -13,34 +22,46 @@ import { debounceTime, map } from 'rxjs';
   styleUrl: './order-filters.component.scss',
 })
 export class OrderFiltersComponent {
-  initialFilters = input<OrderFilters>();
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  readonly initialFilters = input<OrderFilters>();
 
-  readonly filterForm = new FormGroup({
-    dateFrom: new FormControl<string | null>(null),
-    dateTo: new FormControl<string | null>(null),
-    customerId: new FormControl<string | null>(null),
-    productsId: new FormControl<string | null>(null),
-  });
+  readonly filterForm = this.fb.group<OrderFiltersForm>(
+    {
+      dateFrom: this.fb.control(null),
+      dateTo: this.fb.control(null),
+      orderId: this.fb.control(null),
+      customerId: this.fb.control(null),
+      productName: this.fb.control(null),
+    },
+    { validators: [dateRangeValidator] },
+  );
 
   readonly filtersChange = outputFromObservable<OrderFilters>(
     this.filterForm.valueChanges.pipe(
       debounceTime(300),
-      map(() => this.filterForm.getRawValue()),
+      filter(() => this.filterForm.valid),
+      map(() => {
+        const rawValues = this.filterForm.getRawValue();
+
+        return {
+          dateFrom: rawValues.dateFrom ?? null,
+          dateTo: rawValues.dateTo ?? null,
+          orderId: rawValues.orderId ?? null,
+          customerId: rawValues.customerId ?? null,
+          productName: rawValues.productName ?? null,
+        };
+      }),
     ),
   );
 
   constructor() {
-    effect(() => {
-      const filters = this.initialFilters();
-
-      const resetValues: OrderFilters = {
-        dateFrom: null,
-        dateTo: null,
-        customerId: null,
-        productsId: null,
-      };
-
-      this.filterForm.patchValue({ ...resetValues, ...filters }, { emitEvent: false });
-    });
+    toObservable(this.initialFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((filters) => {
+        if (filters) {
+          this.filterForm.patchValue(filters, { emitEvent: false });
+        }
+      });
   }
 }

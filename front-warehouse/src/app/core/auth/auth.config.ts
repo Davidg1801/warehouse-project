@@ -5,7 +5,6 @@ export function provideAppAuth(): EnvironmentProviders {
   return makeEnvironmentProviders([
     provideKeycloak({
       config: {
-       // url: 'http://localhost:8080',
         url: 'http://localhost/auth',
         realm: 'warehouse-realm',
         clientId: 'angular-frontend',

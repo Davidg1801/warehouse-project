@@ -1,16 +1,22 @@
 import { Params } from '@angular/router';
-import { OrderQueryParams } from '../models/order-query-params.model';
+import { OrderQueryParams } from '@features/orders/models/order-query-params.model';
 
 export function mapRouteToOrderQueryParams(params: Params): OrderQueryParams {
+  const pageNumber = Number(params['pageNumber']);
+  const pageSize = Number(params['pageSize']);
+
   return {
-    pageNumber: params['pageNumber'] ? Number(params['pageNumber']) : 1,
-    pageSize: params['pageSize'] ? Number(params['pageSize']) : 10,
-    orderBy: params['orderBy'],
-    descending: params['orderBy'] ? params['descending'] === 'true' : undefined,
-    customerId: params['customerId'],
-    productsId: params['productsId'] ? [params['productsId']].flat().map(String) : undefined,
-    orderId: params['Uuid'],
-    dateFrom: params['dateFrom'],
-    dateTo: params['dateTo'],
+    //Check if pageNumber and pageSize is number value and > 0
+    pageNumber: !isNaN(pageNumber) && pageNumber > 0 ? pageNumber : 1,
+    pageSize: !isNaN(pageSize) && pageSize > 0 ? pageSize : 10,
+
+    // Default sorting by CreatedAt
+    orderBy: params['orderBy'] ?? 'CreatedAt',
+    descending: params['descending'] !== 'false' && params['descending'] !== false,
+    customerId: params['customerId'] || undefined,
+    uuid: params['uuid'] || undefined,
+    productName: params['productName'] || undefined,
+    dateFrom: params['dateFrom'] ? `${params['dateFrom']}T00:00:00.000Z` : undefined,
+    dateTo: params['dateTo'] ? `${params['dateTo']}T23:59:59.999Z` : undefined,
   };
 }

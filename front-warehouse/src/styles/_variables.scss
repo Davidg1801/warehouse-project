@@ -47,9 +47,9 @@
   --success-color-hover: var(--color-green-50);
   --success-color-active: var(--color-green-70);
 
-  --warning-color: var(--color-orange-50);
-  --warning-color-hover: var(--color-orange-40);
-  --warning-color-active: var(--color-orange-60);
+  --warning-color: var(--color-yellow-50);
+  --warning-color-hover: var(--color-yellow-40);
+  --warning-color-active: var(--color-yellow-60);
 
   --danger-color: var(--color-red-60);
   --danger-color-hover: var(--color-red-50);
@@ -59,10 +59,17 @@
   --info-color-hover: var(--color-teal-50);
   --info-color-active: var(--color-teal-70);
 
-  /* Orders Core Brand Accent */
-  --orders-accent-p: var(--color-blue-60); /* #3b82f6 - Primary Indigo/Blue */
-  --orders-accent-p-hover: var(--color-blue-50); /* #60a5fa */
-  --orders-accent-p-active: var(--color-blue-70); /* #2563eb */
+  /* Products Color */
+  --products-accent-p: var(--color-teal-60);
+  --products-accent-p-hover: var(--color-teal-50);
+  --products-accent-p-active: var(--color-teal-70);
+  --products-accent-glow: rgba(35, 150, 171, 0.25);
+  --products-accent-subtle: rgba(35, 150, 171, 0.08);
+
+  /* Orders Color */
+  --orders-accent-p: var(--color-blue-60);
+  --orders-accent-p-hover: var(--color-blue-50);
+  --orders-accent-p-active: var(--color-blue-70);
   --orders-accent-glow: rgba(59, 130, 246, 0.25);
   --orders-accent-subtle: rgba(59, 130, 246, 0.08);
 

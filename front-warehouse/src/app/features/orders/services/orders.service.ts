@@ -5,7 +5,8 @@ import { map, Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { ApiResponse } from '@core/models/api-response.model';
 import { OrderQueryParams } from '../models/order-query-params.model';
-import { CreateOrderDto, OrderDto } from '../dtos/order.dto';
+import { OrderDto } from '../dtos/order.dto';
+import { CreateOrderDto } from '../dtos/create-order.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -16,7 +17,6 @@ export class OrdersService {
 
   // GET ALL ORDERS //
   getAllOrders(queryParams: OrderQueryParams): Observable<PaginatedResponse<OrderDto>> {
-    console.log(queryParams);
     const params = this.generateQueryParams(queryParams);
     return this.http.get<PaginatedResponse<OrderDto>>(this.apiUrl, { params });
   }
@@ -38,16 +38,19 @@ export class OrdersService {
   // FUNCTION TO GENERATE QUERY PARAMS
   private generateQueryParams(queryParams: OrderQueryParams): HttpParams {
     let params = new HttpParams();
+
     Object.entries(queryParams).forEach(([key, value]) => {
-      if (value == null) return;
-      const formattedKey = key.charAt(0).toUpperCase() + key.slice(1);
+      if (value === null || value === undefined) return;
 
       if (Array.isArray(value)) {
-        value.forEach((item) => (params = params.append(formattedKey, item.toString())));
+        value.forEach((item) => {
+          params = params.append(key, item.toString());
+        });
       } else {
-        params = params.set(formattedKey, value.toString());
+        params = params.set(key, value.toString());
       }
     });
+
     return params;
   }
 }

@@ -29,8 +29,17 @@
                 </span>
               </div>
             </th>
-            <th>
-              <span>Total price</span>
+            <th class="sortable-th" (click)="toggleSort('TotalPrice')">
+              <div class="th-content">
+                <span>Total Price</span>
+                <span class="sort-icon" [class.active]="currentSort().column === 'TotalPrice'">
+                  @if (currentSort().column === 'TotalPrice') {
+                    {{ currentSort().direction === 'asc' ? '▲' : '▼' }}
+                  } @else {
+                    <span class="placeholder-icon">↕</span>
+                  }
+                </span>
+              </div>
             </th>
 
             <th class="col-actions">Details</th>
@@ -40,7 +49,7 @@
         <tbody>
           @for (order of orders(); track order.uuid) {
             <tr>
-              <td>{{ order.orderNr }}</td>
+              <td>{{ order.uuid }}</td>
               <td>
                 <div class="customer-cell">
                   <span class="customer-id">{{ order.customerId }}</span>

@@ -1,7 +1,3 @@
-/* ==========================================================================
-   CREATE ORDER PAGE STYLES - Indigo Accent B2B Theme
-   ========================================================================== */
-
 .create-order-page {
   display: flex;
   flex-direction: column;
@@ -11,7 +7,6 @@
   color: var(--text-p-color);
 }
 
-/* HEADER & BREADCRUMB */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -19,20 +14,7 @@
   padding: 1.5rem;
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 1rem;
-}
-
-.back-link {
-  color: var(--orders-accent-p-hover);
-  text-decoration: none;
-  font-size: 0.85rem;
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  display: inline-block;
-
-  &:hover {
-    text-decoration: underline;
-  }
+  border-radius: var(--border-radius-l);
 }
 
 .page-title {
@@ -52,10 +34,10 @@
   gap: 0.75rem;
 }
 
-.secondary-btn {
+.back-btn {
   height: 45px;
   padding: 0 1.25rem;
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-m);
   border: 1px solid var(--border-p-color);
   background-color: var(--button-s-bg);
   color: var(--text-p-color);
@@ -66,30 +48,6 @@
     background-color: var(--button-s-bg-hover);
   }
 }
-
-.draft-btn {
-  height: 45px;
-  padding: 0 1.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--orders-accent-p);
-  background-color: transparent;
-  color: var(--orders-accent-p-hover);
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-
-  &:hover:not(:disabled) {
-    background-color: var(--orders-accent-subtle);
-  }
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
-/* SPLIT SCREEN FORM LAYOUT */
 .form-body {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -103,11 +61,10 @@
   gap: 1.5rem;
 }
 
-/* FORM CARDS */
 .form-card {
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 1rem;
+  border-radius: var(--border-radius-l);
   overflow: hidden;
 }
 
@@ -124,19 +81,6 @@
     font-size: 1.1rem;
     font-weight: 600;
   }
-
-  .step-badge {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background-color: var(--orders-accent-p);
-    color: var(--color-white);
-    font-weight: 700;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
 }
 
 .card-body {
@@ -146,7 +90,6 @@
   gap: 1.25rem;
 }
 
-/* FORM CONTROLS */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -163,7 +106,7 @@
   height: 44px;
   background-color: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: 0.6rem;
+  border-radius: var(--border-radius-m);
   padding: 0 1rem;
   color: var(--input-text);
   font-size: 0.95rem;
@@ -181,47 +124,25 @@
   }
 }
 
-/* CUSTOMER PREVIEW BOX */
-.customer-preview-box {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  background-color: var(--background-p-color);
-  border: 1px solid var(--border-p-color);
-  border-radius: 0.75rem;
-  padding: 1rem;
+.info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 
-  .info-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+  &.full-width {
+    grid-column: span 2;
+  }
 
-    &.full-width {
-      grid-column: span 2;
-    }
-
-    .label {
-      font-size: 0.75rem;
-      color: var(--text-s-color);
-    }
-    .val {
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .badge-terms {
-      display: inline-block;
-      width: fit-content;
-      background: var(--orders-accent-subtle);
-      color: var(--orders-accent-p-hover);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-    }
+  .label {
+    font-size: 0.75rem;
+    color: var(--text-s-color);
+  }
+  .val {
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 }
 
-/* SEARCH & AUTOCOMPLETE */
 .search-box-wrapper {
   position: relative;
   display: flex;
@@ -258,10 +179,10 @@
   z-index: 50;
   background-color: var(--background-s-color);
   border: 1px solid var(--orders-accent-p);
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-m);
   margin-top: 0.5rem;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-  max-height: 250px;
+  max-height: 200px;
   overflow-y: auto;
 }
 
@@ -285,7 +206,7 @@
       font-weight: 500;
       font-size: 0.9rem;
     }
-    .prod-sku {
+    .prod-quantity {
       font-size: 0.75rem;
       color: var(--text-s-color);
     }
@@ -303,16 +224,15 @@
     .add-item-btn {
       background: var(--orders-accent-p);
       border: none;
-      color: white;
+      color: var(--text-p-color);
       padding: 0.3rem 0.75rem;
-      border-radius: 6px;
+      border-radius: var(--border-radius-xs);
       font-size: 0.8rem;
       cursor: pointer;
     }
   }
 }
 
-/* ORDER ITEMS TABLE */
 .order-items-table {
   display: flex;
   flex-direction: column;
@@ -330,6 +250,7 @@
 .items-table {
   width: 100%;
   border-collapse: collapse;
+  text-align: left;
 
   th {
     padding: 0.75rem 1rem;
@@ -362,7 +283,7 @@
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--border-p-color);
-  border-radius: 6px;
+  border-radius: var(--border-radius-xs);
   background: var(--background-p-color);
 
   .qty-btn {
@@ -386,14 +307,50 @@
   }
 }
 
-.remove-btn {
+.button-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
   background: none;
   border: none;
-  color: var(--danger-color);
+  border-radius: 11px;
   cursor: pointer;
-  font-size: 1.1rem;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+
+  .icon-action {
+    display: block;
+    width: 20px;
+    height: 20px;
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition:
+      stroke 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .trash {
+    stroke: var(--danger-color);
+  }
+
   &:hover {
-    color: var(--danger-color-hover);
+    background-color: var(--button-s-bg-hover);
+    transform: translateY(-1px);
+
+    .trash {
+      stroke: var(--danger-color-hover);
+      transform: scale(1.1);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
 
@@ -401,11 +358,24 @@
   text-align: center;
   padding: 2rem;
   border: 1px dashed var(--border-p-color);
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-m);
   color: var(--text-s-color);
 }
 
-/* STICKY SUMMARY SIDEBAR */
+.stock-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba(234, 179, 8, 0.15);
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  border-radius: var(--border-radius-s);
+  color: var(--warning-color);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.75rem;
+}
+
 .summary-sidebar {
   position: sticky;
   top: 1rem;
@@ -414,7 +384,7 @@
 .summary-card {
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 1rem;
+  border-radius: var(--border-radius-l);
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
@@ -431,17 +401,6 @@
     margin: 0;
     font-size: 1.1rem;
   }
-
-  .live-tag {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--color-green-40);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 0.15rem 0.5rem;
-    border-radius: 20px;
-    text-transform: uppercase;
-  }
 }
 
 .summary-body {
@@ -449,41 +408,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-}
-
-.discount-box {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  label {
-    font-size: 0.8rem;
-    color: var(--text-s-color);
-    text-transform: uppercase;
-  }
-
-  .discount-buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.5rem;
-
-    button {
-      height: 32px;
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      color: var(--text-p-color);
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-
-      &.active {
-        background: var(--orders-accent-p);
-        border-color: var(--orders-accent-p);
-        color: white;
-        font-weight: 600;
-      }
-    }
-  }
 }
 
 .calc-lines {
@@ -496,10 +420,6 @@
     justify-content: space-between;
     font-size: 0.9rem;
     color: var(--text-s-color);
-
-    &.discount-line {
-      color: var(--color-green-40);
-    }
 
     &.total-line {
       margin-top: 0.5rem;
@@ -531,7 +451,7 @@
   color: white;
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 0.75rem;
+  border-radius: var(--border-radius-m);
   cursor: pointer;
   transition: all 0.2s ease;
 
@@ -546,7 +466,7 @@
   }
 }
 
-/* RESPONSIVENESS */
+/* ========================== RESPONSIVE < 1100px ========================== */
 @media (max-width: 1100px) {
   .form-body {
     grid-template-columns: 1fr;
@@ -554,5 +474,128 @@
 
   .summary-sidebar {
     position: static;
+  }
+}
+
+/* ========================== RESPONSIVE < 520px ========================== */
+@media (max-width: 520px) {
+  .page-header {
+    min-width: 540px;
+  }
+
+  .back-btn {
+    font-size: 0.9rem;
+  }
+
+  .order-table {
+    border-radius: 0.75rem;
+  }
+
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    min-width: 540px;
+  }
+
+  .col-id {
+    width: 26%;
+  }
+  .col-customer {
+    width: 24%;
+  }
+  .col-date {
+    width: 22%;
+  }
+  .col-price {
+    width: 18%;
+  }
+  .col-actions {
+    width: 50px;
+  }
+
+  thead th {
+    padding: 0.6rem 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  tbody td {
+    padding: 0.6rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .created-cell {
+    .created-date {
+      font-size: 0.78rem;
+    }
+    .created-time {
+      font-size: 0.7rem;
+    }
+  }
+
+  .button-action {
+    width: 30px;
+    height: 30px;
+
+    .icon-action {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}
+
+/* ========================== RESPONSIVE < 520px ========================== */
+@media (max-width: 360px) {
+  table {
+    min-width: 500px;
+  }
+
+  thead th {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.7rem;
+  }
+
+  tbody td {
+    padding: 0.5rem 0.4rem;
+    font-size: 0.75rem;
+  }
+
+  .th-content {
+    gap: 0.25rem;
+  }
+
+  .sort-icon {
+    font-size: 0.65rem;
+  }
+
+  .button-action {
+    width: 28px;
+    height: 28px;
+
+    .icon-action {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+
+.table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+  background: var(--background-p-color);
+  border-radius: 4px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-p-color);
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--orders-accent-p);
   }
 }

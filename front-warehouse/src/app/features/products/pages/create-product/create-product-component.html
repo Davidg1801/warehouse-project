@@ -57,6 +57,9 @@
               @if (form.get('quantity')?.hasError('max')) {
                 <span>Quantity cannot exceed 9999</span>
               }
+              @if (form.get('quantity')?.hasError('integer')) {
+                <span>Quantity value should be integer</span>
+              }
             </div>
           }
         </div>

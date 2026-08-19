@@ -2,12 +2,11 @@
   <header class="page-header">
     <div class="header-info">
       <h1 class="page-title">Orders</h1>
-      <p class="page-subtitle">Track, filter, and process customer commercial orders</p>
+      <p class="page-subtitle">Filter, browse and view details for every order</p>
     </div>
 
     <div class="header-actions">
-      <button class="add-btn" type="button">
-        <!-- <button class="add-btn" type="button" [routerLink]="['/orders/create']"> -->
+      <button class="add-btn" type="button" [routerLink]="['/orders/create']">
         ✚ Create Order
       </button>
     </div>
@@ -15,18 +14,23 @@
 
   <div class="page-body">
     <main class="orders-content">
+      <!-- FILTERS -->
       <app-order-filters
         [initialFilters]="currentFilters()"
         (filtersChange)="onFiltersChange($event)"
       />
 
-      <app-order-table
-        [orders]="orders()"
-        [currentSort]="sortState()"
-        (orderSelected)="selectOrder($event)"
-        (sortChange)="onSortChange($event)"
-      />
-      <!-- FOOTER PAGINATION -->
+      <!-- ORDER TABLE -->
+      <div class="table-container" [class.is-loading]="ordersResource.isLoading()">
+        <app-order-table
+          [orders]="orders()"
+          [currentSort]="sortState()"
+          (orderSelected)="selectOrder($event)"
+          (sortChange)="onSortChange($event)"
+        />
+      </div>
+
+      <!-- PAGINATION -->
       <app-pagination
         [currentPage]="pageNumber()"
         [totalPages]="totalPages()"
@@ -36,12 +40,11 @@
         (pageSizeChange)="onPageSizeChanged($event)"
       />
     </main>
+
+    <!-- ORDER DETAILS -->
     @if (selectedOrder(); as activeOrder) {
       <aside class="order-details-sidebar">
-        <app-order-details
-          [selectedOrder]="selectedOrder()"
-          (closeOrderDetails)="selectOrder($event)"
-        />
+        <app-order-details [selectedOrder]="activeOrder" (closeOrderDetails)="selectOrder(null)" />
       </aside>
     }
   </div>

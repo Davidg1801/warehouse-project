@@ -30,6 +30,10 @@ import { switchMap } from 'rxjs';
 import { PaginationComponent } from '@shared/components/pagination/pagination.component/pagination.component';
 import { Pagination } from '@shared/models/pagination.model';
 import { ProductTableComponent } from '@features/products/components/product-table/product-table-component';
+import {
+  ProductSortColumn,
+  ProductSortState,
+} from '@features/products/models/product-query-params.model';
 
 @Component({
   selector: 'app-products-page-component',
@@ -192,5 +196,23 @@ export class ProductsListComponent implements OnInit {
           return currentProducts.filter((p) => p.uuid !== deletedUuid);
         });
       });
+  }
+
+  // ---- SORTING ---- //
+  readonly sortState = computed<ProductSortState>(() => {
+    const params = this.queryParams();
+    const isDescParam = params['descending'];
+    return {
+      column: (params['orderBy'] as ProductSortColumn) ?? 'Name',
+      direction: isDescParam === 'true' || isDescParam === false ? 'desc' : 'asc',
+    };
+  });
+
+  onSortChange(newSort: ProductSortState): void {
+    this.updateQueryParams({
+      orderBy: newSort.column,
+      descending: newSort.direction === 'desc',
+      pageNumber: 1,
+    });
   }
 }

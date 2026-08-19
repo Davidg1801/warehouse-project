@@ -1,8 +1,7 @@
-/* FILTERS CARD */
 .filters-card {
   background-color: var(--background-s-color);
   border: 1px solid var(--border-p-color);
-  border-radius: 1rem;
+  border-radius: var(--border-radius-l);
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
@@ -33,7 +32,7 @@
   height: 40px;
   background-color: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: 0.5rem;
+  border-radius: var(--border-radius-m);
   padding: 0 0.75rem;
   color: var(--input-text);
   font-size: 0.9rem;
@@ -52,23 +51,43 @@
   }
 }
 
-.input-icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.7rem;
+}
 
-  .input-icon {
-    position: absolute;
-    left: 10px;
-    width: 16px;
-    height: 16px;
-    stroke: var(--text-s-color);
-    fill: none;
-    stroke-width: 2;
+.form-control[type='date'] {
+  color: var(--text-s-color);
+
+  &::-webkit-datetime-edit,
+  &::-webkit-datetime-edit-fields-wrapper,
+  &::-webkit-datetime-edit-text,
+  &::-webkit-datetime-edit-month-field,
+  &::-webkit-datetime-edit-day-field,
+  &::-webkit-datetime-edit-year-field {
+    color: var(--text-s-color);
   }
 
-  .with-icon {
-    padding-left: 2.2rem;
-    width: 100%;
+  &::-webkit-calendar-picker-indicator {
+    cursor: pointer;
+    filter: invert(0.8);
+    transition: all 0.1s ease;
+
+    &:hover {
+      filter: invert(40%) sepia(90%) saturate(1500%) hue-rotate(200deg) brightness(100%);
+    }
+  }
+
+  &.has-value {
+    color: var(--text-p-color);
+
+    &::-webkit-datetime-edit,
+    &::-webkit-datetime-edit-fields-wrapper,
+    &::-webkit-datetime-edit-text,
+    &::-webkit-datetime-edit-month-field,
+    &::-webkit-datetime-edit-day-field,
+    &::-webkit-datetime-edit-year-field {
+      color: var(--text-p-color);
+    }
   }
 }
