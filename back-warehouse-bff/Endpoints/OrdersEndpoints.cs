@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using back_warehouse_bff.Contracts.Common;
 using back_warehouse_bff.Contracts.Requests;
 using back_warehouse_bff.Contracts.Responses;
@@ -12,8 +13,16 @@ public static class OrdersEndpoints
     {
         var group = app.MapGroup("/orders");
 
-        group.MapPost("/", async (OrderRequestDto request, IOrderService orderService) =>
+        group.MapPost("/", async (OrderRequestDto request, IOrderService orderService, ClaimsPrincipal user) =>
         {
+            var currentUserId = user.FindFirst("preferred_username")?.Value
+                             ?? user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var isAdmin = user.IsInRole("admin");
+            if (!isAdmin)
+            {
+                request.CustomerId = currentUserId ?? string.Empty;
+            }
+
             //Validation from Annotations
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(request);
@@ -38,25 +47,40 @@ public static class OrdersEndpoints
         .Produces<ApiResponse<OrderResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<OrderResponseDto>>(StatusCodes.Status400BadRequest);
 
-        group.MapGet("/{uuid:guid}", async (Guid uuid, IOrderService orderService) =>
+        group.MapGet("/{uuid:guid}", async (Guid uuid, IOrderService orderService, ClaimsPrincipal user) =>
         {
             var response = await orderService.GetOrderByIdAsync(uuid);
 
-            if (response.Success)
+            var currentUserId = user.FindFirst("preferred_username")?.Value;
+            var isAdmin = user.IsInRole("admin");
+
+            if (!response.Success || response.Data == null)
             {
-                return Results.Ok(response);
+                return Results.NotFound(response);
             }
 
-            return Results.NotFound(response);
+            if (!isAdmin && response.Data!.CustomerId != currentUserId)
+            {
+                return Results.Forbid();
+            }
+
+            return Results.Ok(response);
         })
         .RequireAuthorization()
         .Produces<ApiResponse<OrderResponseDto>>(StatusCodes.Status200OK)
         .Produces<ApiResponse<OrderResponseDto>>(StatusCodes.Status404NotFound);
 
-        group.MapGet("/", async ([AsParameters] OrderQueryDto query, IOrderService orderService) =>
+        group.MapGet("/", async ([AsParameters] OrderQueryDto query, IOrderService orderService, ClaimsPrincipal user) =>
         {
+            var currentUserId = user.FindFirst("preferred_username")?.Value;
+            var isAdmin = user.IsInRole("admin");
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(query);
+
+            if (!isAdmin)
+            {
+                query.CustomerId = currentUserId;
+            }
             bool isValid = Validator.TryValidateObject(query, validationContext, validationResults, validateAllProperties: true);
 
             if (!isValid)
