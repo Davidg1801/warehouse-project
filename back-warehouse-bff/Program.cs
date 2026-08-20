@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Authorization;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using StackExchange.Redis;
 using back_warehouse_bff.Services.Cache;
+using System.Text.Json;
+using System.Security.Claims;
 
 namespace back_warehouse_bff;
 
@@ -102,7 +104,28 @@ public class Program
                         context.Token = accessToken;
                     }
                     return Task.CompletedTask;
+                },
+                OnTokenValidated = context =>
+                {
+                    if (context.Principal?.Identity is ClaimsIdentity identity)
+                    {
+                        var resourceAccessClaim = identity.FindFirst("resource_access")?.Value;
+                        if (!string.IsNullOrWhiteSpace(resourceAccessClaim))
+                        {
+                            using var json = JsonDocument.Parse(resourceAccessClaim);
+                            if (json.RootElement.TryGetProperty("angular-frontend", out var clientElement) &&
+                                clientElement.TryGetProperty("roles", out var rolesElement))
+                            {
+                                foreach (var role in rolesElement.EnumerateArray())
+                                {
+                                    identity.AddClaim(new Claim(ClaimTypes.Role, role.GetString()!));
+                                }
+                            }
+                        }
+                    }
+                    return Task.CompletedTask;
                 }
+
             };
         });
         builder.Services.AddAuthorization();
