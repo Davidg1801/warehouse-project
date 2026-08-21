@@ -64,7 +64,7 @@ export class CreateProductComponent {
             'Product has been added successfully. Would you like to go back to the product list?',
           confirmLabel: 'Yes, go back',
           cancelLabel: 'No, stay here',
-          variant: 'primary',
+          variant: 'info',
         });
 
         if (confirmed) {
@@ -72,14 +72,15 @@ export class CreateProductComponent {
         }
       },
       error: async (err) => {
+        console.error('[PRODUCT CREATION FAILED] - details: ', err);
+
         this.isSaving.set(false);
-        console.log('Product has not been added: ' + err);
         await this.modalService.open({
           title: 'Failed!',
-          message: 'Product has not been added successfully. Please try it again. ',
+          message: 'Product has not been added successfully. Please try again. ',
           confirmLabel: 'Try again',
           cancelLabel: '',
-          variant: 'primary',
+          variant: 'danger',
         });
       },
     });
@@ -87,7 +88,7 @@ export class CreateProductComponent {
 
   onSubmit() {
     this.form.markAllAsTouched();
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isSaving() === true) {
       return;
     }
     const { name, categoryId, quantity, price } = this.form.getRawValue();

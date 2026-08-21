@@ -6,7 +6,7 @@
     </div>
 
     <div class="header-actions">
-      <a class="add-btn" [routerLink]="['/products/create']">✚ Add new product</a>
+      <a class="add-btn" [routerLink]="['/products/create']">✚ Add Product</a>
     </div>
   </header>
 
@@ -14,8 +14,8 @@
     <main class="products-content">
       <app-product-filters-component
         [categories]="categories()"
-        [currentFilters]="activeFilters()"
-        (filtersChanged)="onFiltersChanged($event)"
+        [initialFilters]="activeFilters()"
+        (filtersChange)="onFiltersChange($event)"
       />
 
       @if (isLoading()) {

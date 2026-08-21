@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, effect, inject, signal, Signal } from '@angular/core';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  signal,
+  Signal,
+} from '@angular/core';
+import { rxResource, takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { CategoriesService } from '@features/categories/services/categories.service';
@@ -29,6 +36,7 @@ interface EditProductForm {
 export class EditProductComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly productsService = inject(ProductsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly modalService = inject(ModalService);
@@ -68,23 +76,29 @@ export class EditProductComponent {
   });
 
   constructor() {
-    effect(() => {
-      const product = this.productResource.value();
-      if (product) {
-        this.editForm.patchValue(product);
-      }
-    });
+    toObservable(this.productResource.value)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((product) => {
+        this.editForm.patchValue({
+          name: product?.name,
+          categoryId: product?.categoryId,
+          quantity: product?.quantity,
+          price: product?.price,
+        });
+      });
   }
 
-  updateProduct(product: EditProductDto) {
+  updateProduct(product: EditProductDto): void {
+    this.isSaving.set(true);
     this.productsService.updateProduct(product).subscribe({
       next: async () => {
+        this.isSaving.set(false);
         const confirmed = await this.modalService.open({
           title: 'Success!',
           message: `Product ${product.name}  has been updated successfully. Would you like to go back to the product list?`,
           confirmLabel: 'Yes, go back',
           cancelLabel: 'No, stay here',
-          variant: 'primary',
+          variant: 'info',
         });
 
         if (confirmed) {
@@ -92,19 +106,21 @@ export class EditProductComponent {
         }
       },
       error: async (err) => {
-        console.error('Product update failed: ' + err);
+        console.error('[PRODUCT UPDATE FAILED] - details: ', err);
+
+        this.isSaving.set(false);
         await this.modalService.open({
           title: 'Failed!',
-          message: 'Product has not been updated successfully. Please try it again. ',
+          message: 'Product has not been updated successfully. Please try again. ',
           confirmLabel: 'Try again',
           cancelLabel: '',
-          variant: 'primary',
+          variant: 'danger',
         });
       },
     });
   }
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.editForm.invalid) {
       this.editForm.markAllAsTouched();
       return;
@@ -113,11 +129,16 @@ export class EditProductComponent {
     if (!currentUuid) return;
 
     const value = this.editForm.getRawValue();
+
+    if (value.categoryId === null || value.quantity === null || value.price === null) {
+      return;
+    }
+
     const product: EditProductDto = {
       name: value.name,
-      categoryId: value.categoryId!,
-      quantity: value.quantity!,
-      price: value.price!,
+      categoryId: value.categoryId,
+      quantity: value.quantity,
+      price: value.price,
       uuid: currentUuid,
     };
 

@@ -1,7 +1,7 @@
 <dialog #dialogElement (cancel)="close()">
   <div
     class="modal-container"
-    [class]="'modal-' + (modalService.config().variant || 'primary')"
+    [class]="'modal-' + (modalService.config().variant || 'info')"
     data-testid="modal-container"
   >
     <div class="modal-header">

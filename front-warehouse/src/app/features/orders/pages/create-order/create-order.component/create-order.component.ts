@@ -1,11 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, Router } from '@angular/router';
-import Keycloak from 'keycloak-js';
+import { RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 import { OrdersService } from '@features/orders/services/orders.service';
 import { OrderCartStore } from '@features/orders/stores/order-cart.store';
 import { CreateOrderDto } from '@features/orders/dtos/create-order.dto';
+import { AuthService } from '@core/auth/auth.service';
+import { ModalService } from '@shared/services/modal.service';
 
 @Component({
   selector: 'app-create-order.component',
@@ -17,15 +19,16 @@ import { CreateOrderDto } from '@features/orders/dtos/create-order.dto';
   styleUrl: './create-order.component.scss',
 })
 export class CreateOrderComponent {
-  private readonly router = inject(Router);
-  private readonly keycloak = inject(Keycloak);
+  private readonly location = inject(Location);
+  private readonly modalService = inject(ModalService);
+  private readonly authService = inject(AuthService);
   private readonly ordersService = inject(OrdersService);
 
   protected readonly store = inject(OrderCartStore);
 
-  readonly userEmail = signal<string>(this.keycloak.tokenParsed?.['email'] ?? '');
-  readonly userName = signal<string>(this.keycloak.tokenParsed?.['name'] ?? '');
-  readonly userLogin = signal<string>(this.keycloak.tokenParsed?.['preferred_username'] ?? '');
+  readonly username = this.authService.username;
+  readonly name = this.authService.name;
+  readonly email = this.authService.email;
 
   submitOrder(): void {
     const items = this.store.cartItems();
@@ -33,22 +36,43 @@ export class CreateOrderComponent {
 
     this.store.isSubmitting.set(true);
 
-    const dto: CreateOrderDto = {
-      customerId: this.userLogin(),
+    const newOrder: CreateOrderDto = {
+      customerId: this.username(),
       items: items.map((item) => ({
         productId: item.product.uuid,
         quantity: item.quantityToOrder,
       })),
     };
 
-    this.ordersService.addOrder(dto).subscribe({
-      next: () => {
+    this.ordersService.addOrder(newOrder).subscribe({
+      next: async () => {
         this.store.isSubmitting.set(false);
         this.store.clearCart();
+
+        const confirmed = await this.modalService.open({
+          title: 'Success!',
+          message:
+            'Order has been created successfully. Would you like to go back to the order list?',
+          confirmLabel: 'Yes, go back',
+          cancelLabel: 'No, stay here',
+          variant: 'info',
+        });
+
+        if (confirmed) {
+          this.location.back();
+        }
       },
-      error: (err) => {
-        console.error('Failed to submit order: ', err);
+      error: async (err) => {
+        console.error('[ORDER CREATION FAILED] - details: ', err);
+
         this.store.isSubmitting.set(false);
+        await this.modalService.open({
+          title: 'Failed!',
+          message: 'Order has not been created successfully. Please try again. ' + err,
+          confirmLabel: 'Try again',
+          cancelLabel: '',
+          variant: 'danger',
+        });
       },
     });
   }

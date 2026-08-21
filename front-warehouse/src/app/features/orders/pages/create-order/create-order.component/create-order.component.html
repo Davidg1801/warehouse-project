@@ -1,5 +1,5 @@
 <div class="create-order-page">
-  <!-- BREADCRUMB & HEADER -->
+  <!-- HEADER -->
   <header class="page-header">
     <div class="header-info">
       <h1 class="page-title">Create Order</h1>
@@ -13,11 +13,9 @@
     </div>
   </header>
 
-  <!-- FORM BODY (SPLIT-SCREEN) -->
+  <!-- FORM BODY -->
   <div class="form-body">
-    <!-- LEFT MAIN COLUMN -->
     <main class="form-main-content">
-      <!-- STEP 1: CUSTOMER SELECTION -->
       <section class="form-card">
         <div class="card-header">
           <h2>Customer Details</h2>
@@ -25,15 +23,15 @@
         <div class="card-body">
           <div class="info-cell">
             <span class="label">User / Customer ID</span>
-            <span class="val">{{ userLogin() }}</span>
+            <span class="val">{{ username() }}</span>
           </div>
           <div class="info-cell">
             <span class="label">Name</span>
-            <span class="val">{{ userName() }}</span>
+            <span class="val">{{ name() }}</span>
           </div>
           <div class="info-cell">
             <span class="label">Email</span>
-            <span class="val">{{ userEmail() }}</span>
+            <span class="val">{{ email() }}</span>
           </div>
         </div>
       </section>
@@ -93,7 +91,6 @@
             </div>
           }
 
-          <!-- SELECTED ITEMS TABLE -->
           <div class="order-items-table">
             <h3>Selected products ({{ store.totalItemsCount() }})</h3>
 
@@ -173,7 +170,6 @@
       </section>
     </main>
 
-    <!-- RIGHT STICKY COLUMN -->
     <aside class="summary-sidebar">
       <div class="summary-card">
         <div class="summary-header">
@@ -184,11 +180,11 @@
           <div class="calc-lines">
             <div class="calc-line">
               <span>Name</span>
-              <span>{{ userName() }}</span>
+              <span>{{ name() }}</span>
             </div>
             <div class="calc-line">
               <span>Email</span>
-              <span>{{ userEmail() }}</span>
+              <span>{{ email() }}</span>
             </div>
             <div class="calc-line total-line">
               <span>Total Products</span>

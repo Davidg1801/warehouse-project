@@ -1,11 +1,19 @@
-import { Component, effect, inject, input, OnInit, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Category } from '@features/categories/models/category.model';
+import { Component, computed, DestroyRef, inject, input, signal } from '@angular/core';
 import {
-  PRODUCT_SORT_OPTIONS,
-  ProductFilters,
-  ProductSort,
-} from '@features/products/models/product-filters.model';
+  outputFromObservable,
+  takeUntilDestroyed,
+  toObservable,
+  toSignal,
+} from '@angular/core/rxjs-interop';
+import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Category } from '@features/categories/models/category.model';
+import { ProductFilters } from '@features/products/models/product-filters.model';
+import { debounceTime, map } from 'rxjs';
+
+export interface ProductFiltersForm {
+  name: FormControl<string | null>;
+  categoryIds: FormControl<number[] | null>;
+}
 
 @Component({
   selector: 'app-product-filters-component',
@@ -14,75 +22,66 @@ import {
   templateUrl: './product-filters-component.html',
   styleUrl: './product-filters-component.scss',
 })
-export class ProductFiltersComponent implements OnInit {
-  readonly sortOptions = PRODUCT_SORT_OPTIONS;
-  currentFilters = input<ProductFilters>();
-  categories = input.required<Category[]>();
-  private fb = inject(FormBuilder);
-  filtersChanged = output<ProductFilters>();
-  isDropdownOpen = signal(false);
+export class ProductFiltersComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
-  filterForm = this.fb.group({
+  readonly initialFilters = input<ProductFilters>();
+  readonly categories = input.required<Category[]>();
+
+  readonly isDropdownOpen = signal(false);
+
+  readonly filterForm = this.fb.group<ProductFiltersForm>({
     name: this.fb.control(''),
-    sort: this.fb.control<ProductSort>(''),
     categoryIds: this.fb.control<number[]>([]),
   });
 
+  readonly filtersChange = outputFromObservable<ProductFilters>(
+    this.filterForm.valueChanges.pipe(
+      debounceTime(300),
+      map(() => {
+        const rawValues = this.filterForm.getRawValue();
+
+        return {
+          name: rawValues.name ?? '',
+          categoryIds: rawValues.categoryIds ?? [],
+        };
+      }),
+    ),
+  );
+
+  private readonly formValue = toSignal(this.filterForm.valueChanges, {
+    initialValue: this.filterForm.value,
+  });
+
+  readonly selectedCategoryIdsSet = computed(() => new Set(this.formValue().categoryIds ?? []));
+  readonly selectedCategories = computed(() => {
+    const selectedCat = this.selectedCategoryIdsSet();
+    return this.categories().filter((c) => selectedCat.has(c.id));
+  });
+
   constructor() {
-    effect(() => {
-      const filters = this.currentFilters();
-      if (filters) {
-        this.filterForm.patchValue(
-          {
-            name: filters.name ?? '',
-            sort: filters.sort ?? '',
-            categoryIds: filters.categoryIds ?? [],
-          },
-          { emitEvent: false },
-        );
-      }
-    });
-  }
-
-  ngOnInit(): void {
-    this.emit();
-  }
-
-  private emit() {
-    this.filterForm.valueChanges.subscribe((value) => {
-      this.filtersChanged.emit({
-        name: value.name ?? undefined,
-        sort: value.sort ?? undefined,
-        categoryIds: value.categoryIds ?? [],
+    toObservable(this.initialFilters)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((filters) => {
+        if (filters) {
+          this.filterForm.patchValue(filters, { emitEvent: false });
+        }
       });
-    });
   }
 
-  toggleDropdown() {
-    this.isDropdownOpen.update((value) => !value);
+  toggleDropdown(): void {
+    this.isDropdownOpen.update((v) => !v);
   }
 
-  isSelected(id: number): boolean {
-    return (this.filterForm.value.categoryIds ?? []).includes(id);
-  }
-
-  toggleCategory(id: number) {
-    const current = this.filterForm.value.categoryIds ?? [];
+  toggleCategory(id: number): void {
+    const current = this.filterForm.controls.categoryIds.value ?? [];
     const updated = current.includes(id) ? current.filter((x) => x !== id) : [...current, id];
-    this.filterForm.patchValue({
-      categoryIds: updated,
-    });
+    this.filterForm.controls.categoryIds.setValue(updated);
   }
 
-  removeCategory(id: number) {
-    const current = this.filterForm.value.categoryIds ?? [];
-
-    this.filterForm.patchValue({
-      categoryIds: current.filter((x) => x !== id),
-    });
-  }
-
-  getCategoryName(id: number) {
-    return this.categories().find((c) => c.id === id)?.name;
+  removeCategory(id: number): void {
+    const current = this.filterForm.controls.categoryIds.value ?? [];
+    this.filterForm.controls.categoryIds.setValue(current.filter((x) => x !== id));
   }
 }

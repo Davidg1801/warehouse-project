@@ -1,7 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
+import { AuthService } from '@core/auth/auth.service';
 import { ModalComponent } from '@shared/components/modal/modal-component';
-import Keycloak from 'keycloak-js';
 
 @Component({
   selector: 'app-page-component',
@@ -12,11 +12,13 @@ import Keycloak from 'keycloak-js';
   styleUrl: './page-component.scss',
 })
 export class PageComponent {
-  private readonly keycloak = inject(Keycloak);
-  username = signal<string>(this.keycloak.tokenParsed?.['preferred_username'] ?? '');
+  private readonly authService = inject(AuthService);
+
+  username = this.authService.username;
+  isAdmin = this.authService.isAdmin;
 
   logout(): void {
-    this.keycloak.logout({
+    this.authService.logoutUser({
       redirectUri: window.location.origin,
     });
   }

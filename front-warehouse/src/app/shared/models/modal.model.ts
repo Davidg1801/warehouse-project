@@ -3,5 +3,5 @@ export interface ModalConfig {
   message: string;
   confirmLabel?: string;
   cancelLabel?: string;
-  variant?: 'primary' | 'danger';
+  variant?: 'info' | 'danger';
 }
