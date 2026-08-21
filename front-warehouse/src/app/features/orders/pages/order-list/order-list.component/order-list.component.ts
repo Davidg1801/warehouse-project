@@ -95,7 +95,7 @@ export class OrderListComponent {
   }
 
   // ---- FILTERS ---- //
-  readonly currentFilters = toSignal<OrderFilters>(
+  readonly activeFilters = toSignal<OrderFilters>(
     this.route.queryParams.pipe(
       map((params) => ({
         dateFrom: params['dateFrom'] ?? null,

@@ -19,10 +19,6 @@ import { ProductFilters } from '@features/products/models/product-filters.model'
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ModalService } from '@shared/services/modal.service';
 import { mapRouteToProductQueryParams } from '@features/products/mappers/product-query-params.mapper';
-import {
-  mapQueryParamsToSort,
-  mapSortToQueryParams,
-} from '@features/products/mappers/product-sort.mapper';
 import { ProductRankingComponent } from '@features/products/components/product-ranking/product-ranking-component/product-ranking-component';
 import { mapProductsWithCategoryNames } from '@features/products/mappers/product-category.mapper';
 import { ProductNotificationService } from '@features/products/services/product-notification.service';
@@ -78,7 +74,6 @@ export class ProductsListComponent implements OnInit {
 
   readonly activeFilters = computed<ProductFilters>(() => ({
     name: this.productQuery().name ?? '',
-    sort: mapQueryParamsToSort(this.productQuery()),
     categoryIds: this.productQuery().categoryIds ?? [],
   }));
 
@@ -123,14 +118,10 @@ export class ProductsListComponent implements OnInit {
     });
   }
 
-  onFiltersChanged(filters: ProductFilters) {
-    const sort = mapSortToQueryParams(filters.sort);
-
+  onFiltersChange(filters: ProductFilters) {
     this.updateQueryParams({
       name: filters.name || null,
       categoryIds: filters.categoryIds.length > 0 ? filters.categoryIds : null,
-      orderBy: sort?.orderBy || null,
-      descending: sort?.descending ?? null,
       pageNumber: 1,
     });
   }

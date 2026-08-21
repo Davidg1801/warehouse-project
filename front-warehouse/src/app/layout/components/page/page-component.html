@@ -4,9 +4,14 @@
 
     <div class="app-user">
       @if (username()) {
-        <span class="username" data-testid="username-field">
-          Logged in: <strong>{{ username() }}</strong>
-        </span>
+        <div class="user-info">
+          <div class="username" data-testid="username-field">
+            Logged in: <strong>{{ username() }}</strong>
+          </div>
+          @if (isAdmin()) {
+            <div class="user-role">Admin</div>
+          }
+        </div>
       }
 
       <button class="logout-btn" data-testid="logout-btn" (click)="logout()">Logout</button>

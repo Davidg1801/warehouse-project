@@ -1,53 +1,61 @@
-<div class="filters">
-  <form [formGroup]="filterForm">
-    <!-- SEARCH -->
-    <div class="search-field">
-      <input type="text" formControlName="name" placeholder="Search product by name" />
+<section class="filters-card">
+  <form [formGroup]="filterForm" class="filters-form">
+    <!-- Name -->
+    <div class="filter-group filter-search">
+      <label for="productName">Product Name</label>
+      <input
+        id="productName"
+        type="text"
+        placeholder="Search by name..."
+        class="form-control"
+        formControlName="name"
+      />
     </div>
 
-    <div class="filters-row">
-      <!-- CATEGORY DROPDOWN -->
-      <div class="category-dropdown">
-        <button type="button" class="dropdown-button" (click)="toggleDropdown()">Categories</button>
+    <!-- Category -->
+    <div class="categories-row">
+      <div class="filter-group category-dropdown-group">
+        <label for="categories">Categories</label>
+        <div id="categories" class="category-dropdown">
+          <button type="button" class="form-control dropdown-button" (click)="toggleDropdown()">
+            <span>Select categories</span>
+            <span class="arrow" [class.open]="isDropdownOpen()">⌄</span>
+          </button>
 
-        @if (isDropdownOpen()) {
-          <div class="dropdown-menu">
-            @for (category of categories(); track category.id) {
-              <label class="dropdown-option">
-                <input
-                  type="checkbox"
-                  [checked]="isSelected(category.id)"
-                  (change)="toggleCategory(category.id)"
-                />
-                {{ category.name }}
-              </label>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- SELECTED CATEGORIES -->
-      <div class="selected-categories">
-        @for (id of filterForm.value.categoryIds ?? []; track id) {
-          <div class="category-chip">
-            <span>{{ getCategoryName(id) }}</span>
-
-            <button type="button" class="remove-category-btn" (click)="removeCategory(id)">
-              ✕
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- SORT -->
-      <div class="sort-field">
-        <select formControlName="sort">
-          <option value="">Default</option>
-          @for (option of sortOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
+          @if (isDropdownOpen()) {
+            <div class="dropdown-menu">
+              @for (category of categories(); track category.id) {
+                <label class="dropdown-option">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedCategoryIdsSet().has(category.id)"
+                    (change)="toggleCategory(category.id)"
+                  />
+                  <span>{{ category.name }}</span>
+                </label>
+              }
+            </div>
           }
-        </select>
+        </div>
       </div>
+
+      <!-- Selected categories -->
+      @if (selectedCategories().length > 0) {
+        <div class="selected-categories">
+          @for (category of selectedCategories(); track category.id) {
+            <div class="category-chip">
+              <span>{{ category.name }}</span>
+              <button
+                type="button"
+                class="remove-category-btn"
+                (click)="removeCategory(category.id)"
+              >
+                ✕
+              </button>
+            </div>
+          }
+        </div>
+      }
     </div>
   </form>
-</div>
+</section>

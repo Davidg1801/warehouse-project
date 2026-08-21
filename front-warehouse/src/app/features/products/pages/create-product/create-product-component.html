@@ -1,95 +1,139 @@
-<div class="page">
-  <div class="form-card">
-    <div class="form-header">
-      <h1 class="form-title">Create Product</h1>
-      <p class="form-subtitle">Fill out the form and add the product to the inventory.</p>
+<div class="create-order-page">
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="header-info">
+      <h1 class="page-title">Create Product</h1>
+      <p class="page-subtitle">Fill out the form and add the product to the inventory</p>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()">
-      <div class="form-grid">
-        <div class="form-field">
-          <label for="name">Name</label>
-          <input id="name" type="text" formControlName="name" placeholder="Product name" />
-          @if (form.get('name')?.invalid && form.get('name')?.touched) {
-            <div class="error-message">
-              @if (form.get('name')?.hasError('required')) {
-                <span>Field is required</span>
-              }
-              @if (form.get('name')?.hasError('maxlength')) {
-                <span>Maximum length is 50 characters</span>
-              }
-            </div>
-          }
-        </div>
+    <div class="header-actions">
+      <button class="back-btn" (click)="onCancel()" type="button">Back to products</button>
+    </div>
+  </header>
 
-        <div class="form-field">
-          <label for="category">Category</label>
-
-          <select id="category" formControlName="categoryId">
-            <option [ngValue]="null" disabled selected hidden>-- Select category --</option>
-
-            @for (category of categories(); track category.id) {
-              <option [ngValue]="category.id">
-                {{ category.name }}
-              </option>
-            }
-          </select>
-          @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
-            <div class="error-message">
-              @if (form.get('categoryId')?.hasError('required')) {
-                <span>Field is required</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-field">
-          <label for="quantity">Quantity</label>
-          <input id="quantity" type="number" formControlName="quantity" placeholder="0" />
-          @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
-            <div class="error-message">
-              @if (form.get('quantity')?.hasError('required')) {
-                <span>Field is required</span>
-              }
-              @if (form.get('quantity')?.hasError('min')) {
-                <span>Quantity cannot be less than 0</span>
-              }
-              @if (form.get('quantity')?.hasError('max')) {
-                <span>Quantity cannot exceed 9999</span>
-              }
-              @if (form.get('quantity')?.hasError('integer')) {
-                <span>Quantity value should be integer</span>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="form-field">
-          <label for="price">Price</label>
-          <input id="price" type="number" formControlName="price" placeholder="0.00" />
-          @if (form.get('price')?.invalid && form.get('price')?.touched) {
-            <div class="error-message">
-              @if (form.get('price')?.hasError('required')) {
-                <span>Price is required</span>
-              }
-              @if (form.get('price')?.hasError('min')) {
-                <span>Price must be at least 0.01</span>
-              }
-              @if (form.get('price')?.hasError('max')) {
-                <span>Price cannot exceed 9,999,999</span>
-              }
-            </div>
-          }
-        </div>
+  <!-- FORM CARD -->
+  <main class="form-main-content">
+    <section class="form-card">
+      <div class="card-header">
+        <h2>Product Details</h2>
       </div>
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-cancel" [disabled]="isSaving()" (click)="onCancel()">
-          Cancel
-        </button>
+      <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <!-- NAME -->
+            <div class="form-group full-width">
+              <label for="name">Name</label>
+              <input
+                id="name"
+                type="text"
+                class="form-control"
+                formControlName="name"
+                placeholder="Product name"
+              />
+              @if (form.get('name')?.invalid && form.get('name')?.touched) {
+                <div class="error-message">
+                  @if (form.get('name')?.hasError('required')) {
+                    <span>Field is required</span>
+                  }
+                  @if (form.get('name')?.hasError('maxlength')) {
+                    <span>Maximum length is 50 characters</span>
+                  }
+                </div>
+              }
+            </div>
 
-        <button type="submit" class="btn btn-add">Save Product</button>
+            <!-- CATEGORY -->
+            <div class="form-group">
+              <label for="category">Category</label>
+              <select id="category" class="form-control" formControlName="categoryId">
+                <option [ngValue]="null" disabled selected hidden>-- Select category --</option>
+                @for (category of categories(); track category.id) {
+                  <option [ngValue]="category.id">
+                    {{ category.name }}
+                  </option>
+                }
+              </select>
+              @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+                <div class="error-message">
+                  @if (form.get('categoryId')?.hasError('required')) {
+                    <span>Field is required</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- QUANTITY -->
+            <div class="form-group">
+              <label for="quantity">Quantity</label>
+              <input
+                id="quantity"
+                type="number"
+                class="form-control"
+                formControlName="quantity"
+                placeholder="0"
+              />
+              @if (form.get('quantity')?.invalid && form.get('quantity')?.touched) {
+                <div class="error-message">
+                  @if (form.get('quantity')?.hasError('required')) {
+                    <span>Field is required</span>
+                  }
+                  @if (form.get('quantity')?.hasError('min')) {
+                    <span>Quantity cannot be less than 0</span>
+                  }
+                  @if (form.get('quantity')?.hasError('max')) {
+                    <span>Quantity cannot exceed 9999</span>
+                  }
+                  @if (form.get('quantity')?.hasError('integer')) {
+                    <span>Quantity value should be integer</span>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- PRICE -->
+            <div class="form-group">
+              <label for="price">Price</label>
+              <input
+                id="price"
+                type="number"
+                step="0.01"
+                class="form-control"
+                formControlName="price"
+                placeholder="0.00"
+              />
+              @if (form.get('price')?.invalid && form.get('price')?.touched) {
+                <div class="error-message">
+                  @if (form.get('price')?.hasError('required')) {
+                    <span>Price is required</span>
+                  }
+                  @if (form.get('price')?.hasError('min')) {
+                    <span>Price must be at least 0.01</span>
+                  }
+                  @if (form.get('price')?.hasError('max')) {
+                    <span>Price cannot exceed 9,999,999</span>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" [disabled]="isSaving()" (click)="onCancel()">
+              Cancel
+            </button>
+
+            <button type="submit" class="submit-order-btn" [disabled]="isSaving() || form.invalid">
+              @if (isSaving()) {
+                Processing...
+              } @else {
+                Save Product
+              }
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
-  </div>
+    </section>
+  </main>
 </div>

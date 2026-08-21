@@ -13,7 +13,7 @@ describe('ModalComponent', () => {
     config: signal({
       title: 'Test Title',
       message: 'Test Message',
-      variant: 'primary',
+      variant: 'info',
       cancelLabel: 'Cancel',
       confirmLabel: 'Confirm',
     }),
@@ -25,7 +25,7 @@ describe('ModalComponent', () => {
     modalServiceMock.config.set({
       title: 'Test Title',
       message: 'Test Message',
-      variant: 'primary',
+      variant: 'info',
       cancelLabel: 'Cancel',
       confirmLabel: 'Confirm',
     });

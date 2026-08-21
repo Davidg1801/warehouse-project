@@ -16,7 +16,7 @@
     <main class="orders-content">
       <!-- FILTERS -->
       <app-order-filters
-        [initialFilters]="currentFilters()"
+        [initialFilters]="activeFilters()"
         (filtersChange)="onFiltersChange($event)"
       />
 
