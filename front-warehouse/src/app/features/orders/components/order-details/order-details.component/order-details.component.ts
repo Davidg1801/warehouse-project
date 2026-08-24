@@ -12,5 +12,5 @@ import { Order } from '@features/orders/models/order.model';
 })
 export class OrderDetailsComponent {
   selectedOrder = input.required<Order | null>();
-  readonly closeOrderDetails = output<Order | null>();
+  readonly closeOrderDetails = output<void>();
 }

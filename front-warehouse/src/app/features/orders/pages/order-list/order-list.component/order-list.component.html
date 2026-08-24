@@ -44,7 +44,7 @@
     <!-- ORDER DETAILS -->
     @if (selectedOrder(); as activeOrder) {
       <aside class="order-details-sidebar">
-        <app-order-details [selectedOrder]="activeOrder" (closeOrderDetails)="selectOrder(null)" />
+        <app-order-details [selectedOrder]="activeOrder" (closeOrderDetails)="closeDetails()" />
       </aside>
     }
   </div>

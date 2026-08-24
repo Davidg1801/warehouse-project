@@ -128,4 +128,8 @@ export class OrderListComponent {
       }
     }
   }
+
+  closeDetails(): void {
+    this.selectedOrder.set(null);
+  }
 }
