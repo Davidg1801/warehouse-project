@@ -1,13 +1,5 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Product } from '@features/products/models/product.model';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductNotificationService } from '@features/products/services/product-notification.service';
 import { ProductsService } from '@features/products/services/products.service';
 
@@ -21,51 +13,32 @@ import { ProductsService } from '@features/products/services/products.service';
 })
 export class ProductRankingComponent implements OnInit {
   private readonly productService = inject(ProductsService);
-  private readonly destroyRef = inject(DestroyRef);
   private readonly productNotificationService = inject(ProductNotificationService);
-  private readonly rankingLimit = 5;
-  readonly isLoading = signal(true);
-  readonly topProducts = signal<Product[]>([]);
+  private readonly rankingLimit = signal(5);
+
+  readonly topProductsResource = rxResource({
+    params: () => ({ limit: this.rankingLimit() }),
+    stream: ({ params }) => this.productService.getTopProducts(params.limit),
+  });
+
+  readonly topProducts = this.topProductsResource.value;
+  readonly isLoading = this.topProductsResource.isLoading;
+
+  readonly topProductsUpdated = this.productNotificationService.topProductsUpdated$
+    .pipe(takeUntilDestroyed())
+    .subscribe(() => {
+      this.topProductsResource.reload();
+    });
+
+  readonly productDeleted = this.productNotificationService.productDeleted$
+    .pipe(takeUntilDestroyed())
+    .subscribe((deletedUuid: string) => {
+      this.topProductsResource.update((products) =>
+        products ? products.filter((p) => p.uuid !== deletedUuid) : [],
+      );
+    });
 
   ngOnInit() {
     this.productNotificationService.startConnection();
-    this.getTopProducts();
-    this.listenTopProductsUpdated();
-    this.listenProductDeleted();
-  }
-
-  private getTopProducts(): void {
-    this.isLoading.set(true);
-    this.productService
-      .getTopProducts(this.rankingLimit)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response) => {
-          this.topProducts.set(response);
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          console.error('Error while retrieving the top product list: ', err);
-          this.isLoading.set(false);
-        },
-      });
-  }
-
-  private listenTopProductsUpdated(): void {
-    this.productNotificationService.topProductsUpdated$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        this.getTopProducts();
-      });
-  }
-
-  private listenProductDeleted(): void {
-    this.productNotificationService.productDeleted$
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((deletedUuid: string) => {
-        this.topProducts.update((products) =>
-          products.filter((product) => product.uuid !== deletedUuid),
-        );
-      });
   }
 }

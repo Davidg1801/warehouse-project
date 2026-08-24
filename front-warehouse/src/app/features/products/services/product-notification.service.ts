@@ -18,7 +18,7 @@ export const SIGNALR_BUILDER = new InjectionToken<typeof signalR.HubConnectionBu
 })
 export class ProductNotificationService {
   private readonly keycloak = inject(Keycloak);
-  private hubConnection!: signalR.HubConnection;
+  private hubConnection?: signalR.HubConnection;
   private readonly hubBuilder = inject(SIGNALR_BUILDER);
 
   // Seperate stream for each event from backend
@@ -63,17 +63,6 @@ export class ProductNotificationService {
       .configureLogging(signalR.LogLevel.Error)
       .build();
 
-    // Create connection
-    // this.hubConnection = new signalR.HubConnectionBuilder()
-    //   .withUrl(url, {
-    //     accessTokenFactory: () => this.getAccessToken(),
-    //     skipNegotiation: true,
-    //     transport: signalR.HttpTransportType.WebSockets,
-    //   })
-    //   .withAutomaticReconnect()
-    //   .configureLogging(signalR.LogLevel.Error)
-    //   .build();
-
     this.registerEventHandlers();
 
     // Start connection
@@ -87,6 +76,10 @@ export class ProductNotificationService {
 
   private registerEventHandlers(): void {
     if (!this.hubConnection) return;
+
+    this.hubConnection.off('TopProductsUpdated');
+    this.hubConnection.off('ProductUpdated');
+    this.hubConnection.off('ProductDeleted');
 
     // Event: Top Products Updated
     this.hubConnection.on('TopProductsUpdated', () => {
@@ -110,6 +103,7 @@ export class ProductNotificationService {
   public stopConnection(): void {
     if (this.hubConnection) {
       this.hubConnection.stop();
+      this.hubConnection = undefined;
     }
   }
 }
